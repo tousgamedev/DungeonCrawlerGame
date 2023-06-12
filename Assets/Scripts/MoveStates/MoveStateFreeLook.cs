@@ -16,20 +16,35 @@ public class MoveStateFreeLook : MoveStateBase
 
     public override void OnStateTick(float deltaTime)
     {
-        FreeLook(deltaTime);
+        ProcessFreeLookInput();
+        PerformFreeLook(deltaTime);
     }
-    
-    private void FreeLook(float deltaTime)
+
+    private void ProcessFreeLookInput()
     {
+        // TODO: Make input agnostic
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
-        xAngle = Mathf.Clamp(xAngle + mouseX * crawlerController.XSpeed, crawlerController.XMinLimit, crawlerController.XMaxLimit);
-        yAngle = Mathf.Clamp(yAngle - mouseY * crawlerController.YSpeed, crawlerController.YMinLimit, crawlerController.YMaxLimit);
+        Vector2 freeLookSpeed = crawlerController.FreeLookSpeed;
+        float ySpeed = InputManager.InvertYAxis ? -freeLookSpeed.y : freeLookSpeed.y;
 
-        desiredRotation = Quaternion.Euler(yAngle, xAngle, 0);
+        xAngle = GetClampedAngle(xAngle, mouseX, freeLookSpeed.x, crawlerController.FreeLookHorizontalRange);
+        yAngle = GetClampedAngle(yAngle, -mouseY, ySpeed, crawlerController.FreeLookVerticalRange);
+    }
+    
+    private void PerformFreeLook(float deltaTime)
+    {
+        desiredRotation = Quaternion.Euler(yAngle, xAngle, 0f);
         currentRotation = crawlerController.CurrentLookRotation;
 
         crawlerController.FreeLook(currentRotation, desiredRotation, deltaTime);
+    }
+
+    private float GetClampedAngle(float currentAngle, float mouseInput, float freeLookSpeed, Vector2 range)
+    {
+        float angleDelta = mouseInput * freeLookSpeed;
+        float newAngle = currentAngle + angleDelta;
+        return Mathf.Clamp(newAngle, range.x, range.y);
     }
 }

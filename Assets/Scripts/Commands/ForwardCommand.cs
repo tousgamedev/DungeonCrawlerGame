@@ -11,7 +11,7 @@ public class ForwardCommand : ICommand
     {
         if (crawlerController != null && crawlerController.IsInIdleState)
         {
-            crawlerController.SwitchState(crawlerController.StateForward);
+            crawlerController.SwitchToStateForward();
         }
     }
 }

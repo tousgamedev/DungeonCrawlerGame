@@ -11,7 +11,7 @@ public class BackwardCommand : ICommand
     {
         if (crawlerController != null && crawlerController.IsInIdleState)
         {
-            crawlerController.SwitchState(crawlerController.StateBackward);
+            crawlerController.SwitchToStateBackward();
         }
     }
 }

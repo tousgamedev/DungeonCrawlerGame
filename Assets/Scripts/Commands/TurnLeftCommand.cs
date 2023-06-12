@@ -11,7 +11,7 @@ public class TurnLeftCommand : ICommand
     {
         if (crawlerController != null && crawlerController.IsInIdleState)
         {
-            crawlerController.SwitchState(crawlerController.StateTurnLeft);
+            crawlerController.SwitchToStateTurnLeft();
         }
     }
 }

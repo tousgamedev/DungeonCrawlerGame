@@ -1,15 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PushButton : MonoBehaviour, IInteractable
+public class PushButton : MonoBehaviour, IInteractable, ISubject
 {
     public HashSet<IObserver> Observers { get; set; } = new();
 
     private void Awake()
     {
-        gameObject.layer = Layers.InteractableLayer;
+        SetInteractionLayer();
     }
-
+    
+    public void SetInteractionLayer()
+    {
+        gameObject.layer = Layers.Interactable;
+    }
+    
     public void OnInteract()
     {
         AlertObservers();

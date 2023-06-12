@@ -2,16 +2,15 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Image))]
-public class CarryObjectImage : MonoBehaviour
+public class CarryObjectImage : MonoBehaviour, IObserver
 {
     [SerializeField] private Image image;
     [SerializeField] private Canvas canvas;
     [SerializeField] private Vector2 offset;
 
-
     private RectTransform canvasRectTransform;
 
-    private void Start()
+    private void Awake()
     {
         if (image == null && !TryGetComponent(out image))
         {
@@ -29,6 +28,11 @@ public class CarryObjectImage : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        RegisterObserver();
+    }
+
     private void Update()
     {
         MoveImageToCursor();
@@ -39,6 +43,7 @@ public class CarryObjectImage : MonoBehaviour
         if (image.sprite == null)
             return;
         
+        // TODO: Change this to be input agnostic
         Vector2 cursorPosition = Input.mousePosition;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, cursorPosition, null,
             out Vector2 localCursorPos);
@@ -47,16 +52,45 @@ public class CarryObjectImage : MonoBehaviour
         image.rectTransform.localPosition = finalPosition;
     }
 
-    public void SetImageSprite(Sprite sprite)
+    private void SetImageSprite()
     {
-        image.sprite = sprite;
+        image.sprite = CarryObjectData.Instance.CarriedObject.CarrySprite;
         MoveImageToCursor();
         image.enabled = true;
     }
 
-    public void ClearImageSprite()
+    private void ClearImageSprite()
     {
         image.enabled = false;
         image.sprite = null;
     }
+
+    public void Alert()
+    {
+        if (CarryObjectData.Instance.CarriedObject != null)
+        {
+            SetImageSprite();
+        }
+        else
+        {
+            ClearImageSprite();
+        }
+    }
+
+    public void RegisterObserver()
+    {
+        CarryObjectData.Instance.RegisterObserver(this);
+    }
+
+    public void DeregisterObserver()
+    {
+        CarryObjectData.Instance.DeregisterObserver(this);
+    }
+
+    private void OnDisable()
+    {
+        DeregisterObserver();
+    }
+
+    public string GetName() => gameObject.name;
 }

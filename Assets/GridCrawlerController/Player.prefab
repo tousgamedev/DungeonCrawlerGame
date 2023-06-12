@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 54327464185977302}
   - component: {fileID: 136523283095101222}
   - component: {fileID: 114159190867033202}
-  m_Layer: 0
+  - component: {fileID: 1937500338}
+  m_Layer: 7
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -77,9 +78,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9879351185157f241984d89afe1c126a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  headHeight: 2
   walkDistance: 4
   walkDuration: 0.4
   rotateDuration: 0.25
+  maxInclineAngle: 180
   footStep: 1
   footStepVolume: 0.6
   bobEnabled: 1
@@ -108,6 +111,20 @@ MonoBehaviour:
   xSpeed: 5
   ySpeed: 5
   zoomDampening: 12
+--- !u!114 &1937500338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141082644097862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 056027cce8a59da48ac3fff7fba9ca49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxPlacementAngle: 5
+  objectDropOffset: 1.25
 --- !u!1 &1592305273859130
 GameObject:
   m_ObjectHideFlags: 0
@@ -119,7 +136,7 @@ GameObject:
   - component: {fileID: 4146375236435846}
   - component: {fileID: 20291751411350586}
   - component: {fileID: 81176914553889940}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -201,7 +218,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4573387232209618}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: FreeLook
   m_TagString: Untagged
   m_Icon: {fileID: 0}

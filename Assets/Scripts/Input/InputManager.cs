@@ -5,10 +5,12 @@ using UnityEngine.InputSystem;
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
-    public float InteractionRange => interactionRange;
-
+    public static float InteractionRange => Instance.interactionRange;
+    public static bool InvertYAxis => Instance.invertYAxis;
+    
     [SerializeField] private DungeonCrawlerController playerController;
-    [SerializeField] private float interactionRange = 4.5f;
+    [SerializeField] private float interactionRange = 6f;
+    [SerializeField] private bool invertYAxis;
 
     private PlayerControls playerControls;
     private readonly Dictionary<InputAction, ICommand> inputCommands = new();
@@ -17,14 +19,7 @@ public class InputManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-#if UNITY_EDITOR
-            if (Application.isEditor)
-            {
-                DestroyImmediate(gameObject);
-            }
-#endif
-
-            Destroy(gameObject);
+            Utilities.Destroy(gameObject);
         }
 
         Instance = this;
@@ -94,7 +89,7 @@ public class InputManager : MonoBehaviour
 
     private void OnCancelFreeLook(InputAction.CallbackContext context)
     {
-        playerController.SwitchState(playerController.StateResetView);
+        playerController.SwitchToStateResetView();
     }
 
     private void OnDisable()

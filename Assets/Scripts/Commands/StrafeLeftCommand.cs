@@ -11,7 +11,7 @@ public class StrafeLeftCommand : ICommand
     {
         if (crawlerController != null && crawlerController.IsInIdleState)
         {
-            crawlerController.SwitchState(crawlerController.StateStrafeLeft);
+            crawlerController.SwitchToStateStrafeLeft();
         }
     }
 }
