@@ -85,15 +85,41 @@ MonoBehaviour:
   maxInclineAngle: 180
   footStep: 1
   footStepVolume: 0.6
-  bobEnabled: 1
+  headBobEnabled: 1
   playerCamera: {fileID: 20291751411350586}
-  bobCurve:
+  headBobCurve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.29881573
+      value: 0.24725634
+      inSlope: 0.039143655
+      outSlope: 0.039143655
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.6171517
+      outWeight: 0.13151796
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  bobAmount: -0.1
   reboundDuration: 0.3
   wallBump: 3
   wallBumpVolume: 0.6
@@ -103,14 +129,12 @@ MonoBehaviour:
   fallScream: 0
   fallScreamVolume: 0.6
   freeLook: {fileID: 1825553718392286}
-  resetDuration: 0.3
-  xMinLimit: -80
-  xMaxLimit: 80
-  yMinLimit: -70
-  yMaxLimit: 70
-  xSpeed: 5
-  ySpeed: 5
-  zoomDampening: 12
+  resetDuration: 0.4
+  horizontalAngleRange: {x: -80, y: 80}
+  verticalAngleRange: {x: -70, y: 70}
+  horizontalLookSpeed: 5
+  verticalLookSpeed: 5
+  zoomDampening: 10
 --- !u!114 &1937500338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,7 +148,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxPlacementAngle: 5
-  objectDropOffset: 1.25
+  objectDropOffset: 1
+  throwForce: 20
 --- !u!1 &1592305273859130
 GameObject:
   m_ObjectHideFlags: 0
