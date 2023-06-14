@@ -17,6 +17,7 @@ public class DungeonCrawlerController : MonoBehaviour
     [SerializeField] private float walkDuration = 0.4f;
     [SerializeField] private float rotateDuration = 0.25f;
     [SerializeField] private int maxInclineAngle = 35;
+    [SerializeField] [Range(0, 1f)] private float slopeCheckOffset = .1f;
     [SerializeField] private AudioClipName footStep = AudioClipName.Footstep;
     [SerializeField] private float footStepVolume = 0.6f;
 
@@ -47,9 +48,9 @@ public class DungeonCrawlerController : MonoBehaviour
     [SerializeField] private float zoomDampening = 10.0f;
 
     private IEnumerator headBobCoroutine;
-    private IEnumerator movementCoroutine;
+    private IEnumerator stateCoroutine;
     private IEnumerator obstacleBumpCoroutine;
-    
+
     private MoveStateBase currentState;
     private readonly MoveStateIdle stateIdle = new();
     private readonly MoveStateForward stateForward = new();
@@ -62,7 +63,7 @@ public class DungeonCrawlerController : MonoBehaviour
     private readonly MoveStateClimb stateClimb = new();
     private readonly MoveStateFreeLook stateFreeLook = new();
     private readonly MoveStateResetView stateResetView = new();
-    
+
     private readonly RaycastHit[] hitArray = new RaycastHit[1];
     private Transform playerTransform;
     private Vector3 currentPosition;
@@ -70,12 +71,12 @@ public class DungeonCrawlerController : MonoBehaviour
 
     private bool doGroundCheck = true;
     private bool doFallScream = true;
-    
+
     private void Awake()
     {
         playerTransform = transform;
         halfWalkDuration = walkDuration * .5f;
-        
+
 #if UNITY_EDITOR
         if (freeLook == null)
         {
@@ -111,12 +112,12 @@ public class DungeonCrawlerController : MonoBehaviour
             return;
 
         StopHeadBobCoroutine();
-        StopMovementCoroutine();
+        StopStateCoroutine();
         StopBumpCoroutine();
 
         StartCoroutine(PlayerObstacleBump());
     }
-    
+
     public void SwitchToStateIdle() => SwitchState(stateIdle);
     public void SwitchToStateForward() => SwitchState(stateForward);
     public void SwitchToStateBackward() => SwitchState(stateBackward);
@@ -140,27 +141,34 @@ public class DungeonCrawlerController : MonoBehaviour
 
         currentState.OnStateEnter(this);
     }
-    
+
     public void Move(Vector3 direction)
     {
-        StopMovementCoroutine();
+        StopStateCoroutine();
 
         currentPosition = playerTransform.position;
         Vector3 worldSpaceDirection = playerTransform.TransformDirection(direction);
-        Vector3 midPosition = GetMovementPosition(currentPosition, worldSpaceDirection, walkDistance * .5f);
-        Vector3 endPosition = GetMovementPosition(midPosition, worldSpaceDirection, walkDistance);
+        Vector3 endPosition = GetMovementPosition(worldSpaceDirection, walkDistance);
 
-        movementCoroutine = MovePlayer(midPosition, endPosition);
-        StartCoroutine(movementCoroutine);
+        bool isDownSlope = endPosition.y < currentPosition.y;
+        float slopeCheckPoint = .5f + (isDownSlope ? -slopeCheckOffset : slopeCheckOffset);
+
+        Vector3 midPosition = GetMovementPosition(worldSpaceDirection, walkDistance * slopeCheckPoint);
+
+        stateCoroutine = MovePlayer(midPosition, endPosition);
+        StartCoroutine(stateCoroutine);
     }
 
-    private Vector3 GetMovementPosition(Vector3 startingPosition, Vector3 direction, float checkDistance)
+    private Vector3 GetMovementPosition(Vector3 direction, float checkDistance)
     {
         Vector3 raycastOrigin = GetMovementRaycastOrigin(direction, checkDistance);
         if (!IsWalkableAngle(raycastOrigin, out RaycastHit hit))
         {
-            return startingPosition + direction * (walkDistance * .5f);
+            Debug.DrawLine(raycastOrigin, hit.point, Color.red, 5f);
+            return currentPosition + direction * checkDistance;
         }
+
+        Debug.DrawLine(raycastOrigin, hit.point, Color.red, 5f);
 
         Vector3 newPosition = CalculateHeadHeightPosition(hit);
         return newPosition;
@@ -183,7 +191,7 @@ public class DungeonCrawlerController : MonoBehaviour
         newPosition.y += headHeight;
         return newPosition;
     }
-    
+
     private IEnumerator MovePlayer(Vector3 halfPosition, Vector3 endPosition)
     {
         PlayWalkSound();
@@ -254,10 +262,10 @@ public class DungeonCrawlerController : MonoBehaviour
 
         SwitchToStateIdle();
     }
-    
+
     public void Fall()
     {
-        StopMovementCoroutine();
+        StopStateCoroutine();
 
         currentPosition = playerTransform.position;
         Vector3 newPosition;
@@ -278,8 +286,8 @@ public class DungeonCrawlerController : MonoBehaviour
             }
         }
 
-        movementCoroutine = Fall(newPosition, fallMultiplier);
-        StartCoroutine(movementCoroutine);
+        stateCoroutine = Fall(newPosition, fallMultiplier);
+        StartCoroutine(stateCoroutine);
     }
 
     private IEnumerator Fall(Vector3 endPosition, float fallDurationMultiplier)
@@ -303,12 +311,12 @@ public class DungeonCrawlerController : MonoBehaviour
 
     public void Rotate(Quaternion angleChange)
     {
-        StopMovementCoroutine();
+        StopStateCoroutine();
         Quaternion targetRotation = playerTransform.rotation * angleChange;
-        movementCoroutine = RotatePlayer(targetRotation, rotateDuration);
-        StartCoroutine(movementCoroutine);
+        stateCoroutine = RotatePlayer(targetRotation, rotateDuration);
+        StartCoroutine(stateCoroutine);
     }
-    
+
     private IEnumerator RotatePlayer(Quaternion targetRotation, float duration)
     {
         PlayWalkSound();
@@ -326,7 +334,7 @@ public class DungeonCrawlerController : MonoBehaviour
         playerTransform.rotation = targetRotation;
         HandleGroundedStateCheck();
     }
-    
+
     public void FreeLook(Quaternion currentRotation, Quaternion desiredRotation, float deltaTime)
     {
         freeLook.transform.localRotation = Quaternion.Lerp(currentRotation, desiredRotation, deltaTime * zoomDampening);
@@ -334,11 +342,11 @@ public class DungeonCrawlerController : MonoBehaviour
 
     public void ResetView()
     {
-        StopMovementCoroutine();
-        movementCoroutine = ResetFreeLook();
-        StartCoroutine(movementCoroutine);
+        StopStateCoroutine();
+        stateCoroutine = ResetFreeLook();
+        StartCoroutine(stateCoroutine);
     }
-    
+
     private IEnumerator ResetFreeLook()
     {
         Quaternion currentRot = freeLook.transform.localRotation;
@@ -362,7 +370,7 @@ public class DungeonCrawlerController : MonoBehaviour
             walkDistance, Layers.ClimbableMask);
         return climbableLayerHits > 0;
     }
-    
+
     private IEnumerator PlayerObstacleBump()
     {
         PlayBumpSound();
@@ -381,7 +389,7 @@ public class DungeonCrawlerController : MonoBehaviour
         playerTransform.position = currentPosition;
         currentState = stateIdle;
     }
-    
+
     private void StopBumpCoroutine()
     {
         if (obstacleBumpCoroutine != null)
@@ -390,11 +398,11 @@ public class DungeonCrawlerController : MonoBehaviour
         }
     }
 
-    private void StopMovementCoroutine()
+    private void StopStateCoroutine()
     {
-        if (movementCoroutine != null)
+        if (stateCoroutine != null)
         {
-            StopCoroutine(movementCoroutine);
+            StopCoroutine(stateCoroutine);
         }
     }
 
