@@ -2,9 +2,10 @@ using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
 [RequireComponent(typeof(Rigidbody))]
-public class CarryObject : MonoBehaviour, IInteractable, ICarriable
+public class CarryObject : MonoBehaviour, ICarriable
 {
     public Sprite CarrySprite => carrySprite;
+    
     [SerializeField] private Sprite carrySprite;
 
     private BoxCollider carryCollider;
@@ -18,9 +19,11 @@ public class CarryObject : MonoBehaviour, IInteractable, ICarriable
         Utilities.AssignComponentOrDestroyObject(gameObject, out carryRigidbody);
         Utilities.AssignComponentOrDestroyObject(gameObject, out carryTransform);
 
+        SetupRigidbody();
+        
         if (Utilities.FindGround(carryTransform.position, out RaycastHit hit, 1f, Layers.IgnoreInteractableMask))
         {
-            SetOnSurface(hit.point);
+            GetSurfacePosition(hit.point);
         }
     }
 
@@ -29,16 +32,16 @@ public class CarryObject : MonoBehaviour, IInteractable, ICarriable
         gameObject.layer = Layers.Interactable;
     }
 
-    public void OnInteract()
+    private void SetupRigidbody()
+    {
+        carryRigidbody.freezeRotation = true;
+    }
+    
+    public void OnPickup()
     {
         if (CarryObjectData.Instance.CarriedObject != null)
             return;
-
-        OnPickup();
-    }
-
-    public void OnPickup()
-    {
+        
         CarryObjectData.Instance.SetCarriedObject(this);
         carryRigidbody.velocity = Vector3.zero;
         gameObject.SetActive(false);
@@ -46,36 +49,36 @@ public class CarryObject : MonoBehaviour, IInteractable, ICarriable
 
     public void OnPlace(Vector3 position)
     {
-        CarryObjectData.Instance.ClearCarriedObject();
-        SetOnSurface(position);
-        carryTransform.SetParent(null);
-        gameObject.SetActive(true);
+        Vector3 setPosition = GetSurfacePosition(position);
+        ReleaseCarriedObject(setPosition);
     }
 
     public void OnDrop(Vector3 position)
     {
-        CarryObjectData.Instance.ClearCarriedObject();
-        carryTransform.SetParent(null);
-        carryTransform.position = position;
-        gameObject.SetActive(true);
+        ReleaseCarriedObject(position);
     }
 
     public void OnThrow(Vector3 position, Vector3 direction)
     {
+        ReleaseCarriedObject(position);
+        carryRigidbody.AddForce(direction * CarryObjectData.ThrowForce, ForceMode.Impulse);
+    }
+
+    private Vector3 GetSurfacePosition(Vector3 position)
+    {
+        float offset = carryCollider.size.y * .5f;
+        position.y += offset;
+        return position;
+    }
+
+    private void ReleaseCarriedObject(Vector3 position)
+    {
         CarryObjectData.Instance.ClearCarriedObject();
         carryTransform.SetParent(null);
         carryTransform.position = position;
         gameObject.SetActive(true);
-        carryRigidbody.AddForce(direction * CarryObjectData.ThrowForce, ForceMode.Impulse);
     }
-
-    private void SetOnSurface(Vector3 position)
-    {
-        float offset = carryCollider.size.y * .5f;
-        position.y += offset;
-        carryTransform.position = position;
-    }
-
+    
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.layer == Layers.Player)

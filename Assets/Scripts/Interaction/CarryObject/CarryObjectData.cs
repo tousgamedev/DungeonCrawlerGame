@@ -20,22 +20,20 @@ public class CarryObjectData : MonoBehaviour, ISubject
         if (Instance != null && Instance != this)
         {
             Utilities.Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Instance = this;
-        }
+
+        Instance = this;
     }
 
+    public void RegisterObserver(IObserver observer)
+    {
+        Observers.Add(observer);
+    }
+    
     public void SetCarriedObject(CarryObject carryObject)
     {
         CarriedObject = carryObject;
-        AlertObservers();
-    }
-
-    public void ClearCarriedObject()
-    {
-        CarriedObject = null;
         AlertObservers();
     }
 
@@ -46,10 +44,11 @@ public class CarryObjectData : MonoBehaviour, ISubject
             observer.Alert();
         }
     }
-
-    public void RegisterObserver(IObserver observer)
+    
+    public void ClearCarriedObject()
     {
-        Observers.Add(observer);
+        CarriedObject = null;
+        AlertObservers();
     }
 
     public void DeregisterObserver(IObserver observer)

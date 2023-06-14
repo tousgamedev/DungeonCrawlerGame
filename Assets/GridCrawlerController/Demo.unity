@@ -1055,8 +1055,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerController: {fileID: 940267965}
-  interactionRange: 6.5
-  invertYAxis: 1
+  interactionRange: 6.25
+  invertYAxis: 0
 --- !u!4 &262703268
 Transform:
   m_ObjectHideFlags: 0
@@ -6330,7 +6330,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 64
   m_CollisionDetection: 0
 --- !u!4 &1536131823 stripped
 Transform:
@@ -6726,8 +6726,44 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
-      propertyPath: verticalLookSpeed
-      value: 5
+      propertyPath: bobCurve.m_Curve.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[1].time
+      value: 0.29881573
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[2].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[1].value
+      value: 0.24725634
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[0].inSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[1].inSlope
+      value: 0.039143655
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[0].outSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[1].inWeight
+      value: 0.6171517
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[1].outSlope
+      value: 0.039143655
+      objectReference: {fileID: 0}
+    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
+      propertyPath: bobCurve.m_Curve.Array.data[1].outWeight
+      value: 0.13151796
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
@@ -8507,11 +8543,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4617047619839244, guid: 424f1b574a30e1d4a842814400550925, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3
+      value: 5.25
       objectReference: {fileID: 0}
     - target: {fileID: 4617047619839244, guid: 424f1b574a30e1d4a842814400550925, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4617047619839244, guid: 424f1b574a30e1d4a842814400550925, type: 3}
       propertyPath: m_LocalRotation.w

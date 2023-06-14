@@ -1,6 +1,4 @@
-using System.Numerics;
 using UnityEngine;
-using Vector3 = UnityEngine.Vector3;
 
 public class InteractCommand : ICommand
 {
@@ -19,29 +17,48 @@ public class InteractCommand : ICommand
 
         // TODO: Make this input agnostic
         Vector3 direction = main.ScreenPointToRay(Input.mousePosition).direction;
-        if (CarryObjectData.Instance.CarriedObject == null)
+        HandleInteraction(main.transform.position, direction);
+    }
+
+    private void HandleInteraction(Vector3 position, Vector3 direction)
+    {
+        if (TargetOnInteractableLayer(position, direction, out RaycastHit hit))
         {
-            PickUpObject(main.transform.position, direction);
+            GameObject target = hit.collider.gameObject;
+            if (target.TryGetComponent(out IInteractable interactable))
+            {
+                interactable.OnInteract();
+            }
+            else if (CarryObjectData.Instance.CarriedObject == null)
+            {
+                PickUpObject(target);
+            }
         }
-        else
+        else if (CanDropCarriedItem())
         {
-            ReleaseObject(main.transform.position, direction);
+            ReleaseObject(position, direction);
         }
     }
 
-    private void PickUpObject(Vector3 cameraPosition, Vector3 direction)
+    private bool TargetOnInteractableLayer(Vector3 origin, Vector3 direction, out RaycastHit hit)
     {
-        if (!Physics.Raycast(cameraPosition, direction, out RaycastHit hit, InputManager.InteractionRange,
-                Layers.InteractableMask))
+        return Physics.Raycast(origin, direction, out hit, InputManager.InteractionRange,
+            Layers.InteractableMask);
+    }
+
+    private void PickUpObject(GameObject target)
+    {
+        if (!target.TryGetComponent(out ICarriable carriable))
             return;
 
-        GameObject target = hit.collider.gameObject;
-        if (!target.TryGetComponent(out IInteractable interactable))
-            return;
-
-        interactable.OnInteract();
+        carriable.OnPickup();
         target.transform.SetParent(crawlerController.gameObject.transform);
         target.transform.localPosition = Vector3.zero;
+    }
+
+    private bool CanDropCarriedItem()
+    {
+        return CarryObjectData.Instance.CarriedObject != null && crawlerController.IsInIdleState;
     }
 
     private void ReleaseObject(Vector3 cameraPosition, Vector3 direction)
@@ -70,7 +87,8 @@ public class InteractCommand : ICommand
     {
         position = Vector3.negativeInfinity;
         if (!Physics.Raycast(cameraPosition, direction, out RaycastHit hit, InputManager.InteractionRange,
-                Layers.IgnorePlayerMask) || !Utilities.IsNormalAlignedWithUp(hit.normal, CarryObjectData.MaxPlacementAngle))
+                Layers.IgnorePlayerMask) ||
+            !Utilities.IsNormalAlignedWithUp(hit.normal, CarryObjectData.MaxPlacementAngle))
             return false;
         position = hit.point;
         return true;
