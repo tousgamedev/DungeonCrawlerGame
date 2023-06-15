@@ -39,15 +39,14 @@ public class ControllerRaycaster : MonoBehaviour
     {
         Vector3 direction = (actorTransform.forward + -actorTransform.up).normalized;
         if (Physics.Raycast(actorTransform.position, direction, out RaycastHit hit, climbCheckDistance,
-                Layers.IgnorePlayerAndInteractableMask))
+                Layers.ClimbableMask))
         {
             Debug.DrawLine(actorTransform.position, hit.point, Color.green, 5f);
-        }
-        else
-        {
-            Debug.DrawRay(actorTransform.position, direction, Color.green, 5f);
+            Debug.LogError(hit.collider.gameObject.name);
+            return true;
         }
 
+        Debug.DrawRay(actorTransform.position, direction, Color.green, 5f);
         return false;
     }
 }

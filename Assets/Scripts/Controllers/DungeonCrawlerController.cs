@@ -9,7 +9,7 @@ public class DungeonCrawlerController : MonoBehaviour
 
     public Quaternion CurrentLookRotation => freeLook.transform.localRotation;
     public bool IsInIdleState => currentState == stateIdle;
-    public Vector2 FreeLookSpeed => new(lookSpeed.x, lookSpeed.y);
+    public Vector2 FreeLookSpeed => lookSpeed;
     public Vector2 FreeLookHorizontalRange => horizontalAngleRange;
     public Vector2 FreeLookVerticalRange => verticalAngleRange;
 
@@ -24,7 +24,7 @@ public class DungeonCrawlerController : MonoBehaviour
     [Header("HeadBob")]
     [SerializeField] private Camera actorCamera;
     [SerializeField] private bool headBobEnabled = true;
-    [SerializeField] private AnimationCurve headBobCurve;
+    [SerializeField] private AnimationCurve walkBobCurve;
     [SerializeField] private AnimationCurve climbingCurve;
 
     [Header("Wall Bump")]
@@ -196,7 +196,7 @@ public class DungeonCrawlerController : MonoBehaviour
 
         if (headBobEnabled)
         {
-            StartHeadBobCoroutine();
+            StartHeadBobCoroutine(walkBobCurve, Vector3.up);
         }
 
         Vector3 currentPosition = actorTransform.position;
@@ -223,27 +223,30 @@ public class DungeonCrawlerController : MonoBehaviour
         HandleGroundedStateCheck();
     }
 
-    private void StartHeadBobCoroutine()
+    private void StartHeadBobCoroutine(AnimationCurve bobCurve, Vector3 axis)
     {
         StopHeadBobCoroutine();
-        headBobCoroutine = HeadBob(headBobCurve, walkDuration);
+        headBobCoroutine = HeadBob(bobCurve, axis);
         StartCoroutine(headBobCoroutine);
     }
 
-    private IEnumerator HeadBob(AnimationCurve curve, float time)
+    private IEnumerator HeadBob(AnimationCurve curve, Vector3 axis)
     {
         Vector3 cameraInitialPosition = actorCamera.transform.localPosition;
 
         var step = 0.0f;
         while (step <= 1.0f)
         {
-            step += Time.deltaTime / time;
-            actorCamera.transform.localPosition = new Vector3(cameraInitialPosition.x, curve.Evaluate(step), cameraInitialPosition.z);
+            step += Time.deltaTime / walkDuration;
+
+            Vector3 newPosition = cameraInitialPosition + axis * curve.Evaluate(step);
+            actorCamera.transform.localPosition = newPosition;
 
             yield return null;
         }
 
-        actorCamera.transform.localPosition = new Vector3(cameraInitialPosition.x, curve.Evaluate(1), cameraInitialPosition.z);
+        Vector3 finalPosition = cameraInitialPosition + axis * curve.Evaluate(1);
+        actorCamera.transform.localPosition = finalPosition;
     }
 
     private void HandleGroundedStateCheck()
@@ -259,7 +262,7 @@ public class DungeonCrawlerController : MonoBehaviour
             controllerAudio.PlayLandingSound(actorTransform.position);
             doFallScream = true;
         }
-
+        
         SwitchToStateIdle();
     }
 
@@ -366,11 +369,6 @@ public class DungeonCrawlerController : MonoBehaviour
         currentState = stateIdle;
     }
 
-    public bool CanClimbObstacle()
-    {
-        return raycaster.CanClimbObstacle(actorTransform, walkDistance);
-    }
-
     private IEnumerator PlayerObstacleBump()
     {
         Vector3 bumpPosition = actorTransform.position;
@@ -412,4 +410,8 @@ public class DungeonCrawlerController : MonoBehaviour
             StopCoroutine(headBobCoroutine);
         }
     }
+
+    public bool CanClimbObstacle() => raycaster.CanClimbObstacle(actorTransform, walkDistance);
+    public bool CanClimbDown() => raycaster.CanClimbDown(actorTransform);
+    public void PerformGroundCheck(bool perform = true) => doGroundCheck = perform;
 }

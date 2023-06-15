@@ -88,7 +88,7 @@ MonoBehaviour:
   slopeCheckOffset: 0.1
   actorCamera: {fileID: 20291751411350586}
   headBobEnabled: 1
-  headBobCurve:
+  walkBobCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -123,7 +123,43 @@ MonoBehaviour:
     m_RotationOrder: 4
   climbingCurve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.7507507
+      outSlope: -0.7507507
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.333
+      value: -0.25
+      inSlope: -0.007094423
+      outSlope: -0.007094423
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.30105805
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.666
+      value: 0.25
+      inSlope: 0.016413776
+      outSlope: 0.016413776
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.37169993
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -0.748503
+      outSlope: -0.748503
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -148,6 +184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   groundCheckDistance: 4
+  climbCheckDistance: 6
 --- !u!114 &7967571059070389630
 MonoBehaviour:
   m_ObjectHideFlags: 0
