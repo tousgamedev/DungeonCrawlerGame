@@ -8,7 +8,7 @@ public class MoveStateForward : MoveStateBase
         
         if (controller.CanClimbObstacle())
         {
-            crawlerController.SwitchToStateClimb();
+            crawlerController.SwitchToStateClimbUp();
         }
         else
         {

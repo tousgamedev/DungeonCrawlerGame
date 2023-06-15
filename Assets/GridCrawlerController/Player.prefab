@@ -88,7 +88,7 @@ MonoBehaviour:
   slopeCheckOffset: 0.1
   actorCamera: {fileID: 20291751411350586}
   headBobEnabled: 1
-  walkBobCurve:
+  walkingBobCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -121,7 +121,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  climbingCurve:
+  climbingBobCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
