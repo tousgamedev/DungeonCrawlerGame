@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 54327464185977302}
   - component: {fileID: 136523283095101222}
   - component: {fileID: 114159190867033202}
+  - component: {fileID: 2486129051976915376}
+  - component: {fileID: 7967571059070389630}
   - component: {fileID: 1937500338}
   m_Layer: 7
   m_Name: Player
@@ -83,10 +85,9 @@ MonoBehaviour:
   walkDuration: 0.4
   rotateDuration: 0.25
   maxInclineAngle: 180
-  footStep: 1
-  footStepVolume: 0.6
+  slopeCheckOffset: 0.1
+  actorCamera: {fileID: 20291751411350586}
   headBobEnabled: 1
-  playerCamera: {fileID: 20291751411350586}
   headBobCurve:
     serializedVersion: 2
     m_Curve:
@@ -120,21 +121,53 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  climbingCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   reboundDuration: 0.3
-  wallBump: 3
-  wallBumpVolume: 0.6
-  groundCheckDistance: 4
   fallDuration: 0.15
-  landingSound: 1
-  fallScream: 0
-  fallScreamVolume: 0.6
   freeLook: {fileID: 1825553718392286}
   resetDuration: 0.4
   horizontalAngleRange: {x: -80, y: 80}
   verticalAngleRange: {x: -70, y: 70}
-  horizontalLookSpeed: 5
-  verticalLookSpeed: 5
+  lookSpeed: {x: 5, y: 5}
   zoomDampening: 10
+--- !u!114 &2486129051976915376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141082644097862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54a8e265c5af7ba4d8262c732eb31cc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundCheckDistance: 4
+--- !u!114 &7967571059070389630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141082644097862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed3f9e5fa6dfef84ca46f185edbc1d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footStepSound: 1
+  footStepVolume: 0.6
+  wallBump: 3
+  wallBumpVolume: 0.6
+  landingSound: 1
+  landingVolume: 0.6
+  fallScreamSound: 0
+  fallScreamVolume: 0.6
 --- !u!114 &1937500338
 MonoBehaviour:
   m_ObjectHideFlags: 0
