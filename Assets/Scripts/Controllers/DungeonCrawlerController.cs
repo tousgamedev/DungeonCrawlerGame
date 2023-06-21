@@ -407,13 +407,13 @@ public class DungeonCrawlerController : MonoBehaviour
 
     private IEnumerator ResetFreeLook()
     {
-        Quaternion currentRot = freeLook.transform.localRotation;
+        Quaternion currentRotation = freeLook.transform.localRotation;
 
         var step = 0f;
         while (step < 1.0f)
         {
             step += Time.deltaTime / resetDuration;
-            freeLook.transform.localRotation = Quaternion.Lerp(currentRot, Quaternion.Euler(0, 0, 0), step);
+            freeLook.transform.localRotation = Quaternion.Lerp(currentRotation, Quaternion.Euler(0, 0, 0), step);
 
             yield return null;
         }
