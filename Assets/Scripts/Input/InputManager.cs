@@ -31,7 +31,8 @@ public class InputManager : MonoBehaviour
 
     private void InitializePlayerController()
     {
-        if (playerController != null) return;
+        if (playerController != null)
+            return;
 
         playerController = GameObject.FindWithTag("Player")?.GetComponent<DungeonCrawlerController>();
         if (playerController == null)

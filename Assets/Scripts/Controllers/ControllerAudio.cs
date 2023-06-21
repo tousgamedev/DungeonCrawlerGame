@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class ControllerAudio : MonoBehaviour
@@ -5,32 +6,40 @@ public class ControllerAudio : MonoBehaviour
     [Header("Walking")]
     [SerializeField] private AudioClipName footStepSound = AudioClipName.Footstep;
     [SerializeField] [Range(0,1f)] private float footStepVolume = 0.6f;
-    [Header("Wall Bump")]
-    [SerializeField] private AudioClipName wallBump = AudioClipName.WallBump;
-    [SerializeField] [Range(0,1f)] private float wallBumpVolume = 0.6f;
+    [Header("Climbing")]
+    [SerializeField] private AudioClipName climbingSound = AudioClipName.Footstep;
+    [SerializeField] [Range(0,1f)] private float climbingVolume = 0.6f;
+    [Header("Obstacle Bump")]
+    [SerializeField] private AudioClipName obstacleBump = AudioClipName.WallBump;
+    [SerializeField] [Range(0,1f)] private float obstacleBumpVolume = 0.6f;
     [Header("Falling")]
     [SerializeField] private AudioClipName landingSound = AudioClipName.Footstep;
     [SerializeField] [Range(0,1f)] private float landingVolume = 0.6f;
     [SerializeField] private AudioClipName fallScreamSound = AudioClipName.None;
     [SerializeField] [Range(0,1f)] private float fallScreamVolume = 0.6f;
 
-    public void PlayWalkSound(Vector3 position)
+    public void PlayWalkSound()
     {
-        AudioManager.Instance.PlaySoundAtPoint(footStepSound, position, footStepVolume);
+        AudioManager.Instance.PlaySoundAtPoint(footStepSound, transform.position, footStepVolume);
     }
 
-    public void PlayLandingSound(Vector3 position)
+    public void PlayClimbSound()
     {
-        AudioManager.Instance.PlaySoundAtPoint(landingSound, position, landingVolume);
+        AudioManager.Instance.PlaySoundAtPoint(climbingSound, transform.position, climbingVolume);
+    }
+    
+    public void PlayLandingSound()
+    {
+        AudioManager.Instance.PlaySoundAtPoint(landingSound, transform.position, landingVolume);
     }
 
-    public void PlayFallScreamSound(Vector3 position)
+    public void PlayFallScreamSound()
     {
-        AudioManager.Instance.PlaySoundAtPoint(fallScreamSound, position, fallScreamVolume);
+        AudioManager.Instance.PlaySoundAtPoint(fallScreamSound, transform.position, fallScreamVolume);
     }
 
-    public void PlayBumpSound(Vector3 position)
+    public void PlayBumpSound()
     {
-        AudioManager.Instance.PlaySoundAtPoint(wallBump, position, wallBumpVolume);
+        AudioManager.Instance.PlaySoundAtPoint(obstacleBump, transform.position, obstacleBumpVolume);
     }
 }
