@@ -7124,18 +7124,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
-      propertyPath: canClimbAcrossGap
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
-      propertyPath: canClimbHorizontally
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2486129051976915376, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
-      propertyPath: groundCheckDistance
-      value: 4
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
 --- !u!4 &1674821467 stripped

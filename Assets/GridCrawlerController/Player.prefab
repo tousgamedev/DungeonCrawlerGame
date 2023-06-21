@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 114159190867033202}
   - component: {fileID: 2486129051976915376}
   - component: {fileID: 7967571059070389630}
+  - component: {fileID: 1402157241898426141}
   - component: {fileID: 1937500338}
   m_Layer: 7
   m_Name: Player
@@ -82,95 +83,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   headHeight: 2
   walkDistance: 4
-  walkDuration: 0.4
-  rotateDuration: 0.25
-  maxInclineAngle: 180
+  walkDuration: 0.6
+  rotateDuration: 0.35
+  maxInclineAngle: 35
   slopeCheckOffset: 0.1
-  actorCamera: {fileID: 20291751411350586}
-  headBobEnabled: 1
-  walkingBobCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.29881573
-      value: 0.24725634
-      inSlope: 0.039143655
-      outSlope: 0.039143655
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.6171517
-      outWeight: 0.13151796
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  climbingBobCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: -0.7507507
-      outSlope: -0.7507507
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.333
-      value: -0.25
-      inSlope: -0.007094423
-      outSlope: -0.007094423
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.30105805
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.666
-      value: 0.25
-      inSlope: 0.016413776
-      outSlope: 0.016413776
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.37169993
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -0.748503
-      outSlope: -0.748503
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   reboundDuration: 0.3
-  fallDuration: 0.15
-  freeLook: {fileID: 1825553718392286}
-  resetDuration: 0.4
-  horizontalAngleRange: {x: -80, y: 80}
-  verticalAngleRange: {x: -70, y: 70}
-  lookSpeed: {x: 5, y: 5}
-  zoomDampening: 10
+  canClimbDown: 1
+  canClimbHorizontally: 1
+  canClimbAcrossGap: 0
+  fallDuration: 0.2
 --- !u!114 &2486129051976915376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,6 +106,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groundCheckDistance: 4
   climbCheckDistance: 6
+  clamberOffset: {x: 0, y: 0.1, z: 0}
+  climbDownOffset: {x: 0, y: -0.1, z: 0}
 --- !u!114 &7967571059070389630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -199,12 +122,118 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   footStepSound: 1
   footStepVolume: 0.6
-  wallBump: 3
-  wallBumpVolume: 0.6
+  climbingSound: 1
+  climbingVolume: 0.6
+  obstacleBump: 3
+  obstacleBumpVolume: 0.6
   landingSound: 1
   landingVolume: 0.6
   fallScreamSound: 0
   fallScreamVolume: 0.6
+--- !u!114 &1402157241898426141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141082644097862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87eaab9e019bffd4c8a256c2fe95dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actorCamera: {fileID: 20291751411350586}
+  headBobEnabled: 1
+  walkingBobCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.7470878
+      outSlope: 0.7470878
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.3346327
+      value: 0.25
+      inSlope: 0.53981394
+      outSlope: 0.53981394
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.17305304
+      outWeight: 0.20450556
+    - serializedVersion: 3
+      time: 0.666
+      value: 0.3
+      inSlope: -0.30917624
+      outSlope: -0.30917624
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.24142566
+      outWeight: 0.2441508
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -0.8982037
+      outSlope: -0.8982037
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  climbingBobCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.7507507
+      outSlope: 0.7507507
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.333
+      value: 0.25
+      inSlope: -0.22414503
+      outSlope: -0.22414503
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.75
+      value: -0.25
+      inSlope: -0.099520385
+      outSlope: -0.099520385
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  pivot: {fileID: 1825553718392286}
+  resetDuration: 0.35
+  horizontalAngleRange: {x: -80, y: 80}
+  verticalAngleRange: {x: -70, y: 70}
+  lookSpeed: {x: 5, y: 5}
+  zoomDampening: 10
 --- !u!114 &1937500338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -314,7 +343,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4573387232209618}
   m_Layer: 7
-  m_Name: FreeLook
+  m_Name: Pivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

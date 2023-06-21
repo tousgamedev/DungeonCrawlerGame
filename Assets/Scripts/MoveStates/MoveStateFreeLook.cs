@@ -26,19 +26,19 @@ public class MoveStateFreeLook : MoveStateBase
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
-        Vector2 freeLookSpeed = crawlerController.FreeLookSpeed;
+        Vector2 freeLookSpeed = crawlerController.ControllerCamera.FreeLookSpeed;
         float ySpeed = InputManager.InvertYAxis ? -freeLookSpeed.y : freeLookSpeed.y;
 
-        xAngle = GetClampedAngle(xAngle, mouseX, freeLookSpeed.x, crawlerController.FreeLookHorizontalRange);
-        yAngle = GetClampedAngle(yAngle, -mouseY, ySpeed, crawlerController.FreeLookVerticalRange);
+        xAngle = GetClampedAngle(xAngle, mouseX, freeLookSpeed.x, crawlerController.ControllerCamera.FreeLookHorizontalRange);
+        yAngle = GetClampedAngle(yAngle, -mouseY, ySpeed, crawlerController.ControllerCamera.FreeLookVerticalRange);
     }
     
     private void PerformFreeLook(float deltaTime)
     {
         desiredRotation = Quaternion.Euler(yAngle, xAngle, 0f);
-        currentRotation = crawlerController.CurrentLookRotation;
+        currentRotation = crawlerController.ControllerCamera.CurrentLookRotation;
 
-        crawlerController.FreeLook(currentRotation, desiredRotation, deltaTime);
+        crawlerController.ControllerCamera.FreeLook(currentRotation, desiredRotation, deltaTime);
     }
 
     private float GetClampedAngle(float currentAngle, float mouseInput, float freeLookSpeed, Vector2 range)
