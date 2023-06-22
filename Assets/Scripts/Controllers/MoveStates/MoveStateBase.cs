@@ -1,8 +1,8 @@
 public abstract class MoveStateBase
 {
-    protected DungeonCrawlerController crawlerController;
+    protected ControllerStateMachine StateMachine;
     
-    public abstract void OnStateEnter(DungeonCrawlerController controller);
+    public abstract void OnStateEnter(ControllerStateMachine stateMachine);
 
     public virtual void OnStateTick(float deltaTime)
     {

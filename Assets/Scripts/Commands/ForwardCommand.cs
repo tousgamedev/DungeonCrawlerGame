@@ -1,17 +1,17 @@
 public class ForwardCommand : ICommand
 {
-    private readonly DungeonCrawlerController crawlerController;
+    private readonly ControllerStateMachine stateMachine;
     
-    public ForwardCommand(DungeonCrawlerController controller)
+    public ForwardCommand(ControllerStateMachine controllerStateMachine)
     {
-        crawlerController = controller;
+        stateMachine = controllerStateMachine;
     }
     
     public void Execute()
     {
-        if (crawlerController != null && crawlerController.IsInIdleState)
+        if (stateMachine != null && stateMachine.IsInIdleState)
         {
-            crawlerController.SwitchToStateForward();
+            stateMachine.SwitchToStateForward();
         }
     }
 }

@@ -1,17 +1,17 @@
 public class StrafeLeftCommand : ICommand
 {
-    private readonly DungeonCrawlerController crawlerController;
+    private readonly ControllerStateMachine stateMachine;
     
-    public StrafeLeftCommand(DungeonCrawlerController controller)
+    public StrafeLeftCommand(ControllerStateMachine controllerStateMachine)
     {
-        crawlerController = controller;
+        stateMachine = controllerStateMachine;
     }
     
     public void Execute()
     {
-        if (crawlerController != null && crawlerController.IsInIdleState)
+        if (stateMachine != null && stateMachine.IsInIdleState)
         {
-            crawlerController.SwitchToStateStrafeLeft();
+            stateMachine.SwitchToStateStrafeLeft();
         }
     }
 }

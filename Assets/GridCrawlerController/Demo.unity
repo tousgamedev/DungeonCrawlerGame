@@ -1268,7 +1268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dea93ab547c948d468fb20eff1d4ae8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerController: {fileID: 940267965}
+  playerStateMachine: {fileID: 0}
   interactionRange: 6.25
   invertYAxis: 0
 --- !u!4 &262703268
@@ -4444,17 +4444,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4437836806239086, guid: b1a23e0c72bc28742b6237fc571b457b, type: 3}
   m_PrefabInstance: {fileID: 1573779273}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &940267965 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 114159190867033202, guid: 341315fbf081d7440abb7f61ea419693, type: 3}
-  m_PrefabInstance: {fileID: 1653668576}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9879351185157f241984d89afe1c126a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &940960805 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4617047619839244, guid: 424f1b574a30e1d4a842814400550925, type: 3}

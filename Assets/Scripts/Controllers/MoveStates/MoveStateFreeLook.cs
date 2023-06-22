@@ -9,10 +9,10 @@ public class MoveStateFreeLook : MoveStateBase
     private float yAngle;
     private bool hasCamera;
     
-    public override void OnStateEnter(DungeonCrawlerController controller)
+    public override void OnStateEnter(ControllerStateMachine stateMachine)
     {
-        crawlerController = controller;
-        controllerCamera = controller.ControllerCamera;
+        StateMachine = stateMachine;
+        controllerCamera = stateMachine.Controller.ControllerCamera;
         hasCamera = controllerCamera != null;
         xAngle = 0;
         yAngle = 0;
@@ -33,19 +33,19 @@ public class MoveStateFreeLook : MoveStateBase
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
-        Vector2 freeLookSpeed = crawlerController.ControllerCamera.FreeLookSpeed;
+        Vector2 freeLookSpeed = controllerCamera.FreeLookSpeed;
         float ySpeed = InputManager.InvertYAxis ? -freeLookSpeed.y : freeLookSpeed.y;
 
-        xAngle = GetClampedAngle(xAngle, mouseX, freeLookSpeed.x, crawlerController.ControllerCamera.FreeLookHorizontalRange);
-        yAngle = GetClampedAngle(yAngle, -mouseY, ySpeed, crawlerController.ControllerCamera.FreeLookVerticalRange);
+        xAngle = GetClampedAngle(xAngle, mouseX, freeLookSpeed.x, controllerCamera.FreeLookHorizontalRange);
+        yAngle = GetClampedAngle(yAngle, -mouseY, ySpeed, controllerCamera.FreeLookVerticalRange);
     }
     
     private void PerformFreeLook(float deltaTime)
     {
         desiredRotation = Quaternion.Euler(yAngle, xAngle, 0f);
-        currentRotation = crawlerController.ControllerCamera.CurrentLookRotation;
+        currentRotation = controllerCamera.CurrentLookRotation;
 
-        crawlerController.ControllerCamera.FreeLook(currentRotation, desiredRotation, deltaTime);
+        controllerCamera.FreeLook(currentRotation, desiredRotation, deltaTime);
     }
 
     private float GetClampedAngle(float currentAngle, float mouseInput, float freeLookSpeed, Vector2 range)

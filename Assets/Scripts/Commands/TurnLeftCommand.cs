@@ -1,17 +1,17 @@
 public class TurnLeftCommand : ICommand
 {
-    private readonly DungeonCrawlerController crawlerController;
+    private readonly ControllerStateMachine stateMachine;
     
-    public TurnLeftCommand(DungeonCrawlerController controller)
+    public TurnLeftCommand(ControllerStateMachine controllerStateMachine)
     {
-        crawlerController = controller;
+        stateMachine = controllerStateMachine;
     }
     
     public void Execute()
     {
-        if (crawlerController != null && crawlerController.IsInIdleState)
+        if (stateMachine != null && stateMachine.IsInIdleState)
         {
-            crawlerController.SwitchToStateTurnLeft();
+            stateMachine.SwitchToStateTurnLeft();
         }
     }
 }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4747389729354474}
   - component: {fileID: 54327464185977302}
   - component: {fileID: 136523283095101222}
+  - component: {fileID: 5121826427783274956}
   - component: {fileID: 114159190867033202}
   - component: {fileID: 2486129051976915376}
   - component: {fileID: 7967571059070389630}
@@ -69,6 +70,18 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5121826427783274956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141082644097862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19859bbfa196d154f82903c986146585, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114159190867033202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,8 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   headHeight: 2
-  walkDistance: 4
-  walkDuration: 0.5
+  moveDistance: 4
+  moveDuration: 0.5
   rotateDuration: 0.3
   maxInclineAngle: 35
   slopeCheckOffset: 0.1
@@ -92,6 +105,7 @@ MonoBehaviour:
   canClimbHorizontally: 1
   canClimbAcrossGap: 0
   fallDuration: 0.2
+  safeFallHeight: 64
 --- !u!114 &2486129051976915376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,9 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   groundCheckDistance: 4
-  climbCheckDistance: 6
-  clamberOffset: {x: 0, y: 0.1, z: 0}
-  climbDownOffset: {x: 0, y: -0.1, z: 0}
+  clamberCheckOffset: {x: 0, y: 0.1, z: 0}
 --- !u!114 &7967571059070389630
 MonoBehaviour:
   m_ObjectHideFlags: 0

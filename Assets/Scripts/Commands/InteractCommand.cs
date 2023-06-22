@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class InteractCommand : ICommand
 {
-    private readonly DungeonCrawlerController crawlerController;
+    private readonly ControllerStateMachine stateMachine;
 
-    public InteractCommand(DungeonCrawlerController controller)
+    public InteractCommand(ControllerStateMachine controllerStateMachine)
     {
-        crawlerController = controller;
+        stateMachine = controllerStateMachine;
     }
 
     public void Execute()
@@ -52,13 +52,13 @@ public class InteractCommand : ICommand
             return;
 
         carriable.OnPickup();
-        target.transform.SetParent(crawlerController.gameObject.transform);
+        target.transform.SetParent(stateMachine.gameObject.transform);
         target.transform.localPosition = Vector3.zero;
     }
 
     private bool CanDropCarriedItem()
     {
-        return CarryObjectData.Instance.CarriedObject != null && crawlerController.IsInIdleState;
+        return CarryObjectData.Instance.CarriedObject != null && stateMachine.IsInIdleState;
     }
 
     private void ReleaseObject(Vector3 cameraPosition, Vector3 direction)
@@ -69,13 +69,13 @@ public class InteractCommand : ICommand
             return;
         }
 
-        Transform controller = crawlerController.transform;
+        Transform controller = stateMachine.transform;
         Vector3 dropPosition = controller.position + controller.forward * CarryObjectData.ObjectDropOffset;
 
         // TODO: Make input agnostic
         if (Input.mousePosition.y > Screen.height * .5f)
         {
-            CarryObjectData.Instance.CarriedObject.OnThrow(dropPosition, crawlerController.transform.forward);
+            CarryObjectData.Instance.CarriedObject.OnThrow(dropPosition, stateMachine.transform.forward);
         }
         else
         {
@@ -86,10 +86,10 @@ public class InteractCommand : ICommand
     private static bool CanPlaceAtLocation(Vector3 cameraPosition, Vector3 direction, out Vector3 position)
     {
         position = Vector3.negativeInfinity;
-        if (!Physics.Raycast(cameraPosition, direction, out RaycastHit hit, InputManager.InteractionRange,
-                Layers.IgnorePlayerMask) ||
+        if (!Physics.Raycast(cameraPosition, direction, out RaycastHit hit, InputManager.InteractionRange, Layers.IgnorePlayerMask) ||
             !Utilities.IsNormalAlignedWithUp(hit.normal, CarryObjectData.MaxPlacementAngle))
             return false;
+
         position = hit.point;
         return true;
     }

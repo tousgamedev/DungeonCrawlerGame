@@ -1,17 +1,17 @@
 public class FreeLookCommand : ICommand
 {
-    private readonly DungeonCrawlerController crawlerController;
+    private readonly ControllerStateMachine stateMachine;
     
-    public FreeLookCommand(DungeonCrawlerController controller)
+    public FreeLookCommand(ControllerStateMachine controllerStateMachine)
     {
-        crawlerController = controller;
+        stateMachine = controllerStateMachine;
     }
     
     public void Execute()
     {
-        if (crawlerController != null && crawlerController.IsInIdleState)
+        if (stateMachine != null && stateMachine.IsInIdleState)
         {
-            crawlerController.SwitchToStateFreeLook();
+            stateMachine.SwitchToStateFreeLook();
         }
     }
 }

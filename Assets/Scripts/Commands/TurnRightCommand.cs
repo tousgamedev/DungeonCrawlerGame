@@ -1,17 +1,17 @@
 public class TurnRightCommand : ICommand
 {
-    private readonly DungeonCrawlerController crawlerController;
+    private readonly ControllerStateMachine stateMachine;
     
-    public TurnRightCommand(DungeonCrawlerController controller)
+    public TurnRightCommand(ControllerStateMachine controllerStateMachine)
     {
-        crawlerController = controller;
+        stateMachine = controllerStateMachine;
     }
     
     public void Execute()
     {
-        if (crawlerController != null && crawlerController.IsInIdleState)
+        if (stateMachine != null && stateMachine.IsInIdleState)
         {
-            crawlerController.SwitchToStateTurnRight();
+            stateMachine.SwitchToStateTurnRight();
         }
     }
 }
