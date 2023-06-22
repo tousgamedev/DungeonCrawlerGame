@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 
 [RequireComponent(typeof(ControllerRaycaster))]
-[RequireComponent(typeof(ControllerAudio))]
 [RequireComponent(typeof(ControllerStateMachine))]
 public class CrawlerController : MonoBehaviour, IController
 {
@@ -12,7 +11,6 @@ public class CrawlerController : MonoBehaviour, IController
     public bool CanClimbDown => canClimbDown;
     public bool CanClimbHorizontally => canClimbHorizontally;
     public bool CanClimbAcrossGap => canClimbAcrossGap;
-    public bool ClimbableIsInFront => raycaster.ClimbableIsInFront(moveDistance);
     
     [Header("Movement")]
     [SerializeField] private float headHeight = 2.0f;
@@ -32,7 +30,6 @@ public class CrawlerController : MonoBehaviour, IController
 
     [Header("Falling")]
     [SerializeField] private float fallDuration = 0.15f;
-    [SerializeField] private float safeFallHeight = 64f;
 
     private ControllerRaycaster raycaster;
     private Transform agentTransform;
@@ -42,18 +39,13 @@ public class CrawlerController : MonoBehaviour, IController
 
     private void Awake()
     {
-        CheckComponents();
         agentTransform = transform;
-    }
-
-    private void CheckComponents()
-    {
         if (!TryGetComponent(out raycaster))
         {
             raycaster = gameObject.AddComponent<ControllerRaycaster>();
         }
 
-        raycaster.InitializeClimbCheckValues(headHeight, moveDistance * .5f);
+        raycaster.InitializeClimbCheckValues(headHeight, moveDistance);
     }
 
     public void OnEnable()
@@ -64,13 +56,19 @@ public class CrawlerController : MonoBehaviour, IController
         }
     }
 
+    private Vector3 AdjustForHeadHeightPosition(Vector3 position)
+    {
+        position.y += headHeight;
+        return position;
+    }
+
     public void BumpAgent(Action idleStateCallback)
     {
         StopMovementCoroutine();
-        StartMovementCoroutine(ObstacleBumpCo(idleStateCallback));
+        StartMovementCoroutine(BumpAgentCo(idleStateCallback));
     }
     
-    private IEnumerator ObstacleBumpCo(Action idleStateCallback)
+    private IEnumerator BumpAgentCo(Action idleStateCallback)
     {
         Vector3 bumpPosition = agentTransform.position;
 
@@ -106,7 +104,7 @@ public class CrawlerController : MonoBehaviour, IController
     private float GetMoveDistance(Vector3 direction)
     {
         return direction == Vector3.up || direction == Vector3.down
-            ? raycaster.CalculateClimbDistance(moveDistance, direction)
+            ? raycaster.CalculateClimbDistance(direction)
             : moveDistance;
     }
     
@@ -132,12 +130,6 @@ public class CrawlerController : MonoBehaviour, IController
     {
         bool isDownSlope = height < agentTransform.position.y;
         return .5f + (isDownSlope ? -slopeCheckOffset : slopeCheckOffset);
-    }
-    
-    private Vector3 AdjustForHeadHeightPosition(Vector3 position)
-    {
-        position.y += headHeight;
-        return position;
     }
 
     private IEnumerator MoveAgentCo(Vector3 halfPosition, Vector3 endPosition, Action groundCheckCallback)
@@ -175,7 +167,7 @@ public class CrawlerController : MonoBehaviour, IController
 
         Vector3 newPosition;
         var fallMultiplier = 1f;
-        if (raycaster.CheckFallHeight(out RaycastHit hit, safeFallHeight))
+        if (raycaster.IsSafeFall(out RaycastHit hit))
         {
             newPosition = new Vector3(hit.point.x, hit.point.y + headHeight, hit.point.z);
             fallMultiplier = Vector3.Distance(agentTransform.position, newPosition) * fallDuration;

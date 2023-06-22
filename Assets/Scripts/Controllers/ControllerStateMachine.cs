@@ -1,8 +1,9 @@
 using UnityEngine;
 
+[RequireComponent(typeof(ControllerAudio))]
+[RequireComponent(typeof(ControllerRaycaster))]
 public class ControllerStateMachine : MonoBehaviour
 {
-    public IController Controller => controller;
     public ControllerCamera Camera => controllerCamera;
     public bool IsInIdleState => currentState == stateIdle;
     private bool IsInForwardState => currentState == stateForward;
@@ -34,9 +35,14 @@ public class ControllerStateMachine : MonoBehaviour
     {
         if (!TryGetComponent(out controller))
         {
-            Debug.LogError($"{gameObject.name} is missing CrawlerController script.");
+            Debug.LogError($"{gameObject.name} is missing IController script.");
         }
 
+        if (!TryGetComponent(out controllerAudio))
+        {
+            Debug.LogError($"{gameObject.name} is missing Controller Audio script.");
+        }
+        
         TryGetComponent(out controllerCamera);
     }
 
@@ -88,7 +94,7 @@ public class ControllerStateMachine : MonoBehaviour
             return;
         }
 
-        if (direction == Vector3.forward && controller.ClimbableIsInFront)
+        if (direction == Vector3.forward && controller.Raycaster.ClimbableIsInFront())
         {
             SwitchToStateClimbUp();
             return;
@@ -100,13 +106,13 @@ public class ControllerStateMachine : MonoBehaviour
             controllerCamera.PerformHeadBob(direction, controller.MoveDuration);
         }
 
-        controllerAudio.PlayMovementSound(controller.ClimbableIsInFront);
+        controllerAudio.PlayMovementSound(controller.Raycaster.ClimbableIsInFront());
     }
 
     public void RotateAgent(Quaternion rotation)
     {
         controller.RotateAgent(rotation, DoGroundCheck);
-        controllerAudio.PlayMovementSound(controller.ClimbableIsInFront);
+        controllerAudio.PlayMovementSound(controller.Raycaster.ClimbableIsInFront());
     }
 
     public void BumpAgent()
@@ -157,10 +163,10 @@ public class ControllerStateMachine : MonoBehaviour
         if (controller.CanClimbDown && IsInBackwardState && controller.Raycaster.ClimbableIsBelow())
             return false;
 
-        if (controller.CanClimbHorizontally && IsInForwardState && controller.ClimbableIsInFront)
+        if (controller.CanClimbHorizontally && IsInForwardState && controller.Raycaster.ClimbableIsInFront())
             return false;
 
-        if (controller.CanClimbAcrossGap && IsInForwardState && (controller.ClimbableIsInFront || controller.Raycaster.ClimbableIsBelow()))
+        if (controller.CanClimbAcrossGap && IsInForwardState && (controller.Raycaster.ClimbableIsInFront() || controller.Raycaster.ClimbableIsBelow()))
             return false;
 
         return true;
@@ -168,6 +174,6 @@ public class ControllerStateMachine : MonoBehaviour
 
     private bool CanDescendClimbable()
     {
-        return !controller.Raycaster.IsOnGround(out RaycastHit _) && (controller.Raycaster.ClimbableIsBelow() || controller.ClimbableIsInFront);
+        return !controller.Raycaster.IsOnGround(out RaycastHit _) && (controller.Raycaster.ClimbableIsBelow() || controller.Raycaster.ClimbableIsInFront());
     }
 }

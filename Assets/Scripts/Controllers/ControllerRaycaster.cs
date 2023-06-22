@@ -3,12 +3,14 @@ using UnityEngine;
 public class ControllerRaycaster : MonoBehaviour
 {
     [SerializeField] private float groundCheckDistance = 4f;
+    [SerializeField] private float safeFallHeight = 64f;
     [SerializeField] private Vector3 clamberCheckOffset = new(0, .1f, 0);
 
     private readonly RaycastHit[] hitArray = new RaycastHit[1];
     private Transform actorTransform;
     private Vector3 climbCheckDirection;
 
+    private float moveDistance;
     private float climbCheckDistance;
     private float climbCheckAngle;
     private float headHeightAdjust;
@@ -18,18 +20,14 @@ public class ControllerRaycaster : MonoBehaviour
         actorTransform = GetComponent<Transform>();
     }
 
-    public void InitializeClimbCheckValues(float headHeight, float moveDistance)
+    public void InitializeClimbCheckValues(float headHeight, float movementDistance)
     {
+        moveDistance = movementDistance;
+        float halfDistance = movementDistance * .5f;
         headHeightAdjust = headHeight;
-        climbCheckDistance = Mathf.Sqrt(headHeight * headHeight + moveDistance * moveDistance);
-        float angle = Mathf.Atan2(headHeight, moveDistance);
+        climbCheckDistance = Mathf.Sqrt(headHeightAdjust * headHeightAdjust + halfDistance * halfDistance);
+        float angle = Mathf.Atan2(headHeightAdjust, halfDistance);
         climbCheckAngle = angle * Mathf.Rad2Deg;
-    }
-
-    private void CalculateClimbCheckDirection(Vector3 climbDirection)
-    {
-        float verticalFactor = climbDirection == Vector3.up ? -1 : 1;
-        climbCheckDirection = (Quaternion.AngleAxis(verticalFactor * climbCheckAngle, actorTransform.right) * actorTransform.forward).normalized;
     }
 
     public Vector3 GetMoveRaycastOrigin(Vector3 moveDirection, float distance)
@@ -48,42 +46,47 @@ public class ControllerRaycaster : MonoBehaviour
         return Utilities.FindGround(actorTransform.position, out hit, groundCheckDistance);
     }
 
-    public bool CheckFallHeight(out RaycastHit hit, float distance)
+    public bool IsSafeFall(out RaycastHit hit)
     {
-        return Utilities.FindGround(actorTransform.position, out hit, distance);
+        return Utilities.FindGround(actorTransform.position, out hit, safeFallHeight);
     }
 
-    public bool ClimbableIsInFront(float moveDistance)
+    private void CalculateClimbCheckDirection(Vector3 climbDirection)
+    {
+        float verticalFactor = climbDirection == Vector3.up ? -1 : 1;
+        climbCheckDirection = (Quaternion.AngleAxis(verticalFactor * climbCheckAngle, actorTransform.right) * actorTransform.forward).normalized;
+    }
+    
+    public bool ClimbableIsInFront()
     {
         Vector3 origin = actorTransform.position + clamberCheckOffset;
-        int layerHits = GetClimbLayerHits(origin, actorTransform.forward, moveDistance);
-        return layerHits > 0;
+        return DetectClimbLayer(origin, actorTransform.forward, moveDistance);
     }
 
-    public float CalculateClimbDistance(float fullDistance, Vector3 climbDirection)
+    public float CalculateClimbDistance(Vector3 climbDirection)
     {
         Vector3 actorPosition = actorTransform.position;
         CalculateClimbCheckDirection(climbDirection);
 
-        int layerHits = GetClimbLayerHits(actorPosition, climbCheckDirection, climbCheckDistance);
-        if (layerHits > 0)
+        if (DetectClimbLayer(actorPosition, climbCheckDirection, climbCheckDistance))
         {
-            return fullDistance;
+            return moveDistance;
         }
 
         Vector3 origin = actorPosition + climbCheckDirection * (climbCheckDistance * 2);
         if (!Utilities.FindGround(origin, out RaycastHit hit, groundCheckDistance))
         {
-            return fullDistance;
+            return moveDistance;
         }
 
         float distanceAdjust = Mathf.Abs(hit.point.y - actorPosition.y - headHeightAdjust);
-        return fullDistance - distanceAdjust;
+        return moveDistance - distanceAdjust;
     }
 
-    private int GetClimbLayerHits(Vector3 origin, Vector3 direction, float distance)
+    private bool DetectClimbLayer(Vector3 origin, Vector3 direction, float distance)
     {
-        return Physics.RaycastNonAlloc(origin, direction, hitArray, distance, Layers.ClimbableMask);
+        int hits = Physics.RaycastNonAlloc(origin, direction, hitArray, distance, Layers.ClimbableMask);
+        return hits > 0;
     }
     
     public bool ClimbableIsBelow()
