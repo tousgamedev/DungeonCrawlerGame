@@ -42,6 +42,7 @@ public class DungeonCrawlerController : MonoBehaviour
     private readonly MoveStateClimbDown stateClimbDown = new();
     private readonly MoveStateFreeLook stateFreeLook = new();
     private readonly MoveStateResetView stateResetView = new();
+    private readonly MoveStateBump stateBump = new();
 
     private ControllerRaycaster raycaster;
     private ControllerAudio controllerAudio;
@@ -50,7 +51,6 @@ public class DungeonCrawlerController : MonoBehaviour
     private Vector3 previousPosition;
 
     private IEnumerator stateCoroutine;
-    private IEnumerator obstacleBumpCoroutine;
 
     private bool doFallScream = true;
 
@@ -98,14 +98,17 @@ public class DungeonCrawlerController : MonoBehaviour
         if (collision.gameObject.layer == Layers.Interactable)
             return;
 
-        StopStateCoroutine();
-        StopBumpCoroutine();
-        controllerCamera.StopHeadBobCoroutine();
-        
-        obstacleBumpCoroutine = ObstacleBump();
-        StartCoroutine(obstacleBumpCoroutine);
+        SwitchToStateBump();        
     }
 
+    public void Bump()
+    {
+        StopStateCoroutine();
+        controllerCamera.StopHeadBobCoroutine();
+        stateCoroutine = ObstacleBump();
+        StartCoroutine(stateCoroutine);
+    }
+    
     private IEnumerator ObstacleBump()
     {
         Vector3 bumpPosition = actorTransform.position;
@@ -122,7 +125,7 @@ public class DungeonCrawlerController : MonoBehaviour
         }
 
         actorTransform.position = previousPosition;
-        currentState = stateIdle;
+        SwitchToStateIdle();
     }
     
     public void SwitchToStateIdle() => SwitchToState(stateIdle);
@@ -137,6 +140,7 @@ public class DungeonCrawlerController : MonoBehaviour
     public void SwitchToStateFall() => SwitchToState(stateFall);
     public void SwitchToStateFreeLook() => SwitchToState(stateFreeLook);
     public void SwitchToStateResetView() => SwitchToState(stateResetView);
+    public void SwitchToStateBump() => SwitchToState(stateBump);
 
     private void SwitchToState(MoveStateBase state)
     {
@@ -346,14 +350,6 @@ public class DungeonCrawlerController : MonoBehaviour
 
         actorTransform.rotation = targetRotation;
         DoGroundCheck();
-    }
-
-    private void StopBumpCoroutine()
-    {
-        if (obstacleBumpCoroutine != null)
-        {
-            StopCoroutine(obstacleBumpCoroutine);
-        }
     }
 
     private void StopStateCoroutine()
