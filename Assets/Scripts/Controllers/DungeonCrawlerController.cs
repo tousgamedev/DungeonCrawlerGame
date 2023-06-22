@@ -5,16 +5,15 @@ using System.Collections;
 [RequireComponent(typeof(ControllerAudio))]
 public class DungeonCrawlerController : MonoBehaviour
 {
-    private const float FallSafeHeight = 64f;
-
-    public bool IsInIdleState => currentState == stateIdle;
     public ControllerCamera ControllerCamera => controllerCamera;
+    public bool IsInIdleState => currentState == stateIdle;
+    public bool ClimbableIsInFront => raycaster.ClimbableIsInFront(moveDistance);
     
-    [Header("Walking")]
+    [Header("Movement")]
     [SerializeField] private float headHeight = 2.0f;
-    [SerializeField] private float walkDistance = 4.0f;
-    [SerializeField] private float walkDuration = 0.4f;
-    [SerializeField] private float rotateDuration = 0.25f;
+    [SerializeField] private float moveDistance = 4.0f;
+    [SerializeField] private float moveDuration = 0.5f;
+    [SerializeField] private float rotateDuration = 0.3f;
     [SerializeField] private int maxInclineAngle = 35;
     [SerializeField] [Range(0, 1f)] private float slopeCheckOffset = .1f;
 
@@ -28,6 +27,7 @@ public class DungeonCrawlerController : MonoBehaviour
 
     [Header("Falling")]
     [SerializeField] private float fallDuration = 0.15f;
+    [SerializeField] private float safeFallHeight = 64f;
 
     private MoveStateBase currentState;
     private readonly MoveStateIdle stateIdle = new();
@@ -67,6 +67,8 @@ public class DungeonCrawlerController : MonoBehaviour
             raycaster = gameObject.AddComponent<ControllerRaycaster>();
         }
 
+        raycaster.InitializeClimbCheckValues(headHeight, moveDistance * .5f);
+        
         if (!TryGetComponent(out controllerAudio))
         {
             controllerAudio = gameObject.AddComponent<ControllerAudio>();
@@ -80,7 +82,7 @@ public class DungeonCrawlerController : MonoBehaviour
         currentState = stateIdle;
         currentState.OnStateEnter(this);
 
-        if (raycaster.IsOnGround(actorTransform.position, out RaycastHit hit))
+        if (raycaster.IsOnGround(out RaycastHit hit))
         {
             transform.position = AdjustForHeadHeightPosition(hit.point);
         }
@@ -123,27 +125,27 @@ public class DungeonCrawlerController : MonoBehaviour
         currentState = stateIdle;
     }
     
-    public void SwitchToStateIdle() => SwitchState(stateIdle);
-    public void SwitchToStateForward() => SwitchState(stateForward);
-    public void SwitchToStateBackward() => SwitchState(stateBackward);
-    public void SwitchToStateStrafeLeft() => SwitchState(stateStrafeLeft);
-    public void SwitchToStateStrafeRight() => SwitchState(stateStrafeRight);
-    public void SwitchToStateTurnLeft() => SwitchState(stateTurnLeft);
-    public void SwitchToStateTurnRight() => SwitchState(stateTurnRight);
-    public void SwitchToStateClimbUp() => SwitchState(stateClimbUp);
-    public void SwitchToStateClimbDown() => SwitchState(stateClimbDown);
-    public void SwitchToStateFall() => SwitchState(stateFall);
-    public void SwitchToStateFreeLook() => SwitchState(stateFreeLook);
-    public void SwitchToStateResetView() => SwitchState(stateResetView);
+    public void SwitchToStateIdle() => SwitchToState(stateIdle);
+    public void SwitchToStateForward() => SwitchToState(stateForward);
+    public void SwitchToStateBackward() => SwitchToState(stateBackward);
+    public void SwitchToStateStrafeLeft() => SwitchToState(stateStrafeLeft);
+    public void SwitchToStateStrafeRight() => SwitchToState(stateStrafeRight);
+    public void SwitchToStateTurnLeft() => SwitchToState(stateTurnLeft);
+    public void SwitchToStateTurnRight() => SwitchToState(stateTurnRight);
+    public void SwitchToStateClimbUp() => SwitchToState(stateClimbUp);
+    public void SwitchToStateClimbDown() => SwitchToState(stateClimbDown);
+    public void SwitchToStateFall() => SwitchToState(stateFall);
+    public void SwitchToStateFreeLook() => SwitchToState(stateFreeLook);
+    public void SwitchToStateResetView() => SwitchToState(stateResetView);
 
-    private void SwitchState(MoveStateBase state)
+    private void SwitchToState(MoveStateBase state)
     {
         currentState.OnStateExit();
         currentState = state;
         currentState.OnStateEnter(this);
     }
     
-    public void Move(Vector3 direction)
+    public void MoveActor(Vector3 direction)
     {
         Vector3 worldSpaceDirection = actorTransform.TransformDirection(direction);
         float moveDistance = GetMoveDistance(worldSpaceDirection);
@@ -154,7 +156,7 @@ public class DungeonCrawlerController : MonoBehaviour
         
         if (controllerCamera != null)
         {
-            controllerCamera.PerformHeadBob(direction, walkDuration);
+            controllerCamera.PerformHeadBob(direction, moveDuration);
         }
         
         StartMoveCoroutine(midPosition, endPosition);
@@ -165,19 +167,25 @@ public class DungeonCrawlerController : MonoBehaviour
     private float GetMoveDistance(Vector3 direction)
     {
         return direction == Vector3.up || direction == Vector3.down
-            ? raycaster.GetClimbDistance(walkDistance, direction)
-            : walkDistance;
+            ? raycaster.CalculateClimbDistance(moveDistance, direction)
+            : moveDistance;
     }
     
     private Vector3 GetMovementPosition(Vector3 direction, float checkDistance)
     {
-        Vector3 raycastOrigin = raycaster.GetMovementRaycastOrigin(direction, checkDistance);
+        Vector3 raycastOrigin = raycaster.GetMoveRaycastOrigin(direction, checkDistance);
+        Vector3 newPosition;
         if (!raycaster.IsWalkableAngle(raycastOrigin, maxInclineAngle, out RaycastHit hit))
         {
-            return actorTransform.position + direction * checkDistance;
+            newPosition = actorTransform.position + direction * checkDistance;
+            newPosition.x = Mathf.RoundToInt(newPosition.x);
+            newPosition.z = Mathf.RoundToInt(newPosition.z);
+            return newPosition;
         }
 
-        Vector3 newPosition = AdjustForHeadHeightPosition(hit.point);
+        newPosition = AdjustForHeadHeightPosition(hit.point);
+        newPosition.x = Mathf.RoundToInt(hit.point.x);
+        newPosition.z = Mathf.RoundToInt(hit.point.z);
         return newPosition;
     }
     
@@ -196,10 +204,10 @@ public class DungeonCrawlerController : MonoBehaviour
     private IEnumerator MoveActor(Vector3 halfPosition, Vector3 endPosition)
     {
         Vector3 currentPosition = actorTransform.position;
-        float halfWalkDuration = walkDuration * .5f;
+        float halfWalkDuration = moveDuration * .5f;
         
         float elapsedTime = 0;
-        while (elapsedTime <= halfWalkDuration)
+        while (elapsedTime < halfWalkDuration)
         {
             elapsedTime += Time.deltaTime;
             float step = Mathf.Clamp01(elapsedTime / halfWalkDuration);
@@ -209,10 +217,9 @@ public class DungeonCrawlerController : MonoBehaviour
         }
 
         elapsedTime = 0;
-        while (elapsedTime <= halfWalkDuration)
+        while (elapsedTime < halfWalkDuration)
         {
             elapsedTime += Time.deltaTime;
-            Debug.Log($"MoveActor: {elapsedTime}");
             float step = Mathf.Clamp01(elapsedTime / halfWalkDuration);
             actorTransform.position = Vector3.Lerp(halfPosition, endPosition, step);
 
@@ -233,7 +240,7 @@ public class DungeonCrawlerController : MonoBehaviour
 
     private void DoGroundCheck()
     {
-        if (HasValidStateForGroundCheck() && !raycaster.IsOnGround(actorTransform.position, out RaycastHit _))
+        if (HasValidStateForGroundCheck() && !raycaster.IsOnGround(out RaycastHit _))
         {
             SwitchToStateFall();
             return;
@@ -254,32 +261,32 @@ public class DungeonCrawlerController : MonoBehaviour
         if (currentState == stateClimbUp || (canClimbDown && currentState == stateClimbDown))
             return false;
 
-        if (canClimbDown && currentState == stateBackward && raycaster.CanClimbDown())
+        if (canClimbDown && currentState == stateBackward && raycaster.ClimbableIsBelow())
             return false;
 
-        if (canClimbHorizontally && currentState != stateForward && CanClimbObstacle())
+        if (canClimbHorizontally && currentState != stateForward && ClimbableIsInFront)
             return false;
 
-        if (canClimbAcrossGap && currentState == stateForward && (CanClimbObstacle() || raycaster.CanClimbDown()))
+        if (canClimbAcrossGap && currentState == stateForward && (ClimbableIsInFront || raycaster.ClimbableIsBelow()))
             return false;
 
         return true;
     }
 
-    public void Fall()
+    public void MakeActorFall()
     {
         StopStateCoroutine();
 
         Vector3 newPosition;
         var fallMultiplier = 1f;
-        if (raycaster.IsOnGround(actorTransform.position, out RaycastHit hit, FallSafeHeight))
+        if (raycaster.CheckFallHeight(out RaycastHit hit, safeFallHeight))
         {
             newPosition = new Vector3(hit.point.x, hit.point.y + headHeight, hit.point.z);
             fallMultiplier = Vector3.Distance(actorTransform.position, newPosition) * fallDuration;
         }
         else
         {
-            newPosition = actorTransform.position + actorTransform.TransformDirection(Vector3.down) * walkDistance;
+            newPosition = actorTransform.position + actorTransform.TransformDirection(Vector3.down) * moveDistance;
 
             if (doFallScream)
             {
@@ -369,11 +376,9 @@ public class DungeonCrawlerController : MonoBehaviour
         }
     }
     
-    public bool CanClimbObstacle() => raycaster.CanClimbObstacle(walkDistance);
-
     public bool CanClimbDown()
     {
-        return !raycaster.IsOnGround(actorTransform.position, out RaycastHit _) && raycaster.CanClimbDown();
+        return !raycaster.IsOnGround(out RaycastHit _) && (raycaster.ClimbableIsBelow() || ClimbableIsInFront);
     }
 
     public void ResetView()

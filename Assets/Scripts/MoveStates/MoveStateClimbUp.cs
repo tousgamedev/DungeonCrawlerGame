@@ -5,6 +5,6 @@ public class MoveStateClimbUp : MoveStateBase
     public override void OnStateEnter(DungeonCrawlerController controller)
     {
         crawlerController = controller;
-        crawlerController.Move(Vector3.up);
+        crawlerController.MoveActor(Vector3.up);
     }
 }

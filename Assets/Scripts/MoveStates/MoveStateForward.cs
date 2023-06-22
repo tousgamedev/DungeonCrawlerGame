@@ -6,13 +6,13 @@ public class MoveStateForward : MoveStateBase
     {
         crawlerController = controller;
         
-        if (controller.CanClimbObstacle())
+        if (controller.ClimbableIsInFront)
         {
             crawlerController.SwitchToStateClimbUp();
         }
         else
         {
-            crawlerController.Move(Vector3.forward);
+            crawlerController.MoveActor(Vector3.forward);
         }
     }
 }

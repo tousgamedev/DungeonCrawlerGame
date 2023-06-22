@@ -5,6 +5,6 @@ public class MoveStateStrafeLeft : MoveStateBase
     public override void OnStateEnter(DungeonCrawlerController controller)
     {
         crawlerController = controller;
-        crawlerController.Move(Vector3.left);
+        crawlerController.MoveActor(Vector3.left);
     }
 }

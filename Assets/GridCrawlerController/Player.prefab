@@ -83,8 +83,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   headHeight: 2
   walkDistance: 4
-  walkDuration: 0.6
-  rotateDuration: 0.35
+  walkDuration: 0.5
+  rotateDuration: 0.3
   maxInclineAngle: 35
   slopeCheckOffset: 0.1
   reboundDuration: 0.3

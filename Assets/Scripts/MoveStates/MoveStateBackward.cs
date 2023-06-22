@@ -12,7 +12,7 @@ public class MoveStateBackward : MoveStateBase
         }
         else
         {
-            crawlerController.Move(Vector3.back);
+            crawlerController.MoveActor(Vector3.back);
         }
     }
 }

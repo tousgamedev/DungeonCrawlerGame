@@ -2,20 +2,27 @@ using UnityEngine;
 
 public class MoveStateFreeLook : MoveStateBase
 {
-    private float xAngle;
-    private float yAngle;
+    private ControllerCamera controllerCamera;
     private Quaternion currentRotation;
     private Quaternion desiredRotation;
+    private float xAngle;
+    private float yAngle;
+    private bool hasCamera;
     
     public override void OnStateEnter(DungeonCrawlerController controller)
     {
         crawlerController = controller;
+        controllerCamera = controller.ControllerCamera;
+        hasCamera = controllerCamera != null;
         xAngle = 0;
         yAngle = 0;
     }
 
     public override void OnStateTick(float deltaTime)
     {
+        if (!hasCamera)
+            return;
+        
         ProcessFreeLookInput();
         PerformFreeLook(deltaTime);
     }

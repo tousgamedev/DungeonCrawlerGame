@@ -9,13 +9,13 @@ public class ControllerCamera : MonoBehaviour
     public Vector2 FreeLookVerticalRange => verticalAngleRange;
     public Quaternion CurrentLookRotation => pivot.transform.localRotation;
     
-    [Header("HeadBob")]
+    [Header("Head Bob")]
     [SerializeField] private Camera actorCamera;
     [SerializeField] private bool headBobEnabled = true;
     [SerializeField] private AnimationCurve walkingBobCurve;
     [SerializeField] private AnimationCurve climbingBobCurve;
     
-    [Header("FreeLook")]
+    [Header("Free Look")]
     [SerializeField] private GameObject pivot;
     [SerializeField] private float resetDuration = 0.4f;
     [SerializeField] private Vector2 horizontalAngleRange = new(-80, 80);
