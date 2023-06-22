@@ -1,13 +1,14 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using System;
 using System.Collections;
 
 [RequireComponent(typeof(ControllerRaycaster))]
 [RequireComponent(typeof(ControllerAudio))]
-public class CrawlerController : MonoBehaviour
+[RequireComponent(typeof(ControllerStateMachine))]
+public class CrawlerController : MonoBehaviour, IController
 {
-    public ControllerCamera ControllerCamera => controllerCamera;
-    public ControllerAudio ControllerAudio => controllerAudio;
+    public ControllerCamera Camera => controllerCamera;
+    public ControllerAudio Audio => controllerAudio;
     public ControllerRaycaster Raycaster => raycaster;
     public bool CanClimbDown => canClimbDown;
     public bool CanClimbHorizontally => canClimbHorizontally;
@@ -41,8 +42,6 @@ public class CrawlerController : MonoBehaviour
     private Vector3 previousPosition;
 
     private IEnumerator movementCoroutine;
-
-    private bool doFallScream = true;
 
     private void Awake()
     {
@@ -187,7 +186,7 @@ public class CrawlerController : MonoBehaviour
         groundCheckCallback?.Invoke();
     }
 
-    public void DropAgent(Action groundCheckCallback)
+    public void DropAgent(Action groundCheckCallback, Action fallYellCallback)
     {
         StopMovementCoroutine();
 
@@ -201,12 +200,7 @@ public class CrawlerController : MonoBehaviour
         else
         {
             newPosition = agentTransform.position + agentTransform.TransformDirection(Vector3.down) * moveDistance;
-
-            if (doFallScream)
-            {
-                controllerAudio.PlayFallScreamSound();
-                doFallScream = false;
-            }
+            fallYellCallback?.Invoke();            
         }
 
         StartMovementCoroutine(DropAgent(newPosition, fallMultiplier, groundCheckCallback));
@@ -272,12 +266,5 @@ public class CrawlerController : MonoBehaviour
         {
             StopCoroutine(movementCoroutine);
         }
-    }
-
-    public void ResetFallScream() => doFallScream = true;
-    
-    public bool CanDescendClimbable()
-    {
-        return !raycaster.IsOnGround(out RaycastHit _) && (raycaster.ClimbableIsBelow() || ClimbableIsInFront);
     }
 }

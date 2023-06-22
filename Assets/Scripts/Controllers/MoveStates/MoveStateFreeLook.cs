@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MoveStateFreeLook : MoveStateBase
 {
-    private ControllerCamera controllerCamera;
+    private ControllerCamera camera;
     private Quaternion currentRotation;
     private Quaternion desiredRotation;
     private float xAngle;
@@ -12,8 +12,8 @@ public class MoveStateFreeLook : MoveStateBase
     public override void OnStateEnter(ControllerStateMachine stateMachine)
     {
         StateMachine = stateMachine;
-        controllerCamera = stateMachine.Controller.ControllerCamera;
-        hasCamera = controllerCamera != null;
+        camera = stateMachine.Controller.Camera;
+        hasCamera = camera != null;
         xAngle = 0;
         yAngle = 0;
     }
@@ -33,22 +33,22 @@ public class MoveStateFreeLook : MoveStateBase
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
-        Vector2 freeLookSpeed = controllerCamera.FreeLookSpeed;
+        Vector2 freeLookSpeed = camera.FreeLookSpeed;
         float ySpeed = InputManager.InvertYAxis ? -freeLookSpeed.y : freeLookSpeed.y;
 
-        xAngle = GetClampedAngle(xAngle, mouseX, freeLookSpeed.x, controllerCamera.FreeLookHorizontalRange);
-        yAngle = GetClampedAngle(yAngle, -mouseY, ySpeed, controllerCamera.FreeLookVerticalRange);
+        xAngle = GetClampedAngle(xAngle, mouseX, freeLookSpeed.x, camera.FreeLookHorizontalRange);
+        yAngle = GetClampedAngle(yAngle, -mouseY, ySpeed, camera.FreeLookVerticalRange);
     }
     
     private void PerformFreeLook(float deltaTime)
     {
         desiredRotation = Quaternion.Euler(yAngle, xAngle, 0f);
-        currentRotation = controllerCamera.CurrentLookRotation;
+        currentRotation = camera.CurrentLookRotation;
 
-        controllerCamera.FreeLook(currentRotation, desiredRotation, deltaTime);
+        camera.FreeLook(currentRotation, desiredRotation, deltaTime);
     }
 
-    private float GetClampedAngle(float currentAngle, float mouseInput, float freeLookSpeed, Vector2 range)
+    private static float GetClampedAngle(float currentAngle, float mouseInput, float freeLookSpeed, Vector2 range)
     {
         float angleDelta = mouseInput * freeLookSpeed;
         float newAngle = currentAngle + angleDelta;

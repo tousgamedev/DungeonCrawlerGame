@@ -33,7 +33,7 @@ public class ControllerAudio : MonoBehaviour
         AudioManager.Instance.PlaySoundAtPoint(landingSound, transform.position, landingVolume);
     }
 
-    public void PlayFallScreamSound()
+    public void PlayFallYellSound()
     {
         AudioManager.Instance.PlaySoundAtPoint(fallScreamSound, transform.position, fallScreamVolume);
     }
