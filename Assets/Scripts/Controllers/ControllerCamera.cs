@@ -8,9 +8,9 @@ public class ControllerCamera : MonoBehaviour
     public Vector2 FreeLookHorizontalRange => horizontalAngleRange;
     public Vector2 FreeLookVerticalRange => verticalAngleRange;
     public Quaternion CurrentLookRotation => pivot.transform.localRotation;
-    
+
     [Header("Head Bob")]
-    [SerializeField] private Camera actorCamera;
+    [SerializeField] private Camera agentCamera;
     [SerializeField] private bool headBobEnabled = true;
     [SerializeField] private AnimationCurve walkingBobCurve;
     [SerializeField] private AnimationCurve climbingBobCurve;
@@ -23,14 +23,27 @@ public class ControllerCamera : MonoBehaviour
     [SerializeField] private Vector2 lookSpeed = new(5, 5);
     [SerializeField] private float zoomDampening = 10.0f;
 
-    private IEnumerator resetFreeLookCoroutine;
+    private IEnumerator recenterViewCoroutine;
     private IEnumerator headBobCoroutine;
 
     private Vector3 cameraInitialPosition;
     private readonly Quaternion baseRotation = Quaternion.Euler(0,0,0);
 
     private float headBobDuration;
-    
+
+    private void OnEnable()
+    {
+        if (agentCamera == null)
+        {
+            Debug.LogError("Agent Camera is null!");
+        }
+
+        if (pivot == null)
+        {
+            Debug.LogError("Pivot object is null!");
+        }
+    }
+
     public void PerformHeadBob(Vector3 movementDirection, float movementDuration)
     {
         if (!headBobEnabled)
@@ -39,7 +52,7 @@ public class ControllerCamera : MonoBehaviour
         StopHeadBobCoroutine();
 
         headBobDuration = movementDuration;
-        cameraInitialPosition = actorCamera.transform.localPosition;
+        cameraInitialPosition = agentCamera.transform.localPosition;
         AnimationCurve bobCurve = Mathf.Abs(movementDirection.y) > 0 ? climbingBobCurve : walkingBobCurve;
         Vector3 bobDirection = Mathf.Abs(movementDirection.y) > 0 ? Vector3.right : Vector3.up;
 
@@ -52,18 +65,18 @@ public class ControllerCamera : MonoBehaviour
             return;
         
         StopCoroutine(headBobCoroutine);
-        actorCamera.transform.localPosition = cameraInitialPosition;
+        agentCamera.transform.localPosition = cameraInitialPosition;
     }
     
     private void StartHeadBobCoroutine(AnimationCurve bobCurve, Vector3 axis)
     {
-        headBobCoroutine = HeadBob(bobCurve, axis);
+        headBobCoroutine = HeadBobCo(bobCurve, axis);
         StartCoroutine(headBobCoroutine);
     }
     
-    private IEnumerator HeadBob(AnimationCurve curve, Vector3 axis)
+    private IEnumerator HeadBobCo(AnimationCurve curve, Vector3 axis)
     {
-        cameraInitialPosition = actorCamera.transform.localPosition;
+        cameraInitialPosition = agentCamera.transform.localPosition;
         Vector3 finalPosition = cameraInitialPosition + axis * curve.Evaluate(1);
         
         float elapsedTime = 0;
@@ -71,12 +84,12 @@ public class ControllerCamera : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             float step = Mathf.Clamp01(elapsedTime / headBobDuration);
-            actorCamera.transform.localPosition  = cameraInitialPosition + axis * curve.Evaluate(step);
+            agentCamera.transform.localPosition  = cameraInitialPosition + axis * curve.Evaluate(step);
 
             yield return null;
         }
 
-        actorCamera.transform.localPosition = finalPosition;
+        agentCamera.transform.localPosition = finalPosition;
     }
     
     public void FreeLook(Quaternion currentRotation, Quaternion desiredRotation, float deltaTime)
@@ -84,18 +97,18 @@ public class ControllerCamera : MonoBehaviour
         pivot.transform.localRotation = Quaternion.Slerp(currentRotation, desiredRotation, deltaTime * zoomDampening);
     }
     
-    public void ResetView(Action switchToIdleState)
+    public void RecenterView(Action switchToIdleState)
     {
-        if (resetFreeLookCoroutine != null)
+        if (recenterViewCoroutine != null)
         {
-            StopCoroutine(resetFreeLookCoroutine);
+            StopCoroutine(recenterViewCoroutine);
         }
         
-        resetFreeLookCoroutine = ResetFreeLook(switchToIdleState);
-        StartCoroutine(resetFreeLookCoroutine);
+        recenterViewCoroutine = RecenterViewCo(switchToIdleState);
+        StartCoroutine(recenterViewCoroutine);
     }
     
-    private IEnumerator ResetFreeLook(Action switchToIdleState)
+    private IEnumerator RecenterViewCo(Action switchToIdleState)
     {
         Quaternion initialRotation = pivot.transform.localRotation;
 

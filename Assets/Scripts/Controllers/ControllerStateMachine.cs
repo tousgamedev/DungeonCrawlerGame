@@ -95,19 +95,19 @@ public class ControllerStateMachine : MonoBehaviour
     
     public void BumpAgent()
     {
-        controller.Bump(DoGroundCheck);
+        controller.BumpAgent(DoGroundCheck);
     }
 
-    public void MakeAgentFall()
+    public void DropAgent()
     {
-        controller.MakeAgentFall(DoGroundCheck);
+        controller.DropAgent(DoGroundCheck);
     }
     
     public void ResetView()
     {
         if (controller.ControllerCamera != null)
         {
-            controller.ControllerCamera.ResetView(SwitchToStateIdle);
+            controller.ControllerCamera.RecenterView(SwitchToStateIdle);
         }
         else
         {

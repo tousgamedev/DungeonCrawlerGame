@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87eaab9e019bffd4c8a256c2fe95dadc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actorCamera: {fileID: 20291751411350586}
+  agentCamera: {fileID: 20291751411350586}
   headBobEnabled: 1
   walkingBobCurve:
     serializedVersion: 2

@@ -3,7 +3,6 @@ using UnityEngine;
 using System.Collections;
 
 [RequireComponent(typeof(ControllerRaycaster))]
-[RequireComponent(typeof(ControllerStateMachine))]
 [RequireComponent(typeof(ControllerAudio))]
 public class CrawlerController : MonoBehaviour
 {
@@ -41,7 +40,7 @@ public class CrawlerController : MonoBehaviour
     private Transform agentTransform;
     private Vector3 previousPosition;
 
-    private IEnumerator stateCoroutine;
+    private IEnumerator movementCoroutine;
 
     private bool doFallScream = true;
 
@@ -76,15 +75,14 @@ public class CrawlerController : MonoBehaviour
         }
     }
 
-    public void Bump(Action idleStateCallback)
+    public void BumpAgent(Action idleStateCallback)
     {
-        StopStateCoroutine();
+        StopMovementCoroutine();
         controllerCamera.StopHeadBobCoroutine();
-        stateCoroutine = ObstacleBump(idleStateCallback);
-        StartCoroutine(stateCoroutine);
+        StartMovementCoroutine(ObstacleBumpCo(idleStateCallback));
     }
     
-    private IEnumerator ObstacleBump(Action idleStateCallback)
+    private IEnumerator ObstacleBumpCo(Action idleStateCallback)
     {
         Vector3 bumpPosition = agentTransform.position;
         controllerAudio.PlayBumpSound();
@@ -105,6 +103,8 @@ public class CrawlerController : MonoBehaviour
     
     public void MoveAgent(Vector3 direction, Action groundCheckCallback)
     {
+        StopMovementCoroutine();
+
         Vector3 worldSpaceDirection = agentTransform.TransformDirection(direction);
         float distance = GetMoveDistance(worldSpaceDirection);
 
@@ -117,7 +117,8 @@ public class CrawlerController : MonoBehaviour
             controllerCamera.PerformHeadBob(direction, moveDuration);
         }
         
-        StartMoveCoroutine(midPosition, endPosition, groundCheckCallback);
+        previousPosition = agentTransform.position;
+        StartMovementCoroutine(MoveAgentCo(midPosition, endPosition, groundCheckCallback));
     }
 
     private float GetMoveDistance(Vector3 direction)
@@ -157,7 +158,7 @@ public class CrawlerController : MonoBehaviour
         return position;
     }
 
-    private IEnumerator MoveAgent(Vector3 halfPosition, Vector3 endPosition, Action groundCheckCallback)
+    private IEnumerator MoveAgentCo(Vector3 halfPosition, Vector3 endPosition, Action groundCheckCallback)
     {
         Vector3 currentPosition = agentTransform.position;
         float halfWalkDuration = moveDuration * .5f;
@@ -185,20 +186,10 @@ public class CrawlerController : MonoBehaviour
         agentTransform.position = endPosition;
         groundCheckCallback?.Invoke();
     }
-    
-    private void StartMoveCoroutine(Vector3 midPoint, Vector3 endPoint, Action groundCheckCallback)
+
+    public void DropAgent(Action groundCheckCallback)
     {
-        StopStateCoroutine();
-        previousPosition = agentTransform.position;
-        stateCoroutine = MoveAgent(midPoint, endPoint, groundCheckCallback);
-        StartCoroutine(stateCoroutine);
-    }
-
-
-
-    public void MakeAgentFall(Action groundCheckCallback)
-    {
-        StopStateCoroutine();
+        StopMovementCoroutine();
 
         Vector3 newPosition;
         var fallMultiplier = 1f;
@@ -218,11 +209,10 @@ public class CrawlerController : MonoBehaviour
             }
         }
 
-        stateCoroutine = MakeAgentFall(newPosition, fallMultiplier, groundCheckCallback);
-        StartCoroutine(stateCoroutine);
+        StartMovementCoroutine(DropAgent(newPosition, fallMultiplier, groundCheckCallback));
     }
 
-    private IEnumerator MakeAgentFall(Vector3 endPosition, float fallDurationMultiplier, Action groundCheckCallback)
+    private IEnumerator DropAgent(Vector3 endPosition, float fallDurationMultiplier, Action groundCheckCallback)
     {
         if (fallDurationMultiplier == 0)
             yield break;
@@ -245,17 +235,16 @@ public class CrawlerController : MonoBehaviour
 
     public void RotateAgent(Quaternion angleChange, Action groundCheckCallback)
     {
-        StopStateCoroutine();
-        Quaternion targetRotation = agentTransform.rotation * angleChange;
-        stateCoroutine = RotateActor(targetRotation, groundCheckCallback);
-        StartCoroutine(stateCoroutine);
+        StopMovementCoroutine();
+        StartMovementCoroutine(RotateAgentCo(angleChange, groundCheckCallback));
     }
 
-    private IEnumerator RotateActor(Quaternion targetRotation, Action groundCheckCallback)
+    private IEnumerator RotateAgentCo(Quaternion angleChange, Action groundCheckCallback)
     {
         controllerAudio.PlayWalkSound();
 
         Quaternion startRotation = agentTransform.rotation;
+        Quaternion targetRotation = startRotation * angleChange;
 
         float elapsedTime = 0;
         while (elapsedTime < rotateDuration)
@@ -271,11 +260,17 @@ public class CrawlerController : MonoBehaviour
         groundCheckCallback?.Invoke();
     }
 
-    private void StopStateCoroutine()
+    private void StartMovementCoroutine(IEnumerator coroutine)
     {
-        if (stateCoroutine != null)
+        movementCoroutine = coroutine;
+        StartCoroutine(movementCoroutine);
+    }
+    
+    private void StopMovementCoroutine()
+    {
+        if (movementCoroutine != null)
         {
-            StopCoroutine(stateCoroutine);
+            StopCoroutine(movementCoroutine);
         }
     }
 
