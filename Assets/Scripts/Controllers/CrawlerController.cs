@@ -7,9 +7,8 @@ using System.Collections;
 [RequireComponent(typeof(ControllerStateMachine))]
 public class CrawlerController : MonoBehaviour, IController
 {
-    public ControllerCamera Camera => controllerCamera;
-    public ControllerAudio Audio => controllerAudio;
     public ControllerRaycaster Raycaster => raycaster;
+    public float MoveDuration => moveDuration;
     public bool CanClimbDown => canClimbDown;
     public bool CanClimbHorizontally => canClimbHorizontally;
     public bool CanClimbAcrossGap => canClimbAcrossGap;
@@ -36,8 +35,6 @@ public class CrawlerController : MonoBehaviour, IController
     [SerializeField] private float safeFallHeight = 64f;
 
     private ControllerRaycaster raycaster;
-    private ControllerAudio controllerAudio;
-    private ControllerCamera controllerCamera;
     private Transform agentTransform;
     private Vector3 previousPosition;
 
@@ -57,13 +54,6 @@ public class CrawlerController : MonoBehaviour, IController
         }
 
         raycaster.InitializeClimbCheckValues(headHeight, moveDistance * .5f);
-        
-        if (!TryGetComponent(out controllerAudio))
-        {
-            controllerAudio = gameObject.AddComponent<ControllerAudio>();
-        }
-
-        TryGetComponent(out controllerCamera);
     }
 
     public void OnEnable()
@@ -77,14 +67,12 @@ public class CrawlerController : MonoBehaviour, IController
     public void BumpAgent(Action idleStateCallback)
     {
         StopMovementCoroutine();
-        controllerCamera.StopHeadBobCoroutine();
         StartMovementCoroutine(ObstacleBumpCo(idleStateCallback));
     }
     
     private IEnumerator ObstacleBumpCo(Action idleStateCallback)
     {
         Vector3 bumpPosition = agentTransform.position;
-        controllerAudio.PlayBumpSound();
 
         float elapsedTime = 0;
         while (elapsedTime <= reboundDuration)
@@ -110,11 +98,6 @@ public class CrawlerController : MonoBehaviour, IController
         Vector3 endPosition = GetMovementPosition(worldSpaceDirection, distance);
         float slopeCheckAdjust = GetDistanceCheckPoint(endPosition.y);
         Vector3 midPosition = GetMovementPosition(worldSpaceDirection, distance * slopeCheckAdjust);
-        
-        if (controllerCamera != null)
-        {
-            controllerCamera.PerformHeadBob(direction, moveDuration);
-        }
         
         previousPosition = agentTransform.position;
         StartMovementCoroutine(MoveAgentCo(midPosition, endPosition, groundCheckCallback));
@@ -186,7 +169,7 @@ public class CrawlerController : MonoBehaviour, IController
         groundCheckCallback?.Invoke();
     }
 
-    public void DropAgent(Action groundCheckCallback, Action fallYellCallback)
+    public void DropAgent(Action groundCheckCallback, Action playYellCallback)
     {
         StopMovementCoroutine();
 
@@ -200,7 +183,7 @@ public class CrawlerController : MonoBehaviour, IController
         else
         {
             newPosition = agentTransform.position + agentTransform.TransformDirection(Vector3.down) * moveDistance;
-            fallYellCallback?.Invoke();            
+            playYellCallback?.Invoke();            
         }
 
         StartMovementCoroutine(DropAgent(newPosition, fallMultiplier, groundCheckCallback));
@@ -235,8 +218,6 @@ public class CrawlerController : MonoBehaviour, IController
 
     private IEnumerator RotateAgentCo(Quaternion angleChange, Action groundCheckCallback)
     {
-        controllerAudio.PlayWalkSound();
-
         Quaternion startRotation = agentTransform.rotation;
         Quaternion targetRotation = startRotation * angleChange;
 

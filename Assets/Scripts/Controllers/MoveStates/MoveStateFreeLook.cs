@@ -12,7 +12,7 @@ public class MoveStateFreeLook : MoveStateBase
     public override void OnStateEnter(ControllerStateMachine stateMachine)
     {
         StateMachine = stateMachine;
-        camera = stateMachine.Controller.Camera;
+        camera = stateMachine.Camera;
         hasCamera = camera != null;
         xAngle = 0;
         yAngle = 0;

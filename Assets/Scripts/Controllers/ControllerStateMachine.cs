@@ -3,6 +3,7 @@ using UnityEngine;
 public class ControllerStateMachine : MonoBehaviour
 {
     public IController Controller => controller;
+    public ControllerCamera Camera => controllerCamera;
     public bool IsInIdleState => currentState == stateIdle;
     private bool IsInForwardState => currentState == stateForward;
     private bool IsInBackwardState => currentState == stateBackward;
@@ -26,15 +27,17 @@ public class ControllerStateMachine : MonoBehaviour
     private readonly MoveStateBump stateBump = new();
 
     private IController controller;
+    private ControllerCamera controllerCamera;
+    private ControllerAudio controllerAudio;
 
-    private bool doFallYell = true;
-    
     private void Awake()
     {
         if (!TryGetComponent(out controller))
         {
             Debug.LogError($"{gameObject.name} is missing CrawlerController script.");
         }
+
+        TryGetComponent(out controllerCamera);
     }
 
     private void OnEnable()
@@ -42,20 +45,20 @@ public class ControllerStateMachine : MonoBehaviour
         currentState = stateIdle;
         currentState.OnStateEnter(this);
     }
-    
+
     private void Update()
     {
         currentState.OnStateTick(Time.deltaTime);
     }
-    
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.layer == Layers.Interactable)
             return;
 
-        SwitchToStateBump();        
+        SwitchToStateBump();
     }
-    
+
     public void SwitchToStateIdle() => SwitchToState(stateIdle);
     public void SwitchToStateForward() => SwitchToState(stateForward);
     public void SwitchToStateBackward() => SwitchToState(stateBackward);
@@ -69,7 +72,7 @@ public class ControllerStateMachine : MonoBehaviour
     public void SwitchToStateFreeLook() => SwitchToState(stateFreeLook);
     public void SwitchToStateResetView() => SwitchToState(stateResetView);
     public void SwitchToStateBump() => SwitchToState(stateBump);
-    
+
     private void SwitchToState(MoveStateBase state)
     {
         currentState.OnStateExit();
@@ -92,36 +95,44 @@ public class ControllerStateMachine : MonoBehaviour
         }
 
         controller.MoveAgent(direction, DoGroundCheck);
-        PlayMovementAudio();
+        if (controllerCamera != null)
+        {
+            controllerCamera.PerformHeadBob(direction, controller.MoveDuration);
+        }
+
+        controllerAudio.PlayMovementSound(controller.ClimbableIsInFront);
     }
 
     public void RotateAgent(Quaternion rotation)
     {
         controller.RotateAgent(rotation, DoGroundCheck);
+        controllerAudio.PlayMovementSound(controller.ClimbableIsInFront);
     }
-    
+
     public void BumpAgent()
     {
+        controllerCamera.StopHeadBobCoroutine();
         controller.BumpAgent(DoGroundCheck);
+        controllerAudio.PlayBumpSound();
     }
 
     public void DropAgent()
     {
-        controller.DropAgent(DoGroundCheck, PlayFallYell);
+        controller.DropAgent(DoGroundCheck, controllerAudio.PlayFallYellSound);
     }
-    
+
     public void ResetView()
     {
-        if (controller.Camera != null)
+        if (controllerCamera != null)
         {
-            controller.Camera.RecenterView(SwitchToStateIdle);
+            controllerCamera.RecenterView(SwitchToStateIdle);
         }
         else
         {
             SwitchToStateIdle();
         }
     }
-    
+
     private void DoGroundCheck()
     {
         if (HasValidStateForGroundCheck() && !controller.Raycaster.IsOnGround(out RaycastHit _))
@@ -132,8 +143,7 @@ public class ControllerStateMachine : MonoBehaviour
 
         if (IsInFallState)
         {
-            doFallYell = true;
-            controller.Audio.PlayLandingSound();
+            controllerAudio.PlayLandingSound();
         }
 
         SwitchToStateIdle();
@@ -159,26 +169,5 @@ public class ControllerStateMachine : MonoBehaviour
     private bool CanDescendClimbable()
     {
         return !controller.Raycaster.IsOnGround(out RaycastHit _) && (controller.Raycaster.ClimbableIsBelow() || controller.ClimbableIsInFront);
-    }
-    
-    private void PlayMovementAudio()
-    {
-        if (controller.ClimbableIsInFront)
-        {
-            controller.Audio.PlayClimbSound();
-        }
-        else
-        {
-            controller.Audio.PlayWalkSound();
-        }
-    }
-
-    private void PlayFallYell()
-    {
-        if (!doFallYell)
-            return;
-        
-        controller.Audio.PlayFallYellSound();
-        doFallYell = false;
     }
 }

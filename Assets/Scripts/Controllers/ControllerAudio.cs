@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ControllerAudio : MonoBehaviour
 {
@@ -15,27 +16,46 @@ public class ControllerAudio : MonoBehaviour
     [Header("Falling")]
     [SerializeField] private AudioClipName landingSound = AudioClipName.Footstep;
     [SerializeField] [Range(0,1f)] private float landingVolume = 0.6f;
-    [SerializeField] private AudioClipName fallScreamSound = AudioClipName.None;
-    [SerializeField] [Range(0,1f)] private float fallScreamVolume = 0.6f;
+    [SerializeField] private AudioClipName fallYellSound = AudioClipName.None;
+    [SerializeField] [Range(0,1f)] private float fallYellVolume = 0.6f;
 
-    public void PlayWalkSound()
+    private bool doFallYell = true;
+
+    public void PlayMovementSound(bool isClimbing = false)
+    {
+        if (isClimbing)
+        {
+            PlayClimbSound();
+        }
+        else
+        {
+            PlayWalkSound();
+        }
+    }
+    
+    private void PlayWalkSound()
     {
         AudioManager.Instance.PlaySoundAtPoint(footStepSound, transform.position, footStepVolume);
     }
 
-    public void PlayClimbSound()
+    private void PlayClimbSound()
     {
         AudioManager.Instance.PlaySoundAtPoint(climbingSound, transform.position, climbingVolume);
     }
     
     public void PlayLandingSound()
     {
+        doFallYell = true;
         AudioManager.Instance.PlaySoundAtPoint(landingSound, transform.position, landingVolume);
     }
 
     public void PlayFallYellSound()
     {
-        AudioManager.Instance.PlaySoundAtPoint(fallScreamSound, transform.position, fallScreamVolume);
+        if (!doFallYell)
+            return;
+        
+        AudioManager.Instance.PlaySoundAtPoint(fallYellSound, transform.position, fallYellVolume);
+        doFallYell = false;
     }
 
     public void PlayBumpSound()

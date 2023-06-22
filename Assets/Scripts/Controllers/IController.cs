@@ -4,8 +4,7 @@ using UnityEngine;
 public interface IController
 {
     public ControllerRaycaster Raycaster { get; }
-    public ControllerAudio Audio { get; }
-    public ControllerCamera Camera { get; }
+    public float MoveDuration { get; }
     public bool CanClimbDown { get; }
     public bool CanClimbHorizontally { get; }
     public bool CanClimbAcrossGap { get; }
@@ -14,5 +13,5 @@ public interface IController
     public void BumpAgent(Action idleStateCallback);
     public void MoveAgent(Vector3 direction, Action groundCheckCallback);
     public void RotateAgent(Quaternion angleChange, Action groundCheckCallback);
-    public void DropAgent(Action groundCheckCallback, Action fallYellCallback);
+    public void DropAgent(Action groundCheckCallback, Action playYellCallback);
 }
