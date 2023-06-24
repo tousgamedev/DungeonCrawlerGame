@@ -13,7 +13,8 @@ public class InputManager : MonoBehaviour
     [SerializeField] private bool invertYAxis;
 
     private PlayerControls playerControls;
-    private readonly Dictionary<InputAction, ICommand> inputCommands = new();
+    private readonly Dictionary<InputActionMap, Dictionary<InputAction, ICommand>> inputActionMaps = new();
+    private Dictionary<InputAction, ICommand> currentInputCommands = new();
 
     private void Awake()
     {
@@ -26,7 +27,9 @@ public class InputManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         InitializePlayerController();
         playerControls = new();
-        InitializeCommands();
+        InitializeBattleCommands();
+        InitializeTravelCommands();
+        inputActionMaps.TryGetValue(playerControls.Battle, out currentInputCommands);
     }
 
     private void InitializePlayerController()
@@ -37,20 +40,36 @@ public class InputManager : MonoBehaviour
         GameObject playerObject = GameObject.FindWithTag("Player");
         if (playerObject == null || !playerObject.TryGetComponent(out playerStateMachine))
         {
-            Debug.LogError("Player Controller not found!");
+            Logger.Report("Player Controller not found!", LogGroup.System, LogType.Error);
         }
     }
 
-    private void InitializeCommands()
+    private void InitializeBattleCommands()
     {
-        inputCommands.Add(playerControls.Travel.FreeLook, new FreeLookCommand(playerStateMachine));
-        inputCommands.Add(playerControls.Travel.Forward, new ForwardCommand(playerStateMachine));
-        inputCommands.Add(playerControls.Travel.Backward, new BackwardCommand(playerStateMachine));
-        inputCommands.Add(playerControls.Travel.StrafeLeft, new StrafeLeftCommand(playerStateMachine));
-        inputCommands.Add(playerControls.Travel.StrafeRight, new StrafeRightCommand(playerStateMachine));
-        inputCommands.Add(playerControls.Travel.TurnLeft, new TurnLeftCommand(playerStateMachine));
-        inputCommands.Add(playerControls.Travel.TurnRight, new TurnRightCommand(playerStateMachine));
-        inputCommands.Add(playerControls.Travel.Interact, new InteractCommand(playerStateMachine));
+        Dictionary<InputAction, ICommand> commands = new()
+        {
+            { playerControls.Battle.Cancel, new CancelCommand() },
+            { playerControls.Battle.Confirm, new ConfirmCommand() },
+            { playerControls.Battle.Pause, new PauseCommand() },
+            { playerControls.Battle.SelectNext, new SelectNextCommand() },
+            { playerControls.Battle.SelectPrevious, new SelectPreviousCommand() },
+            { playerControls.Battle.MouseScrollDown, new SelectNextCommand() },
+            { playerControls.Battle.MouseScrollUp, new SelectPreviousCommand() }
+        };
+
+        inputActionMaps.Add(playerControls.Battle, commands);
+    }
+    
+    private void InitializeTravelCommands()
+    {
+        currentInputCommands.Add(playerControls.Travel.FreeLook, new FreeLookCommand(playerStateMachine));
+        currentInputCommands.Add(playerControls.Travel.Forward, new ForwardCommand(playerStateMachine));
+        currentInputCommands.Add(playerControls.Travel.Backward, new BackwardCommand(playerStateMachine));
+        currentInputCommands.Add(playerControls.Travel.StrafeLeft, new StrafeLeftCommand(playerStateMachine));
+        currentInputCommands.Add(playerControls.Travel.StrafeRight, new StrafeRightCommand(playerStateMachine));
+        currentInputCommands.Add(playerControls.Travel.TurnLeft, new TurnLeftCommand(playerStateMachine));
+        currentInputCommands.Add(playerControls.Travel.TurnRight, new TurnRightCommand(playerStateMachine));
+        currentInputCommands.Add(playerControls.Travel.Interact, new InteractCommand(playerStateMachine));
 
         playerControls.Travel.Interact.performed += OnPerformInteraction;
         playerControls.Travel.FreeLook.canceled += OnCancelFreeLook;
@@ -58,7 +77,7 @@ public class InputManager : MonoBehaviour
 
     private void OnEnable()
     {
-        foreach (InputAction action in inputCommands.Keys)
+        foreach (InputAction action in currentInputCommands.Keys)
         {
             action.Enable();
         }
@@ -71,7 +90,7 @@ public class InputManager : MonoBehaviour
 
     private void HandleInput()
     {
-        foreach (KeyValuePair<InputAction, ICommand> action in inputCommands)
+        foreach (KeyValuePair<InputAction, ICommand> action in currentInputCommands)
         {
             if (action.Key != playerControls.Travel.Interact && action.Key.IsPressed())
             {
@@ -82,7 +101,7 @@ public class InputManager : MonoBehaviour
 
     private void OnPerformInteraction(InputAction.CallbackContext context)
     {
-        if (inputCommands.TryGetValue(playerControls.Travel.Interact, out ICommand interactionCommand))
+        if (currentInputCommands.TryGetValue(playerControls.Travel.Interact, out ICommand interactionCommand))
         {
             interactionCommand.Execute();
         }
@@ -95,7 +114,7 @@ public class InputManager : MonoBehaviour
 
     private void OnDisable()
     {
-        foreach (InputAction action in inputCommands.Keys)
+        foreach (InputAction action in currentInputCommands.Keys)
         {
             action.Disable();
         }
