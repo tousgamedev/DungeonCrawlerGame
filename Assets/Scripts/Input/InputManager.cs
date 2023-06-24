@@ -1,14 +1,14 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
     public static float InteractionRange => Instance.interactionRange;
     public static bool InvertYAxis => Instance.invertYAxis;
-    
-    [SerializeField] private DungeonCrawlerController playerController;
+
+    [SerializeField] private ControllerStateMachine playerStateMachine;
     [SerializeField] private float interactionRange = 6f;
     [SerializeField] private bool invertYAxis;
 
@@ -31,10 +31,11 @@ public class InputManager : MonoBehaviour
 
     private void InitializePlayerController()
     {
-        if (playerController != null) return;
+        if (playerStateMachine != null)
+            return;
 
-        playerController = GameObject.FindWithTag("Player")?.GetComponent<DungeonCrawlerController>();
-        if (playerController == null)
+        GameObject playerObject = GameObject.FindWithTag("Player");
+        if (playerObject == null || !playerObject.TryGetComponent(out playerStateMachine))
         {
             Debug.LogError("Player Controller not found!");
         }
@@ -42,17 +43,17 @@ public class InputManager : MonoBehaviour
 
     private void InitializeCommands()
     {
-        inputCommands.Add(playerControls.Player.FreeLook, new FreeLookCommand(playerController));
-        inputCommands.Add(playerControls.Player.Forward, new ForwardCommand(playerController));
-        inputCommands.Add(playerControls.Player.Backward, new BackwardCommand(playerController));
-        inputCommands.Add(playerControls.Player.StrafeLeft, new StrafeLeftCommand(playerController));
-        inputCommands.Add(playerControls.Player.StrafeRight, new StrafeRightCommand(playerController));
-        inputCommands.Add(playerControls.Player.TurnLeft, new TurnLeftCommand(playerController));
-        inputCommands.Add(playerControls.Player.TurnRight, new TurnRightCommand(playerController));
-        inputCommands.Add(playerControls.Player.Interact, new InteractCommand(playerController));
+        inputCommands.Add(playerControls.Travel.FreeLook, new FreeLookCommand(playerStateMachine));
+        inputCommands.Add(playerControls.Travel.Forward, new ForwardCommand(playerStateMachine));
+        inputCommands.Add(playerControls.Travel.Backward, new BackwardCommand(playerStateMachine));
+        inputCommands.Add(playerControls.Travel.StrafeLeft, new StrafeLeftCommand(playerStateMachine));
+        inputCommands.Add(playerControls.Travel.StrafeRight, new StrafeRightCommand(playerStateMachine));
+        inputCommands.Add(playerControls.Travel.TurnLeft, new TurnLeftCommand(playerStateMachine));
+        inputCommands.Add(playerControls.Travel.TurnRight, new TurnRightCommand(playerStateMachine));
+        inputCommands.Add(playerControls.Travel.Interact, new InteractCommand(playerStateMachine));
 
-        playerControls.Player.Interact.performed += OnPerformInteraction;
-        playerControls.Player.FreeLook.canceled += OnCancelFreeLook;
+        playerControls.Travel.Interact.performed += OnPerformInteraction;
+        playerControls.Travel.FreeLook.canceled += OnCancelFreeLook;
     }
 
     private void OnEnable()
@@ -72,7 +73,7 @@ public class InputManager : MonoBehaviour
     {
         foreach (KeyValuePair<InputAction, ICommand> action in inputCommands)
         {
-            if (action.Key != playerControls.Player.Interact && action.Key.IsPressed())
+            if (action.Key != playerControls.Travel.Interact && action.Key.IsPressed())
             {
                 action.Value.Execute();
             }
@@ -81,7 +82,7 @@ public class InputManager : MonoBehaviour
 
     private void OnPerformInteraction(InputAction.CallbackContext context)
     {
-        if (inputCommands.TryGetValue(playerControls.Player.Interact, out ICommand interactionCommand))
+        if (inputCommands.TryGetValue(playerControls.Travel.Interact, out ICommand interactionCommand))
         {
             interactionCommand.Execute();
         }
@@ -89,7 +90,7 @@ public class InputManager : MonoBehaviour
 
     private void OnCancelFreeLook(InputAction.CallbackContext context)
     {
-        playerController.SwitchToStateResetView();
+        playerStateMachine.SwitchToStateResetView();
     }
 
     private void OnDisable()
