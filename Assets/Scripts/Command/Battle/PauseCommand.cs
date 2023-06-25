@@ -1,4 +1,7 @@
 public class PauseCommand : ICommand
 {
-    public void Execute() => throw new System.NotImplementedException();
+    public void Execute()
+    {
+        
+    }
 }

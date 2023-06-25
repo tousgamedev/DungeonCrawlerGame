@@ -25,6 +25,16 @@ public static class Utilities
         return dot >= cosine;
     }
 
+    private const int MaxChance = 1000;
+    public static bool RollIsSuccessful(int chance)
+    {
+        if (chance > MaxChance)
+            return true;
+        
+        int roll = Random.Range(0, MaxChance);
+        return roll <= chance;
+    }
+    
     #endregion
 
     #region Unity Helpers
@@ -33,7 +43,7 @@ public static class Utilities
     {
         if (gameObject.TryGetComponent(out component)) return;
 
-        Debug.LogError($"{gameObject.name} does not have a {typeof(T)} component!");
+        LogHelper.Report($"{gameObject.name} does not have a {typeof(T)} component!", LogGroup.Debug, LogType.Error);
         Object.Destroy(gameObject);
     }
 

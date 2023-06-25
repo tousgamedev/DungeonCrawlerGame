@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class Logger : MonoBehaviour
+public class LogHelper : MonoBehaviour
 {
-    private static Logger instance;
+    private static LogHelper instance;
 
     [SerializeField] private bool showSystemLogs = true;
     [SerializeField] private bool showDebugLogs = true;
@@ -23,8 +23,6 @@ public class Logger : MonoBehaviour
             Report("Duplicate Logger destroyed!", LogGroup.System, LogType.Warning);
             Destroy(this);
         }
-
-        DontDestroyOnLoad(this);
     }
 
     public static void Report(string message, LogGroup group = LogGroup.Debug, LogType type = LogType.Log)
