@@ -27,15 +27,14 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        if (effectsSource == null || musicSource == null)
+        if (effectsSource == null || musicSource == null || ambienceSource == null)
         {
-            Debug.LogError("Audio primary source is null!");
+            LogHelper.Report("Audio source is null!", LogGroup.System, LogType.Error);;
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     private void LoadAudioClip(AudioClipName clipName)
@@ -43,13 +42,13 @@ public class AudioManager : MonoBehaviour
         var clip = Resources.Load<AudioClip>($"{AudioFolder}/{clipName}");
         if (clip == null)
         {
-            Debug.LogWarning($"Audio clip {clipName} not found!");
+            LogHelper.Report($"Audio clip {clipName} not found!", LogGroup.Audio, LogType.Error);
             return;
         }
 
         if (!audioClips.TryAdd(clipName, clip))
         {
-            Debug.LogWarning($"Audio clip {clipName} is duplicate!");
+            LogHelper.Report($"Audio clip {clipName} is duplicate!", LogGroup.Audio, LogType.Warning);
         }
     }
 
@@ -67,7 +66,7 @@ public class AudioManager : MonoBehaviour
     {
         if (!TryGetAudioClip(clipName, out AudioClip clip))
         {
-            Debug.LogWarning($"Audio clip {clipName} not found!");
+            LogHelper.Report($"Audio clip {clipName} not found!", LogGroup.Audio, LogType.Error);
             return;
         }
 
@@ -78,7 +77,7 @@ public class AudioManager : MonoBehaviour
     {
         if (!TryGetAudioClip(clipName, out AudioClip clip))
         {
-            Debug.LogWarning($"Audio clip {clipName} not found!");
+            LogHelper.Report($"Audio clip {clipName} not found!", LogGroup.Audio, LogType.Error);
             return;
         }
 
