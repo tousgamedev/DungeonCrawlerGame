@@ -1,10 +1,10 @@
-using System;
 using UnityEngine;
 
 public class GameStateManager : MonoBehaviour
 {
     public static GameStateManager Instance;
-    
+
+    private EncounterZone currentZone;
     private GameStateBase currentState;
     private readonly TravelState stateTravel = new();
     private readonly BattleState stateBattle = new();
@@ -37,8 +37,8 @@ public class GameStateManager : MonoBehaviour
         }
     }
 
-    public void SwitchToStateTravel() => SwitchToState(stateTravel);
-    public void SwitchToStateBattle() => SwitchToState(stateBattle);
+    private void SwitchToStateTravel() => SwitchToState(stateTravel);
+    private void SwitchToStateBattle() => SwitchToState(stateBattle);
     
     private void SwitchToState(GameStateBase state)
     {
@@ -46,18 +46,29 @@ public class GameStateManager : MonoBehaviour
         currentState = state;
         currentState.OnStateEnter(this);
     }
+
+    public void SetEncounterZone(EncounterZone zone)
+    {
+        currentZone = zone;
+    }
     
     public static void ChangeInputMap(PlayerGameState state)
     {
         InputManager.Instance.ChangeInputMap(state);
     }
 
-    public static void RollForRandomBattle()
+    public void RollForRandomBattle()
     {
-        if (Utilities.RollIsSuccessful(50))
+        if (!EncounterController.StartEncounter(currentZone))
+            return;
+        
+        EncounterGroupScriptableObject battle = currentZone.SelectRandomEncounter();
+        SwitchToStateBattle();
+
+        LogHelper.Report("Random Battle started. Fighting:", LogGroup.Battle);
+        foreach (string enemy in battle.Enemies)
         {
-            Instance.SwitchToStateBattle();
-            LogHelper.Report("Random Battle started.", LogGroup.Battle);
+            LogHelper.Report(enemy, LogGroup.Battle);
         }
     }
 }

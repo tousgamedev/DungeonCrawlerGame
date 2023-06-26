@@ -24,16 +24,6 @@ public static class Utilities
         float cosine = Mathf.Cos(maxAngle * Mathf.Deg2Rad);
         return dot >= cosine;
     }
-
-    private const int MaxChance = 1000;
-    public static bool RollIsSuccessful(int chance)
-    {
-        if (chance > MaxChance)
-            return true;
-        
-        int roll = Random.Range(0, MaxChance);
-        return roll <= chance;
-    }
     
     #endregion
 
