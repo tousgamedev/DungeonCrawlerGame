@@ -66,9 +66,9 @@ public class GameStateManager : MonoBehaviour
         SwitchToStateBattle();
 
         LogHelper.Report("Random Battle started. Fighting:", LogGroup.Battle);
-        foreach (string enemy in battle.Enemies)
+        foreach (EnemyScriptableObject enemy in battle.Enemies)
         {
-            LogHelper.Report(enemy, LogGroup.Battle);
+            LogHelper.Report(enemy.name, LogGroup.Battle);
         }
     }
 }

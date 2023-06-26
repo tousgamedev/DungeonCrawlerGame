@@ -1581,8 +1581,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89a3869f1a3dc3c46adc989ad98154f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atbBar: {fileID: 1526400081}
-  enemyField: {fileID: 984478288}
+  turnGauge: {fileID: 1526400083}
+  battlefield: {fileID: 984478291}
 --- !u!1001 &260167699
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5289,7 +5289,7 @@ GameObject:
   - component: {fileID: 820219632}
   - component: {fileID: 820219631}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: TestZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5313,7 +5313,7 @@ MonoBehaviour:
     Weight: 88
   - EncounterGroup: {fileID: 11400000, guid: eef7a67dea684424ba31226e89e0f378, type: 2}
     Weight: 345
-  - EncounterGroup: {fileID: 11400000, guid: eed8a77fd99fe4a4da44b654339c6e4f, type: 2}
+  - EncounterGroup: {fileID: 0}
     Weight: 566
 --- !u!65 &820219632
 BoxCollider:
@@ -6347,9 +6347,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 984478289}
+  - component: {fileID: 984478291}
   - component: {fileID: 984478290}
   m_Layer: 5
-  m_Name: EnemyField
+  m_Name: Battlefield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6403,6 +6404,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &984478291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 984478288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae071dbc9c8bd22478d99fe8ab90767c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  battlefield: {fileID: 0}
 --- !u!4 &990434112 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4437836806239086, guid: b1a23e0c72bc28742b6237fc571b457b, type: 3}
@@ -9565,7 +9579,7 @@ GameObject:
   - component: {fileID: 1526400082}
   - component: {fileID: 1526400083}
   m_Layer: 5
-  m_Name: ATB
+  m_Name: TurnGauge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9605,6 +9619,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e2f4cb0bf2f56744a00b940d3b71748, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  turnGauge: {fileID: 1240847834}
+  actionCutoff: 0.8
+  markerPrefab: {fileID: 3623028385319992671, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+  markerPoolSize: 12
+  pauseIcon: {fileID: 799332528}
 --- !u!4 &1533946050 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4555992820211964, guid: f5a63cb3e228a2a4fa3f149a3c1b2110, type: 3}
@@ -13671,9 +13690,41 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1240847833}
     m_Modifications:
+    - target: {fileID: 3289013384834416195, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3289013384834416195, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3289013384834416195, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3289013384834416195, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3623028385319992671, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
       propertyPath: m_Name
       value: AgentMarker
+      objectReference: {fileID: 0}
+    - target: {fileID: 6974893732314195737, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6974893732314195737, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6974893732314195737, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6974893732314195737, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7231654457474006071, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
       propertyPath: m_Pivot.x
@@ -13705,7 +13756,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7231654457474006071, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 135
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 7231654457474006071, guid: 2426c51eae6323a4096db6f00a1a8b79, type: 3}
       propertyPath: m_SizeDelta.y
