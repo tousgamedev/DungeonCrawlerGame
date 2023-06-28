@@ -5,15 +5,23 @@ public class BattleTickState : BattleStateBase
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;
+
+        if (manager.IsPlayerPartyDefeated)
+        {
+            manager.SwitchToStateDefeat();
+        }
+        else if (manager.IsEnemyPartyDefeated)
+        {
+            manager.SwitchToStateDefeat();
+        }
     }
 
     public override void OnStateUpdate(float deltaTime)
     {
-        throw new System.NotImplementedException();
+        battleManager.UpdateTurnTicks(deltaTime);
     }
 
     public override void OnStateExit()
     {
-        throw new System.NotImplementedException();
     }
 }

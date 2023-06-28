@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ public class BattlefieldController : MonoBehaviour
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private int enemyPoolSize = 7;
     
-    private readonly Dictionary<Character, Enemy> activeEnemies = new();
+    private readonly Dictionary<BattleUnit, EnemyDisplay> activeEnemies = new();
     private readonly Queue<GameObject> enemyPool = new();
 
     private void Awake()
@@ -29,29 +28,45 @@ public class BattlefieldController : MonoBehaviour
     {
         ResetEnemyPool();
     }
-    
-    public void SetupBattlefield(List<Character> enemies)
+
+    public void OnBattleUpdate(float deltaTime)
     {
+        
+    }
+    
+    public void AddEnemies(List<BattleUnit> enemies)
+    {
+        foreach (BattleUnit enemy in enemies)
+        {
+            GameObject enemyObject = GetEnemy();
+            if (enemyObject.TryGetComponent(out EnemyDisplay display))
+            {
+                display.SetEnemySprite(enemy.BattleIcon);
+                display.ShowEnemy();
+                activeEnemies.Add(enemy, display);
+            }
+        }
     }
     
     private void ResetEnemyPool()
     {
-        foreach (Enemy enemy in activeEnemies.Values)
+        foreach (EnemyDisplay enemy in activeEnemies.Values)
         {
-            ReturnMarker(enemy.gameObject);
+            ReturnEnemy(enemy.gameObject);
         }
     }
     
-    public void RemoveEnemy(Character character)
+    public void RemoveEnemy(BattleUnit battleUnit)
     {
-        if (activeEnemies.TryGetValue(character, out Enemy enemy))
+        if (activeEnemies.TryGetValue(battleUnit, out EnemyDisplay enemy))
         {
-            ReturnMarker(enemy.gameObject);
-            activeEnemies.Remove(character);
+            enemy.HideEnemy();
+            ReturnEnemy(enemy.gameObject);
+            activeEnemies.Remove(battleUnit);
         }
     }
     
-    private GameObject GetMarker()
+    private GameObject GetEnemy()
     {
         if (enemyPool.Count == 0)
         {
@@ -64,7 +79,7 @@ public class BattlefieldController : MonoBehaviour
         return enemy;
     }
     
-    private void ReturnMarker(GameObject enemy)
+    private void ReturnEnemy(GameObject enemy)
     {
         enemy.SetActive(false);
         enemyPool.Enqueue(enemy);

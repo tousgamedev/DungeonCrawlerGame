@@ -6,6 +6,9 @@ public static class EncounterController
     
     public static bool StartEncounter(EncounterZone zone)
     {
+        if (zone == null)
+            return false;
+        
         if (zone.EncounterRate > MaxWeight)
             return true;
         

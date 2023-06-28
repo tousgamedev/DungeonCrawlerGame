@@ -9,11 +9,9 @@ public class BattleAwaitingInputState : BattleStateBase
 
     public override void OnStateUpdate(float deltaTime)
     {
-        throw new System.NotImplementedException();
     }
 
     public override void OnStateExit()
     {
-        throw new System.NotImplementedException();
     }
 }

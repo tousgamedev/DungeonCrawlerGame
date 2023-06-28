@@ -8,6 +8,8 @@ public class BattleState : GameStateBase
     {
         gameStateManager = manager;
         ChangeInputMap();
+        EncounterGroupScriptableObject encounter = gameStateManager.EncounterZone.SelectRandomEncounter();
+        BattleManager.Instance.SetEncounter(encounter, gameStateManager.SwitchToStateTravel);
     }
 
     public override void OnStateUpdate()

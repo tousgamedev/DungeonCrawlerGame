@@ -3,8 +3,12 @@ using UnityEngine;
 public class GameStateManager : MonoBehaviour
 {
     public static GameStateManager Instance;
+    
+    public EncounterZone EncounterZone { get; private set; }
 
-    private EncounterZone currentZone;
+    [SerializeField] [InspectorReadOnly] private string activeState = "None";
+    [SerializeField] [InspectorReadOnly] private string activeEncounterZone = "None";
+    
     private GameStateBase currentState;
     private readonly TravelState stateTravel = new();
     private readonly BattleState stateBattle = new();
@@ -23,6 +27,7 @@ public class GameStateManager : MonoBehaviour
     {
         currentState = stateTravel;
         currentState.OnStateEnter(this);
+        activeState = currentState.GetType().Name;
     }
 
     private void Update()
@@ -37,19 +42,21 @@ public class GameStateManager : MonoBehaviour
         }
     }
 
-    private void SwitchToStateTravel() => SwitchToState(stateTravel);
+    public void SwitchToStateTravel() => SwitchToState(stateTravel);
     private void SwitchToStateBattle() => SwitchToState(stateBattle);
-    
+
     private void SwitchToState(GameStateBase state)
     {
         currentState.OnStateExit();
         currentState = state;
+        activeState = currentState.GetType().Name;
         currentState.OnStateEnter(this);
     }
 
     public void SetEncounterZone(EncounterZone zone)
     {
-        currentZone = zone;
+        EncounterZone = zone;
+        activeEncounterZone = zone.gameObject.name;
     }
     
     public static void ChangeInputMap(PlayerGameState state)
@@ -57,18 +64,14 @@ public class GameStateManager : MonoBehaviour
         InputManager.Instance.ChangeInputMap(state);
     }
 
-    public void RollForRandomBattle()
+    public void CheckForEncounter()
     {
-        if (!EncounterController.StartEncounter(currentZone))
+        if (!EncounterController.StartEncounter(EncounterZone))
+            return;
+
+        if (currentState == stateBattle)
             return;
         
-        EncounterGroupScriptableObject battle = currentZone.SelectRandomEncounter();
         SwitchToStateBattle();
-
-        LogHelper.Report("Random Battle started. Fighting:", LogGroup.Battle);
-        foreach (EnemyScriptableObject enemy in battle.Enemies)
-        {
-            LogHelper.Report(enemy.name, LogGroup.Battle);
-        }
     }
 }

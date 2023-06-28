@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: Ghost
   battleSprite: {fileID: 21300000, guid: cf2f907128de6ce439b74a05a5ec6c6d, type: 3}
-  atbSprite: {fileID: 21300000, guid: 65976699267a1fe4187c1250b847c4b2, type: 3}
+  turnBarSprite: {fileID: 21300000, guid: 65976699267a1fe4187c1250b847c4b2, type: 3}
   speed: 60
+  maxStartProgress: 0.3

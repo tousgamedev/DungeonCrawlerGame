@@ -4,54 +4,37 @@ using UnityEngine.UI;
 
 public class TurnGaugeController : MonoBehaviour
 {
-    [SerializeField] private Image turnGauge;
-    [SerializeField] [Range(0,1f)] private float actionCutoff = .8f;
+    [SerializeField] private Image barImage;
+    [SerializeField] [Range(0, 1f)] private float actionCutoff = .8f;
     [SerializeField] private GameObject markerPrefab;
     [SerializeField] private int markerPoolSize = 12;
     [SerializeField] private GameObject pauseIcon;
 
-    private readonly Dictionary<Character, AgentMarker> activeMarkers = new();
+    private readonly Dictionary<BattleUnit, UnitMarker> activeMarkers = new();
     private readonly Queue<GameObject> markerPool = new();
-    
+
     private float turnBarLength;
     private float waitTurnLength;
-    private float waitActionLength;
-    // TODO: Eventually turn this into a state
-    private bool isPaused;
-
+    private float barStartX;
+    
     private void Awake()
     {
-        if (markerPrefab == null)
-        {
-            LogHelper.Report("Marker Prefab is null!", LogGroup.System, LogType.Error);
-        }
-        
-        if (turnGauge == null)
-        {
-            LogHelper.Report("Turn Bar is null!", LogGroup.System, LogType.Error);
-        }
-        
-        if (pauseIcon == null)
-        {
-            LogHelper.Report("Pause Icon is null!", LogGroup.System, LogType.Error);
-        }
-
         InitializeBarLengths();
         InitializeMarkerPool();
     }
 
     private void InitializeBarLengths()
     {
-        turnBarLength = turnGauge.rectTransform.rect.width;
+        turnBarLength = barImage.rectTransform.rect.width;
+        barStartX = barImage.rectTransform.rect.x;
         waitTurnLength = turnBarLength * actionCutoff;
-        waitActionLength = turnBarLength - waitTurnLength;
     }
-    
+
     private void InitializeMarkerPool()
     {
         for (var i = 0; i < markerPoolSize; i++)
         {
-            GameObject marker = Instantiate(markerPrefab, turnGauge.gameObject.transform);
+            GameObject marker = Instantiate(markerPrefab, barImage.gameObject.transform);
             marker.SetActive(false);
             markerPool.Enqueue(marker);
         }
@@ -62,32 +45,56 @@ public class TurnGaugeController : MonoBehaviour
         ResetMarkerPool();
     }
 
-    public void UpdateMarkers(float deltaTime)
-    {
-        
-    }
-    
     private void ResetMarkerPool()
     {
-        foreach (AgentMarker marker in activeMarkers.Values)
+        foreach (UnitMarker marker in activeMarkers.Values)
         {
             ReturnMarker(marker.gameObject);
         }
     }
-    
-    public void AddCharacter(Character character, float startBonus = 0)
+
+    public void OnBattleUpdate(float deltaTime)
     {
-        GameObject marker = GetMarker();
-        if (marker.TryGetComponent(out AgentMarker agentMarker))
+        UpdateMarkerPositions();
+    }
+
+    private void UpdateMarkerPositions()
+    {
+        foreach (KeyValuePair<BattleUnit, UnitMarker> unitMarker in activeMarkers)
         {
-            float startingProgress = waitTurnLength * startBonus;
-            agentMarker.RectTransform.position = new Vector3(turnBarLength - waitActionLength - startingProgress, 0, 0);
-            agentMarker.AssignCharacterIcon(character.TurnBarIcon);
-            agentMarker.ShowMarker();
-            activeMarkers.Add(character, agentMarker);
+            float currentProgress = turnBarLength * unitMarker.Key.TickProgress;
+            unitMarker.Value.RectTransform.localPosition = new Vector3(barStartX + currentProgress, 0, 0);
         }
     }
-    
+
+    public void ShowPauseIcon(bool toggle = true)
+    {
+        pauseIcon.SetActive(toggle);
+    }
+
+    public void AddUnits(List<BattleUnit> enemies)
+    {
+        foreach (BattleUnit enemy in enemies)
+        {
+            GameObject marker = GetMarker();
+            if (!marker.TryGetComponent(out UnitMarker unitMarker))
+                continue;
+
+            if (activeMarkers.ContainsKey(enemy))
+            {
+                LogHelper.Report("Why?", LogGroup.Debug, LogType.Warning);
+                continue;
+            }
+            
+            enemy.InitializeWaitTurnTickProgress();
+            float startingProgress = waitTurnLength * enemy.TickProgress;
+            unitMarker.RectTransform.position = new Vector3(-turnBarLength + startingProgress, 0, 0);
+            unitMarker.AssignCharacterIcon(enemy.TurnBarIcon);
+            unitMarker.ShowMarker();
+            activeMarkers.Add(enemy, unitMarker);
+        }
+    }
+
     private GameObject GetMarker()
     {
         if (markerPool.Count == 0)
@@ -101,24 +108,19 @@ public class TurnGaugeController : MonoBehaviour
         return marker;
     }
 
-    public void RemoveCharacter(Character character)
+    public void RemoveCharacter(BattleUnit battleUnit)
     {
-        if (activeMarkers.TryGetValue(character, out AgentMarker marker))
+        if (activeMarkers.TryGetValue(battleUnit, out UnitMarker marker))
         {
             ReturnMarker(marker.gameObject);
-            activeMarkers.Remove(character);
+            activeMarkers.Remove(battleUnit);
         }
     }
-    
+
     private void ReturnMarker(GameObject marker)
     {
         marker.SetActive(false);
         markerPool.Enqueue(marker);
-    }
-    
-    public void PauseBattle(bool toggle = true)
-    {
-        isPaused = toggle;
     }
 
     private void OnDisable()

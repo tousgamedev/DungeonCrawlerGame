@@ -1,7 +1,7 @@
-public class OutOfBattleState : BattleStateBase
+public class BattleExecuteActionState : BattleStateBase
 {
     private BattleManager battleManager;
-
+    
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;

@@ -84,7 +84,7 @@ public class ControllerStateMachine : MonoBehaviour
         currentState.OnStateExit();
         currentState = state;
         currentState.OnStateEnter(this);
-        GameStateManager.Instance.RollForRandomBattle();
+        GameStateManager.Instance.CheckForEncounter();
     }
 
     public void MoveAgent(Vector3 direction)
