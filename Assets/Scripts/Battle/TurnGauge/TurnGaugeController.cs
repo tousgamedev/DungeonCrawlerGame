@@ -86,7 +86,7 @@ public class TurnGaugeController : MonoBehaviour
                 continue;
             }
             
-            enemy.InitializeWaitTurnTickProgress();
+            enemy.Initialize();
             float startingProgress = waitTurnLength * enemy.TickProgress;
             unitMarker.RectTransform.position = new Vector3(-turnBarLength + startingProgress, 0, 0);
             unitMarker.AssignCharacterIcon(enemy.TurnBarIcon);

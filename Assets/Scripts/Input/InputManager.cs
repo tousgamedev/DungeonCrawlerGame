@@ -12,6 +12,8 @@ public class InputManager : MonoBehaviour
     [SerializeField] private float interactionRange = 6f;
     [SerializeField] private bool invertYAxis;
 
+    [SerializeField] [InspectorReadOnly] private string currentActionMap;
+    
     private PlayerControls playerControls;
     private readonly Dictionary<PlayerGameState, Dictionary<InputAction, ICommand>> inputActionMaps = new();
     private Dictionary<InputAction, ICommand> currentInputCommands = new();
@@ -29,9 +31,9 @@ public class InputManager : MonoBehaviour
         playerControls = new();
         InitializeBattleCommands();
         InitializeTravelCommands();
-        inputActionMaps.TryGetValue(PlayerGameState.Travel, out currentInputCommands);
+        ChangeInputMap(PlayerGameState.Travel);
     }
-
+    
     private void GetPlayerController()
     {
         if (playerStateMachine != null)
@@ -122,16 +124,17 @@ public class InputManager : MonoBehaviour
         playerStateMachine.SwitchToStateResetView();
     }
 
-    public void ChangeInputMap(PlayerGameState playerGameState)
+    public void ChangeInputMap(PlayerGameState gameState)
     {
         DisableCommands();
-        if (inputActionMaps.TryGetValue(playerGameState, out currentInputCommands))
+        if (inputActionMaps.TryGetValue(gameState, out currentInputCommands))
         {
             EnableCommands();
+            currentActionMap = gameState.ToString();
         }
         else
         {
-            LogHelper.Report($"Could not find {playerGameState} input action map!", LogGroup.System, LogType.Error);
+            LogHelper.Report($"Could not find {gameState} input action map!", LogGroup.System, LogType.Error);
         }
     }
     

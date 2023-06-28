@@ -47,6 +47,7 @@ public class BattleManager : MonoBehaviour
         }
 
         currentState = stateOutOfBattle;
+        currentState.OnStateEnter(this);
         CurrentState = currentState.GetType().Name;
     }
 
@@ -104,6 +105,11 @@ public class BattleManager : MonoBehaviour
         SwitchToStateStart();
     }
 
+    public void DisplayBattleUI(bool show = true)
+    {
+        uiController.gameObject.SetActive(show);
+    }
+    
     public void CreateEnemies()
     {
         foreach (EnemyScriptableObject enemy in currentEncounter.Enemies)
@@ -114,7 +120,7 @@ public class BattleManager : MonoBehaviour
         
         uiController.SetBattleVisuals(enemyParty);
     }
-
+    
     public void UpdateTurnTicks(float deltaTime)
     {
         foreach (BattleUnit unit in playerParty)
@@ -142,7 +148,7 @@ public class BattleManager : MonoBehaviour
             unit.UpdateTicks(deltaTime);
             if (unit.IsTurnReady)
             {
-                unit.temp = () => StartCoroutine(Test(unit));
+                unit.PrepareAction(SwitchToStateTick);
             }
 
             if (unit.IsActionReady)
@@ -160,21 +166,9 @@ public class BattleManager : MonoBehaviour
         if (actionReadyQueue.Count > 0)
         {
             SwitchToStateExecuteAction();
-            var blah = actionReadyQueue.Dequeue();
-            blah.ExecuteAction();
+            BattleUnit unit = actionReadyQueue.Dequeue();
+            unit.ExecuteAction();
         }
-    }
-    
-    private IEnumerator Test(BattleUnit unit)
-    {
-        Debug.Log("Attack");
-        yield return new WaitForSeconds(2f);
-        SwitchToStateTick();
-    }
-
-    private void ActionIsReady()
-    {
-        
     }
 
     public void Pause()

@@ -5,6 +5,7 @@ public class BattleStartState : BattleStateBase
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;
+        battleManager.DisplayBattleUI();
         battleManager.CreateEnemies();
         // TODO: Put stuff here for battle start dialogue or whatever
         battleManager.SwitchToStateTick();
