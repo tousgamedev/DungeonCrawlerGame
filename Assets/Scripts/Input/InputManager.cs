@@ -2,36 +2,33 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
-public class InputManager : MonoBehaviour
+public class InputManager : ManagerBase<InputManager>
 {
-    public static InputManager Instance { get; private set; }
     public static float InteractionRange => Instance.interactionRange;
     public static bool InvertYAxis => Instance.invertYAxis;
 
     [SerializeField] private ControllerStateMachine playerStateMachine;
     [SerializeField] private float interactionRange = 6f;
     [SerializeField] private bool invertYAxis;
-
-    [SerializeField] [InspectorReadOnly] private string currentActionMap;
+    [SerializeField] private PlayerGameState startState;
+    [SerializeField] [InspectorReadOnly] private string activeActionMap;
     
     private PlayerControls playerControls;
     private readonly Dictionary<PlayerGameState, Dictionary<InputAction, ICommand>> inputActionMaps = new();
     private Dictionary<InputAction, ICommand> currentInputCommands = new();
 
+#pragma warning disable CS0108, CS0114
     private void Awake()
+#pragma warning restore CS0108, CS0114
     {
-        if (Instance != null && Instance != this)
-        {
-            Utilities.Destroy(gameObject);
-        }
+        base.Awake();
 
-        Instance = this;
+        playerControls = new();
 
         GetPlayerController();
-        playerControls = new();
         InitializeBattleCommands();
         InitializeTravelCommands();
-        ChangeInputMap(PlayerGameState.Travel);
+        ChangeInputMap(startState);
     }
     
     private void GetPlayerController()
@@ -130,7 +127,7 @@ public class InputManager : MonoBehaviour
         if (inputActionMaps.TryGetValue(gameState, out currentInputCommands))
         {
             EnableCommands();
-            currentActionMap = gameState.ToString();
+            activeActionMap = gameState.ToString();
         }
         else
         {

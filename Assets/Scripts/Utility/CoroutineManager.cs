@@ -2,20 +2,13 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class CoroutineManager : MonoBehaviour
+public class CoroutineManager : ManagerBase<CoroutineManager>
 {
-    public static CoroutineManager Instance { get; private set; }
-
+#pragma warning disable CS0108, CS0114
     private void Awake()
+#pragma warning restore CS0108, CS0114
     {
-        if (Instance != null && Instance != this)
-        {
-            Utilities.Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
+        base.Awake();
     }
 
     public void RunCoroutine(IEnumerator coroutine)

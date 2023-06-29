@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Skill", menuName = "Battle/Skill")]
+[CreateAssetMenu(fileName = "Skill", menuName = "Character/New Skill")]
 public class SkillScriptableObject : ScriptableObject
 {
     public string Name => skillName;

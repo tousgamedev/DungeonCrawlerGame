@@ -12,10 +12,23 @@ public class BattleUIController : MonoBehaviour
         battlefield.OnBattleUpdate(deltaTime);
     }
 
-    public void SetBattleVisuals(List<BattleUnit> enemies)
+    public void SetEnemyBattleVisuals(List<BattleUnit> enemies)
     {
-        turnGauge.AddUnits(enemies);
-        battlefield.AddEnemies(enemies);
+        foreach (BattleUnit enemy in enemies)
+        {
+            enemy.Initialize();
+            turnGauge.AddUnit(enemy);
+            battlefield.AddUnit(enemy);
+        }
+    }
+
+    public void SetHeroBattleVisuals(List<BattleUnit> heroes)
+    {
+        foreach (BattleUnit hero in heroes)
+        {
+            hero.Initialize();
+            turnGauge.AddUnit(hero);
+        }
     }
 
     public void Pause()

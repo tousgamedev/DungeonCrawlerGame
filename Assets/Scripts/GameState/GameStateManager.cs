@@ -1,9 +1,7 @@
 using UnityEngine;
 
-public class GameStateManager : MonoBehaviour
+public class GameStateManager : ManagerBase<GameStateManager>
 {
-    public static GameStateManager Instance;
-    
     public EncounterZone EncounterZone { get; private set; }
 
     [SerializeField] [InspectorReadOnly] private string activeState = "None";
@@ -13,14 +11,11 @@ public class GameStateManager : MonoBehaviour
     private readonly TravelState stateTravel = new();
     private readonly BattleState stateBattle = new();
 
+#pragma warning disable CS0108, CS0114
     private void Awake()
+#pragma warning restore CS0108, CS0114
     {
-        if (Instance != null && Instance != this)
-        {
-            Utilities.Destroy(gameObject);
-        }
-
-        Instance = this;
+        base.Awake();
     }
     
     private void OnEnable()

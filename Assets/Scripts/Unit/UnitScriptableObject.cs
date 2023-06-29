@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Enemy", menuName = "Battle/Enemy")]
-public class EnemyScriptableObject : ScriptableObject
+[CreateAssetMenu(fileName = "Unit", menuName = "Unit/New Character")]
+public class UnitScriptableObject : ScriptableObject
 {
-    public string Name => enemyName;
+    public string Name => unitName;
     public Sprite BattleSprite => battleSprite;
     public Sprite TurnBarSprite => turnBarSprite;
     public float Speed => speed;
     public float MaxStartProgress => maxStartProgress;
     public List<SkillScriptableObject> SkillList => skillList;
     
-    [SerializeField] private string enemyName;
+    [SerializeField] private string unitName;
     [SerializeField] private Sprite battleSprite;
     [SerializeField] private Sprite turnBarSprite;
     [SerializeField] private float speed = 60f;

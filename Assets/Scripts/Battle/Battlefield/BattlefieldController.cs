@@ -1,87 +1,39 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class BattlefieldController : MonoBehaviour
+public class BattlefieldController : UnitObjectPoolController<EnemyDisplay>
 {
-    [SerializeField] private GameObject enemyPrefab;
+    protected override GameObject PoolPrefab => enemyDisplayPrefab;
+    protected override int PoolSize => enemyPoolSize;
+
+    [SerializeField] private GameObject enemyDisplayPrefab;
     [SerializeField] private int enemyPoolSize = 7;
-    
-    private readonly Dictionary<BattleUnit, EnemyDisplay> activeEnemies = new();
-    private readonly Queue<GameObject> enemyPool = new();
 
     private void Awake()
     {
-        InitializeEnemyPool();
-    }
-
-    private void InitializeEnemyPool()
-    {
-        for (var i = 0; i < enemyPoolSize; i++)
-        {
-            GameObject enemy = Instantiate(enemyPrefab, transform);
-            enemy.SetActive(false);
-            enemyPool.Enqueue(enemy);
-        }
-    }
-
-    private void OnEnable()
-    {
-        ResetEnemyPool();
+        InitializeObjectPool(transform);
     }
 
     public void OnBattleUpdate(float deltaTime)
     {
-        
     }
-    
-    public void AddEnemies(List<BattleUnit> enemies)
-    {
-        foreach (BattleUnit enemy in enemies)
-        {
-            GameObject enemyObject = GetEnemy();
-            if (enemyObject.TryGetComponent(out EnemyDisplay display))
-            {
-                display.SetEnemySprite(enemy.BattleIcon);
-                display.ShowEnemy();
-                activeEnemies.Add(enemy, display);
-            }
-        }
-    }
-    
-    private void ResetEnemyPool()
-    {
-        foreach (EnemyDisplay enemy in activeEnemies.Values)
-        {
-            ReturnEnemy(enemy.gameObject);
-        }
-    }
-    
-    public void RemoveEnemy(BattleUnit battleUnit)
-    {
-        if (activeEnemies.TryGetValue(battleUnit, out EnemyDisplay enemy))
-        {
-            enemy.HideEnemy();
-            ReturnEnemy(enemy.gameObject);
-            activeEnemies.Remove(battleUnit);
-        }
-    }
-    
-    private GameObject GetEnemy()
-    {
-        if (enemyPool.Count == 0)
-        {
-            GameObject newEnemy = Instantiate(enemyPrefab, transform);
-            return newEnemy;
-        }
 
-        GameObject enemy = enemyPool.Dequeue();
-        enemy.SetActive(true);
-        return enemy;
-    }
-    
-    private void ReturnEnemy(GameObject enemy)
+    public override void AddUnit(BattleUnit unit)
     {
-        enemy.SetActive(false);
-        enemyPool.Enqueue(enemy);
+        if (!TryGetComponentFromPoolObject(unit, out EnemyDisplay display))
+            return;
+
+        display.SetEnemySprite(unit.BattleIcon);
+        display.ShowEnemy();
+        ActiveUnits.Add(unit, display);
+    }
+
+    public override void RemoveUnit(BattleUnit unit)
+    {
+        if (!ActiveUnits.TryGetValue(unit, out EnemyDisplay enemy))
+            return;
+
+        enemy.HideEnemy();
+        ReturnPoolObject(enemy.gameObject);
+        ActiveUnits.Remove(unit);
     }
 }

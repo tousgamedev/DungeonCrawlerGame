@@ -14,9 +14,11 @@ public class UnitMarker : MonoBehaviour
         HideMarker();
     }
 
-    public void AssignCharacterIcon(Sprite sprite)
+    public void Initialize(float startingPositionX, Sprite turnBarIcon)
     {
-        characterIcon.sprite = sprite;
+        RectTransform.position = new Vector3(startingPositionX, 0, 0);
+        characterIcon.sprite = turnBarIcon;
+        ShowMarker();
     }
 
     public void ShowMarker()

@@ -25,14 +25,14 @@ public class BattleUnit
     private SkillScriptableObject skill;
     private Action actionCompleteCallback;
     
-    public BattleUnit(EnemyScriptableObject enemyScriptableObject, float turnWaitTicks, float actionWaitTicks)
+    public BattleUnit(UnitScriptableObject unitScriptableObject, float turnWaitTicks, float actionWaitTicks)
     {
-        Name = enemyScriptableObject.Name;
-        TurnBarIcon = enemyScriptableObject.TurnBarSprite;
-        BattleIcon = enemyScriptableObject.BattleSprite;
-        baseSpeed = enemyScriptableObject.Speed;
-        maxStartProgress = enemyScriptableObject.MaxStartProgress;
-        skillList = enemyScriptableObject.SkillList;
+        Name = unitScriptableObject.Name;
+        TurnBarIcon = unitScriptableObject.TurnBarSprite;
+        BattleIcon = unitScriptableObject.BattleSprite;
+        baseSpeed = unitScriptableObject.Speed;
+        maxStartProgress = unitScriptableObject.MaxStartProgress;
+        skillList = unitScriptableObject.SkillList;
         
         maxTurnWaitTicks = turnWaitTicks;
         maxActionWaitTicks = actionWaitTicks;

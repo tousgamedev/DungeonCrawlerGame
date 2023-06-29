@@ -7,6 +7,8 @@ public class BattleStartState : BattleStateBase
         battleManager = manager;
         battleManager.DisplayBattleUI();
         battleManager.CreateEnemies();
+        battleManager.CreateHeroes();
+        battleManager.PopPlayerPartyPanels();
         // TODO: Put stuff here for battle start dialogue or whatever
         battleManager.SwitchToStateTick();
     }

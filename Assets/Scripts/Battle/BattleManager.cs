@@ -1,12 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BattleManager : MonoBehaviour
+public class BattleManager : ManagerBase<BattleManager>
 {
-    public static BattleManager Instance;
-
     // TODO: Change this for actual logic.
     public bool IsPlayerPartyDefeated => false;
     // TODO: Change this for actual logic.
@@ -15,7 +12,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private BattleUIController uiController;
     [SerializeField] private float readyTurnTicks = 400f;
     [SerializeField] private float readyActionTicks = 100f;
-    [SerializeField] [InspectorReadOnly] private string CurrentState;
+    [SerializeField] [InspectorReadOnly] private string activeState;
     
     private BattleStateBase currentState;
     private BattleStateBase previousState;
@@ -35,20 +32,15 @@ public class BattleManager : MonoBehaviour
     private readonly Queue<BattleUnit> playerTurnReadyQueue = new();
     private readonly Queue<BattleUnit> actionReadyQueue = new();
     
+#pragma warning disable CS0108, CS0114
     private void Awake()
+#pragma warning restore CS0108, CS0114
     {
-        if (Instance != null && Instance != this)
-        {
-            Utilities.Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
+        base.Awake();
 
         currentState = stateOutOfBattle;
         currentState.OnStateEnter(this);
-        CurrentState = currentState.GetType().Name;
+        activeState = currentState.GetType().Name;
     }
 
     private void Update()
@@ -87,7 +79,7 @@ public class BattleManager : MonoBehaviour
     {
         currentState.OnStateExit();
         currentState = state;
-        CurrentState = currentState.GetType().Name;
+        activeState = currentState.GetType().Name;
         currentState.OnStateEnter(this);
     }
 
@@ -112,13 +104,24 @@ public class BattleManager : MonoBehaviour
     
     public void CreateEnemies()
     {
-        foreach (EnemyScriptableObject enemy in currentEncounter.Enemies)
+        foreach (UnitScriptableObject enemy in currentEncounter.Enemies)
         {
             var newEnemy = new BattleUnit(enemy, readyTurnTicks, readyActionTicks);
             enemyParty.Add(newEnemy);
         }
         
-        uiController.SetBattleVisuals(enemyParty);
+        uiController.SetEnemyBattleVisuals(enemyParty);
+    }
+    
+    public void CreateHeroes()
+    {
+        foreach (UnitScriptableObject hero in PlayerPartyManager.Instance.PlayerParty)
+        {
+            var newHero = new BattleUnit(hero, readyTurnTicks, readyActionTicks);
+            playerParty.Add(newHero);
+        }
+        
+        uiController.SetHeroBattleVisuals(playerParty);
     }
     
     public void UpdateTurnTicks(float deltaTime)
@@ -179,5 +182,15 @@ public class BattleManager : MonoBehaviour
     public void Unpause()
     {
         uiController.Unpause();
+    }
+
+    public void PopPlayerPartyPanels()
+    {
+        PlayerPartyManager.Instance.PopPartyPanels();
+    }
+    
+    public void StowPlayerPartyPanels()
+    {
+        PlayerPartyManager.Instance.StowPartyPanels();
     }
 }
