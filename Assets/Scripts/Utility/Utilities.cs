@@ -27,7 +27,31 @@ public static class Utilities
     
     #endregion
 
-    #region Unity Helpers
+    #region Animation Helpers
+
+    public static float GetAnimationLength(Animator animator, string animationClipName, int layer = 0)
+    {
+        if (animator != null)
+        {
+            animator.GetCurrentAnimatorStateInfo(layer);
+            AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+            
+            foreach (AnimationClip clip in clips)
+            {
+                if (clip.name == animationClipName)
+                {
+                    return clip.length;
+                }
+            }
+        }
+        
+        LogHelper.Report($"Animation '{animationClipName}' not found.", LogGroup.Debug, LogType.Warning);
+        return 0f;
+    }
+
+    #endregion
+    
+    #region MonoBehaviour Helpers
 
     public static void AssignComponentOrDestroyObject<T>(GameObject gameObject, out T component) where T : Component
     {

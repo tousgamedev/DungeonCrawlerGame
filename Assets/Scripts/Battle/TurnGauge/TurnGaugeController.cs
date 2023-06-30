@@ -30,7 +30,7 @@ public class TurnGaugeController : UnitObjectPoolController<UnitMarker>
         waitTurnLength = turnBarLength * actionCutoff;
     }
 
-    public void OnBattleUpdate(float deltaTime)
+    public void OnBattleUpdate()
     {
         UpdateMarkerPositions();
     }

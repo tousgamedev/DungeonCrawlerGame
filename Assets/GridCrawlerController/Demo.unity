@@ -1321,7 +1321,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &252789293
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1840,7 +1840,7 @@ MonoBehaviour:
   partyContainer: {fileID: 1454694452}
   partyMemberPrefab: {fileID: 4599538952109027988, guid: edd486937c5d4574783d386a1d9772d0, type: 3}
   memberPoolSize: 6
-  cascadeInterval: 0.25
+  cascadeInterval: 0.2
 --- !u!1001 &315883832
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3923,10 +3923,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 240ad7f0b38a25f47be3796b9fe5091c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  partyUI: {fileID: 313627802}
-  playerParty:
+  uiController: {fileID: 313627802}
+  characterBases:
+  - {fileID: 11400000, guid: 523ac92cb3a2de94fa88df740d03baf2, type: 2}
   - {fileID: 11400000, guid: a7bbecc6c93a8d248a624a525764945d, type: 2}
-  - {fileID: 11400000, guid: a7bbecc6c93a8d248a624a525764945d, type: 2}
+  - {fileID: 11400000, guid: 924c847ddcbfd1a47bdfe00a05a93135, type: 2}
 --- !u!4 &696232003 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4555992820211964, guid: f5a63cb3e228a2a4fa3f149a3c1b2110, type: 3}
@@ -4669,7 +4670,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &820219631
 MonoBehaviour:
   m_ObjectHideFlags: 0

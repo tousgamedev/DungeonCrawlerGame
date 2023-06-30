@@ -13,7 +13,7 @@ public class BattlefieldController : UnitObjectPoolController<EnemyDisplay>
         InitializeObjectPool(transform);
     }
 
-    public void OnBattleUpdate(float deltaTime)
+    public void OnBattleUpdate()
     {
     }
 

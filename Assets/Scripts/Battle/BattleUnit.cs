@@ -19,27 +19,26 @@ public class BattleUnit
 
     private float currentTicks;
     private float currentSpeed;
-    private readonly float maxTurnWaitTicks;
-    private readonly float maxActionWaitTicks;
+    private float maxTurnWaitTicks;
+    private float maxActionWaitTicks;
     private readonly List<SkillScriptableObject> skillList;
     private SkillScriptableObject skill;
     private Action actionCompleteCallback;
     
-    public BattleUnit(UnitScriptableObject unitScriptableObject, float turnWaitTicks, float actionWaitTicks)
+    public BattleUnit(UnitBaseScriptableObject unitBaseScriptableObject)
     {
-        Name = unitScriptableObject.Name;
-        TurnBarIcon = unitScriptableObject.TurnBarSprite;
-        BattleIcon = unitScriptableObject.BattleSprite;
-        baseSpeed = unitScriptableObject.Speed;
-        maxStartProgress = unitScriptableObject.MaxStartProgress;
-        skillList = unitScriptableObject.SkillList;
-        
-        maxTurnWaitTicks = turnWaitTicks;
-        maxActionWaitTicks = actionWaitTicks;
+        Name = unitBaseScriptableObject.Name;
+        TurnBarIcon = unitBaseScriptableObject.TurnBarSprite;
+        BattleIcon = unitBaseScriptableObject.BattleSprite;
+        baseSpeed = unitBaseScriptableObject.Speed;
+        maxStartProgress = unitBaseScriptableObject.MaxStartProgress;
+        skillList = unitBaseScriptableObject.SkillList;
     }
 
-    public void Initialize()
+    public void Initialize(float turnWaitTicks, float actionWaitTicks)
     {
+        maxTurnWaitTicks = turnWaitTicks;
+        maxActionWaitTicks = actionWaitTicks;
         currentTicks = maxTurnWaitTicks * Random.Range(0, maxStartProgress);
         currentSpeed = CalculateSpeed();
     }

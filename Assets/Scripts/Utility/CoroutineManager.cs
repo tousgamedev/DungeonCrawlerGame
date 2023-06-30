@@ -11,12 +11,9 @@ public class CoroutineManager : ManagerBase<CoroutineManager>
         base.Awake();
     }
 
-    public void RunCoroutine(IEnumerator coroutine)
+    public Coroutine RunCoroutine(IEnumerator coroutine)
     {
-        if (coroutine != null)
-        {
-            StartCoroutine(coroutine);
-        }
+        return coroutine != null ? StartCoroutine(coroutine) : null;
     }
     
     public void HaltCoroutine(Coroutine coroutine)

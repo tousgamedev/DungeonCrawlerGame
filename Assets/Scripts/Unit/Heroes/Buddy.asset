@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2c7938098d8ff44395912bf92dda39a, type: 3}
-  m_Name: Dude
+  m_Name: Buddy
   m_EditorClassIdentifier: 
-  unitName: Dude
+  unitName: Buddy
   battleSprite: {fileID: 0}
   turnBarSprite: {fileID: 21300000, guid: 7c9a0b10427882b42a7b4ba2cdd733bf, type: 3}
-  speed: 20
+  speed: 10
   maxStartProgress: 0.3
   skillList:
   - {fileID: 11400000, guid: 38cb4a85a3519004eba18a8190d8f519, type: 2}

@@ -26,7 +26,6 @@ public class BattleManager : ManagerBase<BattleManager>
     private readonly BattlePauseState statePause = new();
 
     private EncounterGroupScriptableObject currentEncounter;
-    private readonly List<BattleUnit> playerParty = new();
     private readonly List<BattleUnit> enemyParty = new();
 
     private readonly Queue<BattleUnit> playerTurnReadyQueue = new();
@@ -104,29 +103,38 @@ public class BattleManager : ManagerBase<BattleManager>
     
     public void CreateEnemies()
     {
-        foreach (UnitScriptableObject enemy in currentEncounter.Enemies)
+        foreach (UnitBaseScriptableObject enemy in currentEncounter.Enemies)
         {
-            var newEnemy = new BattleUnit(enemy, readyTurnTicks, readyActionTicks);
+            var newEnemy = new BattleUnit(enemy);
+            newEnemy.Initialize(readyTurnTicks, readyActionTicks);
             enemyParty.Add(newEnemy);
         }
         
         uiController.SetEnemyBattleVisuals(enemyParty);
     }
     
-    public void CreateHeroes()
+    public void ReadyHeroes()
     {
-        foreach (UnitScriptableObject hero in PlayerPartyManager.Instance.PlayerParty)
+        foreach (BattleUnit hero in PlayerPartyManager.Instance.PlayerParty)
         {
-            var newHero = new BattleUnit(hero, readyTurnTicks, readyActionTicks);
-            playerParty.Add(newHero);
+            hero.Initialize(readyTurnTicks, readyActionTicks);
+            uiController.SetHeroBattleVisuals(hero);
         }
-        
-        uiController.SetHeroBattleVisuals(playerParty);
     }
     
     public void UpdateTurnTicks(float deltaTime)
     {
-        foreach (BattleUnit unit in playerParty)
+        ProcessPartyTicks(deltaTime);
+        
+        ProcessEnemyTicks(deltaTime);
+
+        PopActionQueue();
+        uiController.OnBattleUpdate();
+    }
+
+    private void ProcessPartyTicks(float deltaTime)
+    {
+        foreach (BattleUnit unit in PlayerPartyManager.Instance.PlayerParty)
         {
             unit.UpdateTicks(deltaTime);
             if (unit.IsTurnReady)
@@ -140,12 +148,14 @@ public class BattleManager : ManagerBase<BattleManager>
             }
         }
 
-        if (playerTurnReadyQueue.Count > 0)
-        {
-            SwitchToStateAwaitingInput();
+        if (playerTurnReadyQueue.Count <= 0)
             return;
-        }
         
+        SwitchToStateAwaitingInput();
+    }
+
+    private void ProcessEnemyTicks(float deltaTime)
+    {
         foreach (BattleUnit unit in enemyParty)
         {
             unit.UpdateTicks(deltaTime);
@@ -159,11 +169,8 @@ public class BattleManager : ManagerBase<BattleManager>
                 actionReadyQueue.Enqueue(unit);
             }
         }
-
-        PopActionQueue();
-        uiController.OnBattleUpdate(deltaTime);
     }
-
+    
     private void PopActionQueue()
     {
         if (actionReadyQueue.Count > 0)
@@ -182,15 +189,5 @@ public class BattleManager : ManagerBase<BattleManager>
     public void Unpause()
     {
         uiController.Unpause();
-    }
-
-    public void PopPlayerPartyPanels()
-    {
-        PlayerPartyManager.Instance.PopPartyPanels();
-    }
-    
-    public void StowPlayerPartyPanels()
-    {
-        PlayerPartyManager.Instance.StowPartyPanels();
     }
 }

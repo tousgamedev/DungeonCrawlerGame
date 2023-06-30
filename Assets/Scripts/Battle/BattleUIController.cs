@@ -6,29 +6,24 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private TurnGaugeController turnGauge;
     [SerializeField] private BattlefieldController battlefield;
 
-    public void OnBattleUpdate(float deltaTime)
+    public void OnBattleUpdate()
     {
-        turnGauge.OnBattleUpdate(deltaTime);
-        battlefield.OnBattleUpdate(deltaTime);
+        turnGauge.OnBattleUpdate();
+        battlefield.OnBattleUpdate();
     }
 
     public void SetEnemyBattleVisuals(List<BattleUnit> enemies)
     {
         foreach (BattleUnit enemy in enemies)
         {
-            enemy.Initialize();
             turnGauge.AddUnit(enemy);
             battlefield.AddUnit(enemy);
         }
     }
 
-    public void SetHeroBattleVisuals(List<BattleUnit> heroes)
+    public void SetHeroBattleVisuals(BattleUnit hero)
     {
-        foreach (BattleUnit hero in heroes)
-        {
-            hero.Initialize();
-            turnGauge.AddUnit(hero);
-        }
+        turnGauge.AddUnit(hero);
     }
 
     public void Pause()

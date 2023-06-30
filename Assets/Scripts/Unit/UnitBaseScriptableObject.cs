@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Unit", menuName = "Unit/New Character")]
-public class UnitScriptableObject : ScriptableObject
+public class UnitBaseScriptableObject : ScriptableObject
 {
     public string Name => unitName;
     public Sprite BattleSprite => battleSprite;

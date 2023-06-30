@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
@@ -26,30 +25,23 @@ public class PartyUIController : UnitObjectPoolController<PartyMemberPanel>
         if (!TryGetComponentFromPoolObject(unit, out PartyMemberPanel panel))
             return;
 
-        unit.Initialize();
+        panel.Initialize(unit);
+        panel.gameObject.SetActive(true);
         ActiveUnits.Add(unit, panel);
     }
 
-    public void PopPartyPanels()
-    {
-        CoroutineManager.Instance.RunCoroutine(PopPanelsCoroutine());
-    }
-    
-    public void StowPartyPanels()
-    {
-        CoroutineManager.Instance.RunCoroutine(StowPanelsCoroutine());
-    }
-
-    private IEnumerator PopPanelsCoroutine()
+    public IEnumerator PopPanelsCoroutine()
     {
         foreach (PartyMemberPanel panel in ActiveUnits.Values)
         {
             panel.PopPanel();
             yield return new WaitForSeconds(cascadeInterval);
         }
+        
+        yield return new WaitForSeconds(.5f); // waiting for final panel to 
     }
     
-    private IEnumerator StowPanelsCoroutine()
+    public IEnumerator StowPanelsCoroutine()
     {
         foreach (PartyMemberPanel panel in ActiveUnits.Values)
         {

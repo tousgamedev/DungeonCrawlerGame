@@ -4,9 +4,12 @@ using UnityEngine.UI;
 
 public class PartyMemberPanel : MonoBehaviour
 {
-    private readonly int triggerPop = Animator.StringToHash("Pop");
-    private readonly int triggerStow = Animator.StringToHash("Stow");
-    
+    private const string PopAnimationName = "PanelPopUp";
+    private const string StowAnimationName = "PanelStow";
+
+    public float PopAnimationLength { get; private set; }
+    public float StowAnimationLength { get; private set; }
+
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private Image hpBar;
@@ -16,12 +19,18 @@ public class PartyMemberPanel : MonoBehaviour
     private BattleUnit partyMember;
     private Animator animator;
 
+    private readonly int triggerPop = Animator.StringToHash("Pop");
+    private readonly int triggerStow = Animator.StringToHash("Stow");
+
     private void Awake()
     {
         if (!TryGetComponent(out animator))
         {
             LogHelper.Report("Party Member Panel animator missing!", LogGroup.Debug, LogType.Error);
         }
+
+        PopAnimationLength = Utilities.GetAnimationLength(animator, PopAnimationName);
+        StowAnimationLength = Utilities.GetAnimationLength(animator, StowAnimationName);
     }
 
     public void Initialize(BattleUnit unit)
@@ -29,29 +38,27 @@ public class PartyMemberPanel : MonoBehaviour
         partyMember = unit;
 
         nameText.text = partyMember.Name;
-        hpText.text = SetHPText(1000);
-        hpText.text = SetMPText(1000);
+        SetHpText(1000, 1000);
+        SetMpText(500, 500);
     }
 
     public void PopPanel()
     {
         animator.SetTrigger(triggerPop);
     }
-    
+
     public void StowPanel()
     {
         animator.SetTrigger(triggerStow);
     }
-    
-    private string SetHPText(int currentHP)
+
+    private void SetHpText(int currentHp, int maxHp)
     {
-        int maxHP = 1000;
-        return $"HP {currentHP}/{maxHP}";
+        hpText.text = $"HP {currentHp}/{maxHp}";
     }
-    
-    private string SetMPText(int currentMP)
+
+    private void SetMpText(int currentMp, int maxMp)
     {
-        int maxMP = 1000;
-        return $"HP {currentMP}/{maxMP}";
+        mpText.text = $"MP {currentMp}/{maxMp}";
     }
 }
