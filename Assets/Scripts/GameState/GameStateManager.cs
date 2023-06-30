@@ -1,28 +1,28 @@
-using System;
 using UnityEngine;
 
-public class GameStateManager : MonoBehaviour
+public class GameStateManager : ManagerBase<GameStateManager>
 {
-    public static GameStateManager Instance;
+    public EncounterZone EncounterZone { get; private set; }
+
+    [SerializeField] [InspectorReadOnly] private string activeState = "None";
+    [SerializeField] [InspectorReadOnly] private string activeEncounterZone = "None";
     
     private GameStateBase currentState;
     private readonly TravelState stateTravel = new();
     private readonly BattleState stateBattle = new();
 
+#pragma warning disable CS0108, CS0114
     private void Awake()
+#pragma warning restore CS0108, CS0114
     {
-        if (Instance != null && Instance != this)
-        {
-            Utilities.Destroy(gameObject);
-        }
-
-        Instance = this;
+        base.Awake();
     }
     
     private void OnEnable()
     {
         currentState = stateTravel;
         currentState.OnStateEnter(this);
+        activeState = currentState.GetType().Name;
     }
 
     private void Update()
@@ -38,13 +38,20 @@ public class GameStateManager : MonoBehaviour
     }
 
     public void SwitchToStateTravel() => SwitchToState(stateTravel);
-    public void SwitchToStateBattle() => SwitchToState(stateBattle);
-    
+    private void SwitchToStateBattle() => SwitchToState(stateBattle);
+
     private void SwitchToState(GameStateBase state)
     {
         currentState.OnStateExit();
         currentState = state;
+        activeState = currentState.GetType().Name;
         currentState.OnStateEnter(this);
+    }
+
+    public void SetEncounterZone(EncounterZone zone)
+    {
+        EncounterZone = zone;
+        activeEncounterZone = zone.gameObject.name;
     }
     
     public static void ChangeInputMap(PlayerGameState state)
@@ -52,12 +59,14 @@ public class GameStateManager : MonoBehaviour
         InputManager.Instance.ChangeInputMap(state);
     }
 
-    public static void RollForRandomBattle()
+    public void CheckForEncounter()
     {
-        if (Utilities.RollIsSuccessful(50))
-        {
-            Instance.SwitchToStateBattle();
-            LogHelper.Report("Random Battle started.", LogGroup.Battle);
-        }
+        if (!EncounterController.StartEncounter(EncounterZone))
+            return;
+
+        if (currentState == stateBattle)
+            return;
+        
+        SwitchToStateBattle();
     }
 }

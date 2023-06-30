@@ -2,36 +2,35 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
-public class InputManager : MonoBehaviour
+public class InputManager : ManagerBase<InputManager>
 {
-    public static InputManager Instance { get; private set; }
     public static float InteractionRange => Instance.interactionRange;
     public static bool InvertYAxis => Instance.invertYAxis;
 
     [SerializeField] private ControllerStateMachine playerStateMachine;
     [SerializeField] private float interactionRange = 6f;
     [SerializeField] private bool invertYAxis;
-
+    [SerializeField] private PlayerGameState startState;
+    [SerializeField] [InspectorReadOnly] private string activeActionMap;
+    
     private PlayerControls playerControls;
     private readonly Dictionary<PlayerGameState, Dictionary<InputAction, ICommand>> inputActionMaps = new();
     private Dictionary<InputAction, ICommand> currentInputCommands = new();
 
+#pragma warning disable CS0108, CS0114
     private void Awake()
+#pragma warning restore CS0108, CS0114
     {
-        if (Instance != null && Instance != this)
-        {
-            Utilities.Destroy(gameObject);
-        }
+        base.Awake();
 
-        Instance = this;
+        playerControls = new();
 
         GetPlayerController();
-        playerControls = new();
         InitializeBattleCommands();
         InitializeTravelCommands();
-        inputActionMaps.TryGetValue(PlayerGameState.Travel, out currentInputCommands);
+        ChangeInputMap(startState);
     }
-
+    
     private void GetPlayerController()
     {
         if (playerStateMachine != null)
@@ -122,16 +121,17 @@ public class InputManager : MonoBehaviour
         playerStateMachine.SwitchToStateResetView();
     }
 
-    public void ChangeInputMap(PlayerGameState playerGameState)
+    public void ChangeInputMap(PlayerGameState gameState)
     {
         DisableCommands();
-        if (inputActionMaps.TryGetValue(playerGameState, out currentInputCommands))
+        if (inputActionMaps.TryGetValue(gameState, out currentInputCommands))
         {
             EnableCommands();
+            activeActionMap = gameState.ToString();
         }
         else
         {
-            LogHelper.Report($"Could not find {playerGameState} input action map!", LogGroup.System, LogType.Error);
+            LogHelper.Report($"Could not find {gameState} input action map!", LogGroup.System, LogType.Error);
         }
     }
     

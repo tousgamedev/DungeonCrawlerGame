@@ -1,9 +1,7 @@
 using UnityEngine;
 
-public class LogHelper : MonoBehaviour
+public class LogHelper : ManagerBase<LogHelper>
 {
-    private static LogHelper instance;
-
     [SerializeField] private bool showSystemLogs = true;
     [SerializeField] private bool showDebugLogs = true;
     [SerializeField] private bool showAILogs = true;
@@ -12,17 +10,11 @@ public class LogHelper : MonoBehaviour
     [SerializeField] private bool showPlayerLogs = true;
     [SerializeField] private bool showTravelLogs = true;
 
+#pragma warning disable CS0108, CS0114
     private void Awake()
+#pragma warning restore CS0108, CS0114
     {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != null && instance != this)
-        {
-            Report("Duplicate Logger destroyed!", LogGroup.System, LogType.Warning);
-            Destroy(this);
-        }
+        base.Awake();
     }
 
     public static void Report(string message, LogGroup group = LogGroup.Debug, LogType type = LogType.Log)
@@ -33,30 +25,22 @@ public class LogHelper : MonoBehaviour
         }
     }
 
-    public static bool CanShowGroup(LogGroup group)
+    private static bool CanShowGroup(LogGroup group)
     {
-        switch (group)
+        return group switch
         {
-            case LogGroup.Debug:
-                return instance.showDebugLogs;
-            case LogGroup.System:
-                return instance.showSystemLogs;
-            case LogGroup.Battle:
-                return instance.showBattleLogs;
-            case LogGroup.Travel:
-                return instance.showTravelLogs;
-            case LogGroup.Player:
-                return instance.showPlayerLogs;
-            case LogGroup.AI:
-                return instance.showAILogs;
-            case LogGroup.Audio:
-                return instance.showAudioLogs;
-            default:
-                return false;
-        }
+            LogGroup.Debug => Instance.showDebugLogs,
+            LogGroup.System => Instance.showSystemLogs,
+            LogGroup.Battle => Instance.showBattleLogs,
+            LogGroup.Travel => Instance.showTravelLogs,
+            LogGroup.Player => Instance.showPlayerLogs,
+            LogGroup.AI => Instance.showAILogs,
+            LogGroup.Audio => Instance.showAudioLogs,
+            _ => false
+        };
     }
 
-    public static void ShowLog(string message, LogType type)
+    private static void ShowLog(string message, LogType type)
     {
         switch (type)
         {

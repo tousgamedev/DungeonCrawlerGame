@@ -24,20 +24,34 @@ public static class Utilities
         float cosine = Mathf.Cos(maxAngle * Mathf.Deg2Rad);
         return dot >= cosine;
     }
-
-    private const int MaxChance = 1000;
-    public static bool RollIsSuccessful(int chance)
-    {
-        if (chance > MaxChance)
-            return true;
-        
-        int roll = Random.Range(0, MaxChance);
-        return roll <= chance;
-    }
     
     #endregion
 
-    #region Unity Helpers
+    #region Animation Helpers
+
+    public static float GetAnimationLength(Animator animator, string animationClipName, int layer = 0)
+    {
+        if (animator != null)
+        {
+            animator.GetCurrentAnimatorStateInfo(layer);
+            AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+            
+            foreach (AnimationClip clip in clips)
+            {
+                if (clip.name == animationClipName)
+                {
+                    return clip.length;
+                }
+            }
+        }
+        
+        LogHelper.Report($"Animation '{animationClipName}' not found.", LogGroup.Debug, LogType.Warning);
+        return 0f;
+    }
+
+    #endregion
+    
+    #region MonoBehaviour Helpers
 
     public static void AssignComponentOrDestroyObject<T>(GameObject gameObject, out T component) where T : Component
     {

@@ -84,7 +84,7 @@ public class ControllerStateMachine : MonoBehaviour
         currentState.OnStateExit();
         currentState = state;
         currentState.OnStateEnter(this);
-        GameStateManager.RollForRandomBattle();
+        GameStateManager.Instance.CheckForEncounter();
     }
 
     public void MoveAgent(Vector3 direction)
@@ -164,7 +164,7 @@ public class ControllerStateMachine : MonoBehaviour
         if (controller.CanClimbDown && IsInBackwardState && controller.Raycaster.ClimbableIsBelow())
             return false;
 
-        if (controller.CanClimbHorizontally && IsInForwardState && controller.Raycaster.ClimbableIsInFront())
+        if (controller.CanClimbHorizontally && !IsInForwardState && controller.Raycaster.ClimbableIsInFront())
             return false;
 
         if (controller.CanClimbAcrossGap && IsInForwardState && (controller.Raycaster.ClimbableIsInFront() || controller.Raycaster.ClimbableIsBelow()))

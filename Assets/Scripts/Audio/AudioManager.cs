@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : ManagerBase<AudioManager>
 {
-    public const string AudioFolder = "Audio";
-    public static AudioManager Instance { get; private set; }
+    private const string AudioFolder = "Audio";
 
     [SerializeField] private AudioSource effectsSource;
     [SerializeField] private AudioSource musicSource;
@@ -12,29 +11,17 @@ public class AudioManager : MonoBehaviour
 
     private readonly Dictionary<AudioClipName, AudioClip> audioClips = new();
 
+#pragma warning disable CS0108, CS0114
     private void Awake()
+#pragma warning restore CS0108, CS0114
     {
-        if (Instance != null && Instance != this)
-        {
-#if UNITY_EDITOR
-            if (Application.isEditor)
-            {
-                DestroyImmediate(gameObject);
-            }
-#endif
+        base.Awake();
 
-            Destroy(gameObject);
+        if (effectsSource != null && musicSource != null && ambienceSource != null)
             return;
-        }
-
-        if (effectsSource == null || musicSource == null || ambienceSource == null)
-        {
-            LogHelper.Report("Audio source is null!", LogGroup.System, LogType.Error);;
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
+        
+        LogHelper.Report("Audio source is null!", LogGroup.System, LogType.Error);;
+        Utilities.Destroy(gameObject);
     }
 
     private void LoadAudioClip(AudioClipName clipName)
