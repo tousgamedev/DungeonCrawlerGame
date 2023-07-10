@@ -8,6 +8,8 @@ public class UnitStats
     public int MaxMp { get; private set; }
     public float BaseSpeed { get; private set; }
 
+    public bool IsDead => CurrentHealth == 0;
+    
     public UnitStats(UnitBaseScriptableObject unit)
     {
         CurrentHealth = unit.MaxHealth;

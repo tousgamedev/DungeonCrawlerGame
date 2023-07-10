@@ -6,7 +6,7 @@ public class BattleExecuteActionState : BattleStateBase
     {
         battleManager = manager;
         BattleUnit unit = battleManager.PopActionReadyQueue();
-        unit.ExecuteAction();
+        unit.Actions.ExecuteAction();
     }
 
     public override void OnStateUpdate(float deltaTime)

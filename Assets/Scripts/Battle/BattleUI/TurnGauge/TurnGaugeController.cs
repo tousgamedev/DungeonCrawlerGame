@@ -39,7 +39,7 @@ public class TurnGaugeController : UnitObjectPoolController<UnitMarker>
     {
         foreach (KeyValuePair<BattleUnit, UnitMarker> unitMarker in ActiveUnits)
         {
-            float currentProgress = turnBarLength * unitMarker.Key.TickProgress;
+            float currentProgress = turnBarLength * unitMarker.Key.TickHandler.TickProgress;
             unitMarker.Value.RectTransform.localPosition = new Vector3(barStartX + currentProgress, 0, 0);
         }
     }
@@ -54,7 +54,7 @@ public class TurnGaugeController : UnitObjectPoolController<UnitMarker>
         if (!TryGetComponentFromPoolObject(unit, out UnitMarker unitMarker))
             return;
 
-        float startingPositionX = -turnBarLength + waitTurnLength * unit.TickProgress;
+        float startingPositionX = -turnBarLength + waitTurnLength * unit.TickHandler.TickProgress;
         unitMarker.Initialize(startingPositionX, unit.TurnBarIcon);
         ActiveUnits.Add(unit, unitMarker);
     }

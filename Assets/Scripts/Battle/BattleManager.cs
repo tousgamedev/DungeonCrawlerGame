@@ -130,7 +130,7 @@ public class BattleManager : ManagerBase<BattleManager>
         foreach (UnitBaseScriptableObject enemy in currentEncounter.Enemies)
         {
             var newEnemy = new BattleUnit(enemy);
-            newEnemy.Initialize(readyTurnTicks, readyActionTicks);
+            newEnemy.TickHandler.Initialize(readyTurnTicks, readyActionTicks, enemy.Speed);
             enemyParty.Add(newEnemy);
         }
 
@@ -141,7 +141,7 @@ public class BattleManager : ManagerBase<BattleManager>
     {
         foreach (BattleUnit hero in PlayerPartyManager.Instance.PlayerParty)
         {
-            hero.Initialize(readyTurnTicks, readyActionTicks);
+            hero.TickHandler.Initialize(readyTurnTicks, readyActionTicks, hero.Stats.BaseSpeed);
             uiController.SetHeroBattleVisuals(hero);
         }
     }

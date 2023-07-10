@@ -40,12 +40,12 @@ public class BattleTickState : BattleStateBase
         foreach (BattleUnit unit in PlayerPartyManager.Instance.PlayerParty)
         {
             unit.UpdateTicks(deltaTime);
-            if (unit.IsTurnReady && !unit.IsActionSelected)
+            if (unit.TickHandler.IsTurnReady && !unit.Actions.IsActionSelected)
             {
                 battleManager.QueueTurnReadyPartyMember(unit);
             }
 
-            if (unit.IsActionReady)
+            if (unit.TickHandler.IsActionReady)
             {
                 battleManager.QueueActionReadyUnit(unit);
             }
@@ -57,7 +57,7 @@ public class BattleTickState : BattleStateBase
         foreach (BattleUnit unit in battleManager.EnemyParty)
         {
             unit.UpdateTicks(deltaTime);
-            if (unit.IsTurnReady && !unit.IsActionSelected)
+            if (unit.TickHandler.IsTurnReady && !unit.Actions.IsActionSelected)
             {
                 // TODO: Create better enemy skill/target selection
                 BattleUnit target = PlayerPartyManager.Instance.SelectRandomPartyMember();
@@ -65,7 +65,7 @@ public class BattleTickState : BattleStateBase
                 unit.PrepareAction(unitAction, target, battleManager.SwitchToStateTick);
             }
 
-            if (unit.IsActionReady)
+            if (unit.TickHandler.IsActionReady)
             {
                 battleManager.QueueActionReadyUnit(unit);
             }

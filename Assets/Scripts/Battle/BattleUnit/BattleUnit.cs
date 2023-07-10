@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -7,124 +6,74 @@ using Random = UnityEngine.Random;
 public class BattleUnit
 {
     public Action<BattleUnit> OnHealthChange;
+    public Action<BattleUnit> OnUnitDeath;
+    public Action<BattleUnit> OnActionReady;
     
     public string Name { get; private set; }
     public UnitStats Stats { get; private set; }
     public UnitActions Actions { get; private set; }
+    public UnitTickHandler TickHandler { get; private set; }
     public Sprite TurnBarIcon { get; private set; }
     public Sprite BattleIcon { get; private set; }
-    public bool IsDead => Stats.CurrentHealth == 0;
-    public bool IsTurnReady => currentTicks >= maxTurnWaitTicks;
-    public bool IsActionSelected => preparedAction.action != null;
-    public bool IsActionReady => currentTicks >= maxTurnWaitTicks + maxActionWaitTicks;
-    public float TickProgress => currentTicks / (maxTurnWaitTicks + maxActionWaitTicks);
-
-    private (UnitActionScriptableObject action, List<BattleUnit> targets) preparedAction;
-    private Action actionCompleteCallback;
-   
-    private float currentSpeed;
-    private float maxStartProgress;
-    private float currentTicks;
-    private float maxTurnWaitTicks;
-    private float maxActionWaitTicks;
-
+    
     public BattleUnit(UnitBaseScriptableObject unitBaseScriptableObject)
     {
         Name = unitBaseScriptableObject.Name;
         Stats = new UnitStats(unitBaseScriptableObject);
         Actions = new UnitActions(unitBaseScriptableObject);
+        TickHandler = new UnitTickHandler(unitBaseScriptableObject);
         TurnBarIcon = unitBaseScriptableObject.TurnBarSprite;
         BattleIcon = unitBaseScriptableObject.BattleSprite;
-        maxStartProgress = unitBaseScriptableObject.MaxStartProgress;
-    }
-
-    public void Initialize(float turnWaitTicks, float actionWaitTicks)
-    {
-        maxTurnWaitTicks = turnWaitTicks;
-        maxActionWaitTicks = actionWaitTicks;
-        currentTicks = maxTurnWaitTicks * Random.Range(0, maxStartProgress);
-        currentSpeed = CalculateSpeed();
     }
 
     private float CalculateSpeed()
     {
-        return IsActionSelected ? preparedAction.action.BaseExecutionSpeed : Stats.BaseSpeed;
+        return Actions.IsActionSelected ? Actions.ActionExecutionSpeed : Stats.BaseSpeed;
     }
 
     public void UpdateTicks(float deltaTime)
     {
-        float ticksToAdd = deltaTime * currentSpeed;
-        if (IsActionSelected)
+        if (Actions.IsActionSelected)
         {
-            currentTicks += ticksToAdd;
-            currentTicks = Mathf.Clamp(currentTicks, maxTurnWaitTicks, maxTurnWaitTicks + maxActionWaitTicks);
+            TickHandler.UpdateTicksActionWait(deltaTime);
         }
         else
         {
-            currentTicks += ticksToAdd;
-            currentTicks = Mathf.Clamp(currentTicks, 0, maxTurnWaitTicks);
+            TickHandler.UpdateTicksTurnWait(deltaTime);
         }
     }
 
-    public void PrepareAction(UnitActionScriptableObject unitAction, BattleUnit target, Action finishActionCallback)
+    public void PrepareAction(UnitActionScriptableObject unitAction, BattleUnit target, Action stateChangeCallback)
     {
         var tempList = new List<BattleUnit> { target };
-        PrepareAction(unitAction, tempList, finishActionCallback);
+        PrepareAction(unitAction, tempList, stateChangeCallback);
     }
-
-    public void PrepareAction(UnitActionScriptableObject unitAction, List<BattleUnit> targets, Action finishActionCallback)
+    
+    public void PrepareAction(UnitActionScriptableObject unitAction, List<BattleUnit> targets, Action stateChangeCallback)
     {
-        if (targets == null || targets.Count == 0)
+        if (unitAction == null || targets?.Count == 0 || stateChangeCallback == null)
         {
-            LogHelper.Report($"No valid target", LogType.Warning, LogGroup.Battle);
+            LogHelper.Report("Action unable to prepare!", LogType.Error, LogGroup.Battle);
         }
-
-        preparedAction.action = unitAction;
-        preparedAction.targets = targets;
-        if (preparedAction.action == null)
+        
+        Actions.PrepareAction(unitAction, targets,()=>
         {
-            LogHelper.Report($"Check skills assigned to enemy {Name}", LogType.Warning, LogGroup.Battle);
-            return;
-        }
-
-        currentSpeed = CalculateSpeed();
-        actionCompleteCallback = finishActionCallback;
+            stateChangeCallback?.Invoke();
+            ResetUnitTickHandler();
+        });
+        
+        TickHandler.SetCurrentSpeed(CalculateSpeed());
     }
 
-    public void ExecuteAction()
+    private void ResetUnitTickHandler()
     {
-        LogHelper.DebugLog(preparedAction.action.ActionName);
-        foreach (BattleUnit target in preparedAction.targets)
-        {
-            target.Stats.TakeDamage(preparedAction.action.BasePower);
-
-            if (target.IsDead)
-            {
-                target.KillUnit();
-            }
-        }
-
-        CoroutineManager.Instance.RunCoroutine(ExecutionActionCoroutine());
+        TickHandler.ResetTickCounter();
+        TickHandler.SetCurrentSpeed(CalculateSpeed());
     }
-
-    private IEnumerator ExecutionActionCoroutine()
-    {
-        yield return new WaitForSeconds(2f);
-        actionCompleteCallback?.Invoke();
-        ReadyNextTurn();
-    }
-
-    private void ReadyNextTurn()
-    {
-        preparedAction.action = null;
-        preparedAction.targets = null;
-        actionCompleteCallback = null;
-        currentTicks = 0;
-        currentSpeed = CalculateSpeed();
-    }
-
-    private void KillUnit()
+    
+    public void KillUnit()
     {
         LogHelper.DebugLog($"{Name} is dead.");
+        OnUnitDeath?.Invoke(this);
     }
 }
