@@ -3924,6 +3924,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiController: {fileID: 313627802}
+  maxBaseActionCommands: 4
   characterBases:
   - {fileID: 11400000, guid: 523ac92cb3a2de94fa88df740d03baf2, type: 2}
   - {fileID: 11400000, guid: a7bbecc6c93a8d248a624a525764945d, type: 2}
@@ -4670,7 +4671,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &820219631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5396,7 +5397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae071dbc9c8bd22478d99fe8ab90767c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyDisplayPrefab: {fileID: 7221873778558202421, guid: 01cde5eab82eeaf48b00b043224e5683, type: 3}
+  battlefieldEnemyPrefab: {fileID: 7221873778558202421, guid: 01cde5eab82eeaf48b00b043224e5683, type: 3}
   enemyPoolSize: 7
 --- !u!4 &990434112 stripped
 Transform:

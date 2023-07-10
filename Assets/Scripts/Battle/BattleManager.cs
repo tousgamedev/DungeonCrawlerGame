@@ -4,33 +4,44 @@ using UnityEngine;
 
 public class BattleManager : ManagerBase<BattleManager>
 {
-    // TODO: Change this for actual logic.
-    public bool IsPlayerPartyDefeated => false;
+    public List<BattleUnit> EnemyParty => enemyParty;
+    public bool IsPartyMemberTurnReady => partyTurnReadyQueue.Count > 0;
+    public bool IsActionReady => actionReadyQueue.Count > 0;
+    public bool HasSelectedTargets => partyMemberSelectedTargets.Count > 0;
+
+    
     // TODO: Change this for actual logic.
     public bool IsEnemyPartyDefeated => false;
-
+    // TODO: Change this for actual logic.
+    public bool IsPlayerPartyDefeated => false;
+    
     [SerializeField] private BattleUIController uiController;
     [SerializeField] private float readyTurnTicks = 400f;
     [SerializeField] private float readyActionTicks = 100f;
     [SerializeField] [InspectorReadOnly] private string activeState;
-    
+
     private BattleStateBase currentState;
     private BattleStateBase previousState;
     private readonly OutOfBattleState stateOutOfBattle = new();
     private readonly BattleStartState stateStart = new();
     private readonly BattleTickState stateTick = new();
-    private readonly BattleAwaitingInputState stateAwaitingInput = new();
+    private readonly BattleActionSelectionState stateActionSelection = new();
+    private readonly BattleTargetSelectionState stateTargetSelection = new();
     private readonly BattleExecuteActionState stateExecuteAction = new();
     private readonly BattleVictoryState stateVictory = new();
     private readonly BattleDefeatState stateDefeat = new();
     private readonly BattlePauseState statePause = new();
 
-    private EncounterGroupScriptableObject currentEncounter;
     private readonly List<BattleUnit> enemyParty = new();
+    private EncounterGroupScriptableObject currentEncounter;
 
-    private readonly Queue<BattleUnit> playerTurnReadyQueue = new();
+    private readonly Queue<BattleUnit> partyTurnReadyQueue = new();
     private readonly Queue<BattleUnit> actionReadyQueue = new();
     
+    private BattleUnit activePartyMember;
+    private SkillScriptableObject partyMemberSelectedSkill;
+    private readonly List<BattleUnit> partyMemberSelectedTargets = new();
+
 #pragma warning disable CS0108, CS0114
     private void Awake()
 #pragma warning restore CS0108, CS0114
@@ -45,7 +56,8 @@ public class BattleManager : ManagerBase<BattleManager>
     private void Update()
     {
         currentState.OnStateUpdate(Time.deltaTime);
-
+        
+        // TODO: Use input manager
         if (Input.GetKeyDown(KeyCode.Space))
         {
             TogglePause();
@@ -64,11 +76,23 @@ public class BattleManager : ManagerBase<BattleManager>
             SwitchToState(previousState);
         }
     }
-    
+
     private void SwitchToStateOutOfBattle() => SwitchToState(stateOutOfBattle);
     private void SwitchToStateStart() => SwitchToState(stateStart);
     public void SwitchToStateTick() => SwitchToState(stateTick);
-    public void SwitchToStateAwaitingInput() => SwitchToState(stateAwaitingInput);
+    public void SwitchToStateActionSelection() => SwitchToState(stateActionSelection);
+
+    public void SwitchToStateTargetSelection()
+    {
+        if (currentState == stateActionSelection)
+        {
+            SwitchToState(stateTargetSelection);
+            return;
+        }
+
+        LogHelper.DebugLog($"Cannot select action in {currentState.GetType().Name}", LogType.Warning);
+    }
+
     public void SwitchToStateExecuteAction() => SwitchToState(stateExecuteAction);
     public void SwitchToStateDefeat() => SwitchToState(stateDefeat);
     public void SwitchToStateVictory() => SwitchToState(stateVictory);
@@ -82,16 +106,16 @@ public class BattleManager : ManagerBase<BattleManager>
         currentState.OnStateEnter(this);
     }
 
-    public void SetEncounter(EncounterGroupScriptableObject encounter, Action abortAction)
+    public void StartBattle(EncounterGroupScriptableObject encounter, Action abortAction)
     {
         if (encounter == null || encounter.Enemies.Count == 0)
         {
-            LogHelper.Report("Current Encounter data is invalid!", LogGroup.Battle, LogType.Error);
+            LogHelper.Report("Current Encounter data is invalid!", LogType.Error, LogGroup.Battle);
             abortAction?.Invoke();
             SwitchToStateOutOfBattle();
             return;
         }
-        
+
         currentEncounter = encounter;
         SwitchToStateStart();
     }
@@ -100,8 +124,8 @@ public class BattleManager : ManagerBase<BattleManager>
     {
         uiController.gameObject.SetActive(show);
     }
-    
-    public void CreateEnemies()
+
+    public void InitializeEnemies()
     {
         foreach (UnitBaseScriptableObject enemy in currentEncounter.Enemies)
         {
@@ -109,11 +133,11 @@ public class BattleManager : ManagerBase<BattleManager>
             newEnemy.Initialize(readyTurnTicks, readyActionTicks);
             enemyParty.Add(newEnemy);
         }
-        
+
         uiController.SetEnemyBattleVisuals(enemyParty);
     }
-    
-    public void ReadyHeroes()
+
+    public void InitializeHeroes()
     {
         foreach (BattleUnit hero in PlayerPartyManager.Instance.PlayerParty)
         {
@@ -121,64 +145,65 @@ public class BattleManager : ManagerBase<BattleManager>
             uiController.SetHeroBattleVisuals(hero);
         }
     }
-    
-    public void UpdateTurnTicks(float deltaTime)
-    {
-        ProcessPartyTicks(deltaTime);
-        
-        ProcessEnemyTicks(deltaTime);
 
-        PopActionQueue();
+    public void UpdateBattleUI()
+    {
         uiController.OnBattleUpdate();
     }
-
-    private void ProcessPartyTicks(float deltaTime)
+    
+    public void QueueTurnReadyPartyMember(BattleUnit unit)
     {
-        foreach (BattleUnit unit in PlayerPartyManager.Instance.PlayerParty)
-        {
-            unit.UpdateTicks(deltaTime);
-            if (unit.IsTurnReady)
-            {
-                playerTurnReadyQueue.Enqueue(unit);
-            }
-
-            if (unit.IsActionReady)
-            {
-                actionReadyQueue.Enqueue(unit);
-            }
-        }
-
-        if (playerTurnReadyQueue.Count <= 0)
-            return;
-        
-        SwitchToStateAwaitingInput();
+        partyTurnReadyQueue.Enqueue(unit);
     }
 
-    private void ProcessEnemyTicks(float deltaTime)
+    public void PopPartyTurnReadyQueue()
     {
-        foreach (BattleUnit unit in enemyParty)
-        {
-            unit.UpdateTicks(deltaTime);
-            if (unit.IsTurnReady)
-            {
-                unit.PrepareAction(SwitchToStateTick);
-            }
-
-            if (unit.IsActionReady)
-            {
-                actionReadyQueue.Enqueue(unit);
-            }
-        }
+        activePartyMember = partyTurnReadyQueue.Dequeue();
     }
     
-    private void PopActionQueue()
+    public void EnablePartyMemberActionList()
     {
-        if (actionReadyQueue.Count > 0)
-        {
-            SwitchToStateExecuteAction();
-            BattleUnit unit = actionReadyQueue.Dequeue();
-            unit.ExecuteAction();
-        }
+        PlayerPartyManager.Instance.EnablePartyMemberActionList(activePartyMember);
+    }
+
+    public void SelectPartyMemberAction(SkillScriptableObject skill)
+    {
+        partyMemberSelectedSkill = skill;
+        SwitchToStateTargetSelection();
+    }
+
+    public void DisablePartyMemberActionList()
+    {
+        PlayerPartyManager.Instance.DisablePartyMemberActionList(activePartyMember);
+    }
+
+    public void SelectEnemy(BattleUnit unit)
+    {
+        partyMemberSelectedTargets.Add(unit);
+        LogHelper.DebugLog("Enemy Selected");
+    }
+
+    public void QueueActionReadyUnit(BattleUnit unit)
+    {
+        actionReadyQueue.Enqueue(unit);
+    }
+    
+    public void PreparePartyMemberAction()
+    {
+        activePartyMember.PrepareAction(partyMemberSelectedSkill, partyMemberSelectedTargets, SwitchToStateTick);
+        LogHelper.DebugLog("Action Ready");
+    }
+
+    public void ClearPartyMemberSelections()
+    {
+        activePartyMember = null;
+        partyMemberSelectedSkill = null;
+        partyMemberSelectedTargets.Clear();
+    }
+
+    public BattleUnit PopActionReadyQueue()
+    {
+        return actionReadyQueue.Dequeue();
     }
 
     public void Pause()

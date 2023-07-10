@@ -5,22 +5,81 @@ public class BattleTickState : BattleStateBase
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;
-
-        if (manager.IsPlayerPartyDefeated)
-        {
-            manager.SwitchToStateDefeat();
-        }
-        else if (manager.IsEnemyPartyDefeated)
-        {
-            manager.SwitchToStateDefeat();
-        }
     }
 
     public override void OnStateUpdate(float deltaTime)
     {
-        battleManager.UpdateTurnTicks(deltaTime);
+        CheckBattleEndConditions();
+        ProcessPartyTicks(deltaTime);
+        ProcessEnemyTicks(deltaTime);
+        battleManager.UpdateBattleUI();
+        CheckActionQueue();
     }
 
+    private void CheckBattleEndConditions()
+    {
+        if (battleManager.IsPlayerPartyDefeated)
+        {
+            battleManager.SwitchToStateDefeat();
+        }
+        else if (battleManager.IsEnemyPartyDefeated)
+        {
+            battleManager.SwitchToStateVictory();
+        }
+    }
+    
+    private void ProcessPartyTicks(float deltaTime)
+    {
+        if (battleManager.IsPartyMemberTurnReady)
+        {
+            battleManager.PopPartyTurnReadyQueue();
+            battleManager.SwitchToStateActionSelection();
+            return;
+        }
+
+        foreach (BattleUnit unit in PlayerPartyManager.Instance.PlayerParty)
+        {
+            unit.UpdateTicks(deltaTime);
+            if (unit.IsTurnReady && !unit.IsActionSelected)
+            {
+                battleManager.QueueTurnReadyPartyMember(unit);
+            }
+
+            if (unit.IsActionReady)
+            {
+                battleManager.QueueActionReadyUnit(unit);
+            }
+        }
+    }
+    
+    private void ProcessEnemyTicks(float deltaTime)
+    {
+        foreach (BattleUnit unit in battleManager.EnemyParty)
+        {
+            unit.UpdateTicks(deltaTime);
+            if (unit.IsTurnReady && !unit.IsActionSelected)
+            {
+                // TODO: Create better enemy skill/target selection
+                BattleUnit target = PlayerPartyManager.Instance.SelectRandomPartyMember();
+                SkillScriptableObject skill = unit.SelectRandomSkill();
+                unit.PrepareAction(skill, target, battleManager.SwitchToStateTick);
+            }
+
+            if (unit.IsActionReady)
+            {
+                battleManager.QueueActionReadyUnit(unit);
+            }
+        }
+    }
+
+    private void CheckActionQueue()
+    {
+        if (battleManager.IsActionReady)
+        {
+            battleManager.SwitchToStateExecuteAction();
+        }
+    }
+    
     public override void OnStateExit()
     {
     }

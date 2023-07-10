@@ -39,7 +39,7 @@ public class InputManager : ManagerBase<InputManager>
         GameObject playerObject = GameObject.FindWithTag("Player");
         if (playerObject == null || !playerObject.TryGetComponent(out playerStateMachine))
         {
-            LogHelper.Report("Player Controller not found!", LogGroup.System, LogType.Error);
+            LogHelper.Report("Player Controller not found!", LogType.Error, LogGroup.System);
         }
     }
 
@@ -131,7 +131,7 @@ public class InputManager : ManagerBase<InputManager>
         }
         else
         {
-            LogHelper.Report($"Could not find {gameState} input action map!", LogGroup.System, LogType.Error);
+            LogHelper.Report($"Could not find {gameState} input action map!", LogType.Error, LogGroup.System);
         }
     }
     

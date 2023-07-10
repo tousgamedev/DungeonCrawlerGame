@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class LogHelper : ManagerBase<LogHelper>
 {
@@ -17,14 +19,19 @@ public class LogHelper : ManagerBase<LogHelper>
         base.Awake();
     }
 
-    public static void Report(string message, LogGroup group = LogGroup.Debug, LogType type = LogType.Log)
+    public static void Report(string message, LogType type, LogGroup group)
     {
         if (CanShowGroup(group))
         {
-            ShowLog(message, type);
+            WriteToConsole(message, type);
         }
     }
-
+    
+    public static void DebugLog(string message, LogType type = LogType.Log)
+    {
+        Report(message, type, LogGroup.Debug);
+    }
+    
     private static bool CanShowGroup(LogGroup group)
     {
         return group switch
@@ -40,7 +47,7 @@ public class LogHelper : ManagerBase<LogHelper>
         };
     }
 
-    private static void ShowLog(string message, LogType type)
+    private static void WriteToConsole(string message, LogType type)
     {
         switch (type)
         {

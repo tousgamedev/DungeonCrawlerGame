@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class BattlefieldController : UnitObjectPoolController<EnemyDisplay>
+public class BattlefieldController : UnitObjectPoolController<BattlefieldEnemy>
 {
-    protected override GameObject PoolPrefab => enemyDisplayPrefab;
+    protected override GameObject PoolPrefab => battlefieldEnemyPrefab;
     protected override int PoolSize => enemyPoolSize;
 
-    [SerializeField] private GameObject enemyDisplayPrefab;
+    [SerializeField] private GameObject battlefieldEnemyPrefab;
     [SerializeField] private int enemyPoolSize = 7;
 
     private void Awake()
@@ -17,19 +17,21 @@ public class BattlefieldController : UnitObjectPoolController<EnemyDisplay>
     {
     }
 
+    // TODO: SelectedEnemyMarker()
+    
     public override void AddUnit(BattleUnit unit)
     {
-        if (!TryGetComponentFromPoolObject(unit, out EnemyDisplay display))
+        if (!TryGetComponentFromPoolObject(unit, out BattlefieldEnemy display))
             return;
 
-        display.SetEnemySprite(unit.BattleIcon);
+        display.InitializeEnemy(unit);
         display.ShowEnemy();
         ActiveUnits.Add(unit, display);
     }
 
     public override void RemoveUnit(BattleUnit unit)
     {
-        if (!ActiveUnits.TryGetValue(unit, out EnemyDisplay enemy))
+        if (!ActiveUnits.TryGetValue(unit, out BattlefieldEnemy enemy))
             return;
 
         enemy.HideEnemy();

@@ -9,7 +9,6 @@ public class PartyUIController : UnitObjectPoolController<PartyMemberPanel>
     [SerializeField] private GameObject partyContainer;
     [SerializeField] private GameObject partyMemberPrefab;
     [SerializeField] private int memberPoolSize = 6;
-    [SerializeField] [Min(0)] private float cascadeInterval = .25f;
 
     private void Awake()
     {
@@ -30,23 +29,19 @@ public class PartyUIController : UnitObjectPoolController<PartyMemberPanel>
         ActiveUnits.Add(unit, panel);
     }
 
-    public IEnumerator PopPanelsCoroutine()
+    public void EnableMemberActionList(BattleUnit unit)
     {
-        foreach (PartyMemberPanel panel in ActiveUnits.Values)
+        if (ActiveUnits.TryGetValue(unit, out PartyMemberPanel panel))
         {
-            panel.PopPanel();
-            yield return new WaitForSeconds(cascadeInterval);
+            panel.ShowActionList();
         }
-        
-        yield return new WaitForSeconds(.5f); // waiting for final panel to 
     }
-    
-    public IEnumerator StowPanelsCoroutine()
+
+    public void DisableMemberActionList(BattleUnit unit)
     {
-        foreach (PartyMemberPanel panel in ActiveUnits.Values)
+        if (ActiveUnits.TryGetValue(unit, out PartyMemberPanel panel))
         {
-            panel.StowPanel();
-            yield return new WaitForSeconds(cascadeInterval);
+            panel.HideActionList();
         }
     }
 }

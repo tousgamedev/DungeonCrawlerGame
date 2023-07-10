@@ -45,7 +45,7 @@ public static class Utilities
             }
         }
         
-        LogHelper.Report($"Animation '{animationClipName}' not found.", LogGroup.Debug, LogType.Warning);
+        LogHelper.DebugLog($"Animation '{animationClipName}' not found.", LogType.Warning);
         return 0f;
     }
 
@@ -57,7 +57,7 @@ public static class Utilities
     {
         if (gameObject.TryGetComponent(out component)) return;
 
-        LogHelper.Report($"{gameObject.name} does not have a {typeof(T)} component!", LogGroup.Debug, LogType.Error);
+        LogHelper.DebugLog($"{gameObject.name} does not have a {typeof(T)} component!", LogType.Error);
         Object.Destroy(gameObject);
     }
 
