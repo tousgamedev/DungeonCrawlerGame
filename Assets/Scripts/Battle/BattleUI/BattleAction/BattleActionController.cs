@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class BattleActionController : MonoBehaviour
 {
-    [SerializeField] private SkillScriptableObject itemAction;
+    [SerializeField] private UnitActionScriptableObject itemAction;
     [SerializeField] private GameObject battleActionPrefab;
     [SerializeField] private GameObject emptyActionPrefab;
 
     private readonly List<GameObject> buttonList = new();
     private readonly List<BattleAction> actionList = new();
-    public void InitializeActions(List<SkillScriptableObject> skills)
+    public void InitializeActions(List<UnitActionScriptableObject> skills)
     {
         int maxActions = PlayerPartyManager.Instance.MaxBaseActionCommands;
         var count = 0;
-        foreach (SkillScriptableObject skill in skills)
+        foreach (UnitActionScriptableObject skill in skills)
         {
             if(skill == null)
                 continue;
@@ -33,12 +33,12 @@ public class BattleActionController : MonoBehaviour
         CreateActionButton(itemAction);
     }
 
-    private void CreateActionButton(SkillScriptableObject skill)
+    private void CreateActionButton(UnitActionScriptableObject unitAction)
     {
         GameObject actionItem = Instantiate(battleActionPrefab, transform);
         if (actionItem.TryGetComponent(out BattleAction battleAction))
         {
-            battleAction.InitializeAction(skill);
+            battleAction.InitializeAction(unitAction);
             actionList.Add(battleAction);
         }
         

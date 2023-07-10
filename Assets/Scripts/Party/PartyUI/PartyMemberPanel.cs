@@ -51,7 +51,7 @@ public class PartyMemberPanel : MonoBehaviour
         SetHealthText(unit.Stats.CurrentHealth, unit.Stats.MaxHealth);
         unit.OnHealthChange += ChangeCurrentHealth;
         SetMagicPointsText(500, 500);
-        actionController.InitializeActions(unit.SkillList);
+        actionController.InitializeActions(unit.Actions.ActionList);
     }
 
     public void ShowActionList()

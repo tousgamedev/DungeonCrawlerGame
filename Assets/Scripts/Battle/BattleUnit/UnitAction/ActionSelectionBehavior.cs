@@ -1,4 +1,4 @@
-public enum SkillSelectionBehavior
+public enum ActionSelectionBehavior
 {
     SelectTarget,
     OpenOptionMenu,

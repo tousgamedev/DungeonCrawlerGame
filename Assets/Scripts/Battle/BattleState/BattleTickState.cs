@@ -61,8 +61,8 @@ public class BattleTickState : BattleStateBase
             {
                 // TODO: Create better enemy skill/target selection
                 BattleUnit target = PlayerPartyManager.Instance.SelectRandomPartyMember();
-                SkillScriptableObject skill = unit.SelectRandomSkill();
-                unit.PrepareAction(skill, target, battleManager.SwitchToStateTick);
+                UnitActionScriptableObject unitAction = unit.Actions.SelectRandomAction();
+                unit.PrepareAction(unitAction, target, battleManager.SwitchToStateTick);
             }
 
             if (unit.IsActionReady)

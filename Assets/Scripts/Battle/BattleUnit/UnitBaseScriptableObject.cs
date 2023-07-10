@@ -10,7 +10,7 @@ public class UnitBaseScriptableObject : ScriptableObject
     public int MaxHealth => maxHealth;
     public float Speed => speed;
     public float MaxStartProgress => maxStartProgress;
-    public List<SkillScriptableObject> SkillList => skillList;
+    public List<UnitActionScriptableObject> ActionList => actionList;
     
     [SerializeField] private string unitName;
     [SerializeField] private Sprite battleSprite;
@@ -18,5 +18,5 @@ public class UnitBaseScriptableObject : ScriptableObject
     [SerializeField] private int maxHealth = 500;
     [SerializeField] private float speed = 60f;
     [SerializeField] [Range(0,1f)] private float maxStartProgress = .3f;
-    [SerializeField] private List<SkillScriptableObject> skillList;
+    [SerializeField] private List<UnitActionScriptableObject> actionList;
 }

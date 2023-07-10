@@ -1,4 +1,4 @@
-public enum SkillTarget
+public enum ActionTarget
 {
     Single,
     /// <summary>

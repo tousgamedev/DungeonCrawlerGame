@@ -1,4 +1,4 @@
-public enum SkillOptionList
+public enum ActionOptionList
 {
     MagicOffense,
     MagicSupport

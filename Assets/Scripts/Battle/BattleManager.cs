@@ -39,7 +39,7 @@ public class BattleManager : ManagerBase<BattleManager>
     private readonly Queue<BattleUnit> actionReadyQueue = new();
     
     private BattleUnit activePartyMember;
-    private SkillScriptableObject partyMemberSelectedSkill;
+    private UnitActionScriptableObject partyMemberSelectedUnitAction;
     private readonly List<BattleUnit> partyMemberSelectedTargets = new();
 
 #pragma warning disable CS0108, CS0114
@@ -166,9 +166,9 @@ public class BattleManager : ManagerBase<BattleManager>
         PlayerPartyManager.Instance.EnablePartyMemberActionList(activePartyMember);
     }
 
-    public void SelectPartyMemberAction(SkillScriptableObject skill)
+    public void SelectPartyMemberAction(UnitActionScriptableObject unitAction)
     {
-        partyMemberSelectedSkill = skill;
+        partyMemberSelectedUnitAction = unitAction;
         SwitchToStateTargetSelection();
     }
 
@@ -190,14 +190,14 @@ public class BattleManager : ManagerBase<BattleManager>
     
     public void PreparePartyMemberAction()
     {
-        activePartyMember.PrepareAction(partyMemberSelectedSkill, partyMemberSelectedTargets, SwitchToStateTick);
+        activePartyMember.PrepareAction(partyMemberSelectedUnitAction, partyMemberSelectedTargets, SwitchToStateTick);
         LogHelper.DebugLog("Action Ready");
     }
 
     public void ClearPartyMemberSelections()
     {
         activePartyMember = null;
-        partyMemberSelectedSkill = null;
+        partyMemberSelectedUnitAction = null;
         partyMemberSelectedTargets.Clear();
     }
 

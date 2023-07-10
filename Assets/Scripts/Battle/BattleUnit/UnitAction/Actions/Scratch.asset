@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 25fd715805b414744ad40221a265e3d0, type: 3}
-  m_Name: Item
+  m_Name: Scratch
   m_EditorClassIdentifier: 
-  skillSkillName: Item
+  actionName: Scratch
   selectionBehavior: 0
   optionList: 0
   effectPrefab: {fileID: 0}
-  baseExecutionSpeed: 45
+  baseExecutionSpeed: 30
   target: 0
-  baseAttack: 0
+  basePower: 100

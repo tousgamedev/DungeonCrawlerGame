@@ -10,16 +10,16 @@ public class BattleUnit
     
     public string Name { get; private set; }
     public UnitStats Stats { get; private set; }
-    public UnitSkills Skills { get; private set; }
+    public UnitActions Actions { get; private set; }
     public Sprite TurnBarIcon { get; private set; }
     public Sprite BattleIcon { get; private set; }
     public bool IsDead => Stats.CurrentHealth == 0;
     public bool IsTurnReady => currentTicks >= maxTurnWaitTicks;
-    public bool IsActionSelected => preparedAttack.skill != null;
+    public bool IsActionSelected => preparedAction.action != null;
     public bool IsActionReady => currentTicks >= maxTurnWaitTicks + maxActionWaitTicks;
     public float TickProgress => currentTicks / (maxTurnWaitTicks + maxActionWaitTicks);
 
-    private (SkillScriptableObject skill, List<BattleUnit> targets) preparedAttack;
+    private (UnitActionScriptableObject action, List<BattleUnit> targets) preparedAction;
     private Action actionCompleteCallback;
    
     private float currentSpeed;
@@ -32,7 +32,7 @@ public class BattleUnit
     {
         Name = unitBaseScriptableObject.Name;
         Stats = new UnitStats(unitBaseScriptableObject);
-        Skills = new UnitSkills(unitBaseScriptableObject);
+        Actions = new UnitActions(unitBaseScriptableObject);
         TurnBarIcon = unitBaseScriptableObject.TurnBarSprite;
         BattleIcon = unitBaseScriptableObject.BattleSprite;
         maxStartProgress = unitBaseScriptableObject.MaxStartProgress;
@@ -48,7 +48,7 @@ public class BattleUnit
 
     private float CalculateSpeed()
     {
-        return IsActionSelected ? preparedAttack.skill.BaseExecutionSpeed : Stats.BaseSpeed;
+        return IsActionSelected ? preparedAction.action.BaseExecutionSpeed : Stats.BaseSpeed;
     }
 
     public void UpdateTicks(float deltaTime)
@@ -66,28 +66,22 @@ public class BattleUnit
         }
     }
 
-    public SkillScriptableObject SelectRandomSkill()
-    {
-        int index = Random.Range(0, Skills.SkillList.Count);
-        return Skills.SkillList[index];
-    }
-
-    public void PrepareAction(SkillScriptableObject skill, BattleUnit target, Action finishActionCallback)
+    public void PrepareAction(UnitActionScriptableObject unitAction, BattleUnit target, Action finishActionCallback)
     {
         var tempList = new List<BattleUnit> { target };
-        PrepareAction(skill, tempList, finishActionCallback);
+        PrepareAction(unitAction, tempList, finishActionCallback);
     }
 
-    public void PrepareAction(SkillScriptableObject skill, List<BattleUnit> targets, Action finishActionCallback)
+    public void PrepareAction(UnitActionScriptableObject unitAction, List<BattleUnit> targets, Action finishActionCallback)
     {
         if (targets == null || targets.Count == 0)
         {
             LogHelper.Report($"No valid target", LogType.Warning, LogGroup.Battle);
         }
 
-        preparedAttack.skill = skill;
-        preparedAttack.targets = targets;
-        if (preparedAttack.skill == null)
+        preparedAction.action = unitAction;
+        preparedAction.targets = targets;
+        if (preparedAction.action == null)
         {
             LogHelper.Report($"Check skills assigned to enemy {Name}", LogType.Warning, LogGroup.Battle);
             return;
@@ -99,10 +93,10 @@ public class BattleUnit
 
     public void ExecuteAction()
     {
-        LogHelper.DebugLog(preparedAttack.skill.SkillName);
-        foreach (BattleUnit target in preparedAttack.targets)
+        LogHelper.DebugLog(preparedAction.action.ActionName);
+        foreach (BattleUnit target in preparedAction.targets)
         {
-            target.Stats.TakeDamage(preparedAttack.skill.BaseAttack);
+            target.Stats.TakeDamage(preparedAction.action.BasePower);
 
             if (target.IsDead)
             {
@@ -122,8 +116,8 @@ public class BattleUnit
 
     private void ReadyNextTurn()
     {
-        preparedAttack.skill = null;
-        preparedAttack.targets = null;
+        preparedAction.action = null;
+        preparedAction.targets = null;
         actionCompleteCallback = null;
         currentTicks = 0;
         currentSpeed = CalculateSpeed();

@@ -7,7 +7,7 @@ public class BattleAction : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI actionText;
     
-    private SkillScriptableObject action;
+    private UnitActionScriptableObject action;
     private Button actionButton;
 
     private void Awake()
@@ -18,10 +18,10 @@ public class BattleAction : MonoBehaviour
         }
     }
 
-    public void InitializeAction(SkillScriptableObject skillObject)
+    public void InitializeAction(UnitActionScriptableObject unitActionObject)
     {
-        action = skillObject;
-        actionText.text = skillObject.SkillName;
+        action = unitActionObject;
+        actionText.text = unitActionObject.ActionName;
         DisableAction();
     }
 
