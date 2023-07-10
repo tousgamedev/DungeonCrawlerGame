@@ -131,6 +131,8 @@ public class BattleManager : ManagerBase<BattleManager>
         {
             var newEnemy = new BattleUnit(enemy);
             newEnemy.TickHandler.Initialize(readyTurnTicks, readyActionTicks, enemy.Speed);
+            newEnemy.OnActionReady += QueueActionReadyUnit;
+            newEnemy.OnActionComplete += SwitchToStateTick;
             enemyParty.Add(newEnemy);
         }
 
@@ -142,6 +144,9 @@ public class BattleManager : ManagerBase<BattleManager>
         foreach (BattleUnit hero in PlayerPartyManager.Instance.PlayerParty)
         {
             hero.TickHandler.Initialize(readyTurnTicks, readyActionTicks, hero.Stats.BaseSpeed);
+            hero.OnTurnReady += QueueTurnReadyPartyMember;
+            hero.OnActionReady += QueueActionReadyUnit;
+            hero.OnActionComplete += SwitchToStateTick;
             uiController.SetHeroBattleVisuals(hero);
         }
     }
@@ -190,7 +195,7 @@ public class BattleManager : ManagerBase<BattleManager>
     
     public void PreparePartyMemberAction()
     {
-        activePartyMember.PrepareAction(partyMemberSelectedUnitAction, partyMemberSelectedTargets, SwitchToStateTick);
+        activePartyMember.PrepareAction(partyMemberSelectedUnitAction, partyMemberSelectedTargets);
         LogHelper.DebugLog("Action Ready");
     }
 

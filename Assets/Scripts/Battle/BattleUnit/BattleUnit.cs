@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class BattleUnit
 {
+    public Action<BattleUnit> OnTurnReady;
+    public Action<BattleUnit> OnActionReady;
+    public Action OnActionComplete;
     public Action<BattleUnit> OnHealthChange;
     public Action<BattleUnit> OnUnitDeath;
-    public Action<BattleUnit> OnActionReady;
     
     public string Name { get; private set; }
     public UnitStats Stats { get; private set; }
@@ -24,6 +25,15 @@ public class BattleUnit
         TickHandler = new UnitTickHandler(unitBaseScriptableObject);
         TurnBarIcon = unitBaseScriptableObject.TurnBarSprite;
         BattleIcon = unitBaseScriptableObject.BattleSprite;
+        SetupEvents();
+    }
+
+    private void SetupEvents()
+    {
+        Stats.OnHealthChange += HandleHealthChange;
+        Actions.OnActionComplete += HandleActionComplete;
+        TickHandler.OnTurnReady += HandleTurnReady;
+        TickHandler.OnActionReady += HandleActionReady;
     }
 
     private float CalculateSpeed()
@@ -43,25 +53,20 @@ public class BattleUnit
         }
     }
 
-    public void PrepareAction(UnitActionScriptableObject unitAction, BattleUnit target, Action stateChangeCallback)
+    public void PrepareAction(UnitActionScriptableObject unitAction, BattleUnit target)
     {
         var tempList = new List<BattleUnit> { target };
-        PrepareAction(unitAction, tempList, stateChangeCallback);
+        PrepareAction(unitAction, tempList);
     }
     
-    public void PrepareAction(UnitActionScriptableObject unitAction, List<BattleUnit> targets, Action stateChangeCallback)
+    public void PrepareAction(UnitActionScriptableObject unitAction, List<BattleUnit> targets)
     {
-        if (unitAction == null || targets?.Count == 0 || stateChangeCallback == null)
+        if (unitAction == null || targets?.Count == 0)
         {
             LogHelper.Report("Action unable to prepare!", LogType.Error, LogGroup.Battle);
         }
-        
-        Actions.PrepareAction(unitAction, targets,()=>
-        {
-            stateChangeCallback?.Invoke();
-            ResetUnitTickHandler();
-        });
-        
+
+        Actions.PrepareAction(unitAction, targets);
         TickHandler.SetCurrentSpeed(CalculateSpeed());
     }
 
@@ -69,6 +74,27 @@ public class BattleUnit
     {
         TickHandler.ResetTickCounter();
         TickHandler.SetCurrentSpeed(CalculateSpeed());
+    }
+
+    private void HandleHealthChange()
+    {
+        OnHealthChange?.Invoke(this);
+    }
+
+    public void HandleTurnReady()
+    {
+        OnTurnReady?.Invoke(this);
+    }
+    
+    public void HandleActionReady()
+    {
+        OnActionReady?.Invoke(this);
+    }
+
+    public void HandleActionComplete()
+    {
+        ResetUnitTickHandler();
+        OnActionComplete?.Invoke();
     }
     
     public void KillUnit()

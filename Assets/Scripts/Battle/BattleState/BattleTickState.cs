@@ -44,11 +44,6 @@ public class BattleTickState : BattleStateBase
             {
                 battleManager.QueueTurnReadyPartyMember(unit);
             }
-
-            if (unit.TickHandler.IsActionReady)
-            {
-                battleManager.QueueActionReadyUnit(unit);
-            }
         }
     }
     
@@ -62,12 +57,7 @@ public class BattleTickState : BattleStateBase
                 // TODO: Create better enemy skill/target selection
                 BattleUnit target = PlayerPartyManager.Instance.SelectRandomPartyMember();
                 UnitActionScriptableObject unitAction = unit.Actions.SelectRandomAction();
-                unit.PrepareAction(unitAction, target, battleManager.SwitchToStateTick);
-            }
-
-            if (unit.TickHandler.IsActionReady)
-            {
-                battleManager.QueueActionReadyUnit(unit);
+                unit.PrepareAction(unitAction, target);
             }
         }
     }

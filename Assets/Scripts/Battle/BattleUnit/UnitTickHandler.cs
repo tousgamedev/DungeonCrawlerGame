@@ -1,7 +1,12 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class UnitTickHandler
 {
+    public Action OnTurnReady;
+    public Action OnActionReady;
+
     public bool IsTurnReady => currentTicks >= maxTurnWaitTicks;
     public bool IsActionReady => currentTicks >= maxTurnWaitTicks + maxActionWaitTicks;
     public float TickProgress => currentTicks / (maxTurnWaitTicks + maxActionWaitTicks);
@@ -28,11 +33,21 @@ public class UnitTickHandler
     public void UpdateTicksTurnWait(float deltaTime)
     {
         UpdateTicks(0, maxTurnWaitTicks, deltaTime);
+
+        if (IsTurnReady)
+        {
+            OnTurnReady?.Invoke();
+        }
     }
 
     public void UpdateTicksActionWait(float deltaTime)
     {
         UpdateTicks(maxTurnWaitTicks, maxTurnWaitTicks + maxActionWaitTicks, deltaTime);
+
+        if (IsActionReady)
+        {
+            OnActionReady?.Invoke();
+        }
     }
 
     private void UpdateTicks(float minTicks, float maxTicks, float deltaTime)

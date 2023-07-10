@@ -6,6 +6,8 @@ public class PartyMemberPanel : MonoBehaviour
 {
     private const string PopAnimationName = "PanelShow";
     private const string StowAnimationName = "PanelHide";
+    private readonly int triggerPop = Animator.StringToHash("Show");
+    private readonly int triggerHide = Animator.StringToHash("Hide");
 
     public float PopAnimationLength { get; private set; }
     public float StowAnimationLength { get; private set; }
@@ -19,9 +21,6 @@ public class PartyMemberPanel : MonoBehaviour
     
     private BattleUnit partyMember;
     private Animator animator;
-
-    private readonly int triggerPop = Animator.StringToHash("Show");
-    private readonly int triggerHide = Animator.StringToHash("Hide");
 
     private void Awake()
     {

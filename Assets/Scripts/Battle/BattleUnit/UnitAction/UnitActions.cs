@@ -31,7 +31,7 @@ public class UnitActions
         return ActionList[index];
     }
   
-    public void PrepareAction(UnitActionScriptableObject unitAction, List<BattleUnit> targets, Action actionCompleteCallback)
+    public void PrepareAction(UnitActionScriptableObject unitAction, List<BattleUnit> targets)
     {
         if (targets?.Count == 0)
         {
@@ -40,7 +40,6 @@ public class UnitActions
 
         preparedAction.action = unitAction;
         preparedAction.targets = targets;
-        OnActionComplete = actionCompleteCallback;
     }
     
     public void ExecuteAction()
@@ -65,6 +64,5 @@ public class UnitActions
         preparedAction.action = null;
         preparedAction.targets = null;
         OnActionComplete?.Invoke();
-        OnActionComplete = null;
     }
 }
