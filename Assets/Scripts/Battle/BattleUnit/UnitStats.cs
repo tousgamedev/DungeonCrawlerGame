@@ -4,14 +4,13 @@ using UnityEngine;
 public class UnitStats
 {
     public Action OnHealthChange;
+    public Action OnUnitDeath;
     
     public int CurrentHealth { get; private set; }
     public int MaxHealth { get; private set; }
-    public int CurrentMp { get; private set; }
-    public int MaxMp { get; private set; }
+    public int CurrentMagicPoints { get; private set; }
+    public int MaxMagicPoints { get; private set; }
     public float BaseSpeed { get; private set; }
-
-    public bool IsDead => CurrentHealth == 0;
     
     public UnitStats(UnitBaseScriptableObject unit)
     {
@@ -27,5 +26,10 @@ public class UnitStats
         CurrentHealth -= damage;
         CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth);
         OnHealthChange?.Invoke();
+
+        if (CurrentHealth == 0)
+        {
+            OnUnitDeath?.Invoke();
+        }
     }
 }

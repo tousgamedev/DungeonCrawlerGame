@@ -65,14 +65,14 @@ public class PartyMemberPanel : MonoBehaviour
         animator.SetTrigger(triggerHide);
     }
 
-    private void SetHealthText(int currentHp, int maxHp)
+    private void SetHealthText(int currentHealth, int maxHealth)
     {
-        hpText.text = $"HP {currentHp}/{maxHp}";
+        hpText.text = $"HP {currentHealth}/{maxHealth}";
     }
 
-    private void SetMagicPointsText(int currentMp, int maxMp)
+    private void SetMagicPointsText(int currentMagicPoints, int maxMagicPoints)
     {
-        mpText.text = $"MP {currentMp}/{maxMp}";
+        mpText.text = $"MP {currentMagicPoints}/{maxMagicPoints}";
     }
 
     private void ChangeCurrentHealth(BattleUnit unit)

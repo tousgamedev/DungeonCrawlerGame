@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BattleUnit
+public class BattleUnit : IDisposable
 {
     public Action<BattleUnit> OnTurnReady;
     public Action<BattleUnit> OnActionReady;
@@ -31,6 +31,7 @@ public class BattleUnit
     private void SetupEvents()
     {
         Stats.OnHealthChange += HandleHealthChange;
+        Stats.OnUnitDeath += HandleUnitDeath;
         Actions.OnActionComplete += HandleActionComplete;
         TickHandler.OnTurnReady += HandleTurnReady;
         TickHandler.OnActionReady += HandleActionReady;
@@ -63,7 +64,8 @@ public class BattleUnit
     {
         if (unitAction == null || targets?.Count == 0)
         {
-            LogHelper.Report("Action unable to prepare!", LogType.Error, LogGroup.Battle);
+            LogHelper.Report("Unable to prepare action!", LogType.Error, LogGroup.Battle);
+            return;
         }
 
         Actions.PrepareAction(unitAction, targets);
@@ -81,25 +83,39 @@ public class BattleUnit
         OnHealthChange?.Invoke(this);
     }
 
-    public void HandleTurnReady()
+    private void HandleTurnReady()
     {
         OnTurnReady?.Invoke(this);
     }
-    
-    public void HandleActionReady()
+
+    private void HandleActionReady()
     {
         OnActionReady?.Invoke(this);
     }
 
-    public void HandleActionComplete()
+    private void HandleActionComplete()
     {
         ResetUnitTickHandler();
         OnActionComplete?.Invoke();
     }
-    
-    public void KillUnit()
+
+    private void HandleUnitDeath()
+    {
+        OnUnitDeath?.Invoke(this);
+        KillUnit();
+    }
+
+    private void KillUnit()
     {
         LogHelper.DebugLog($"{Name} is dead.");
-        OnUnitDeath?.Invoke(this);
+    }
+    
+    public void Dispose()
+    {
+        Stats.OnHealthChange -= HandleHealthChange;
+        Stats.OnUnitDeath -= HandleUnitDeath;
+        Actions.OnActionComplete -= HandleActionComplete;
+        TickHandler.OnTurnReady -= HandleTurnReady;
+        TickHandler.OnActionReady -= HandleActionReady;
     }
 }

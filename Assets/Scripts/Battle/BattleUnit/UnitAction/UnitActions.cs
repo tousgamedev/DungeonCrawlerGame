@@ -48,11 +48,6 @@ public class UnitActions
         foreach (BattleUnit target in preparedAction.targets)
         {
             target.Stats.TakeDamage(preparedAction.action.BasePower);
-
-            if (target.Stats.IsDead)
-            {
-                target.KillUnit();
-            }
         }
 
         CoroutineManager.Instance.RunCoroutine(ExecutionActionCoroutine());

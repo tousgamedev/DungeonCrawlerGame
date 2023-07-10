@@ -13,7 +13,6 @@ public class BattleTickState : BattleStateBase
         ProcessPartyTicks(deltaTime);
         ProcessEnemyTicks(deltaTime);
         battleManager.UpdateBattleUI();
-        CheckActionQueue();
     }
 
     private void CheckBattleEndConditions()
@@ -30,20 +29,9 @@ public class BattleTickState : BattleStateBase
     
     private void ProcessPartyTicks(float deltaTime)
     {
-        if (battleManager.IsPartyMemberTurnReady)
-        {
-            battleManager.PopPartyTurnReadyQueue();
-            battleManager.SwitchToStateActionSelection();
-            return;
-        }
-
         foreach (BattleUnit unit in PlayerPartyManager.Instance.PlayerParty)
         {
             unit.UpdateTicks(deltaTime);
-            if (unit.TickHandler.IsTurnReady && !unit.Actions.IsActionSelected)
-            {
-                battleManager.QueueTurnReadyPartyMember(unit);
-            }
         }
     }
     
@@ -59,14 +47,6 @@ public class BattleTickState : BattleStateBase
                 UnitActionScriptableObject unitAction = unit.Actions.SelectRandomAction();
                 unit.PrepareAction(unitAction, target);
             }
-        }
-    }
-
-    private void CheckActionQueue()
-    {
-        if (battleManager.IsActionReady)
-        {
-            battleManager.SwitchToStateExecuteAction();
         }
     }
     

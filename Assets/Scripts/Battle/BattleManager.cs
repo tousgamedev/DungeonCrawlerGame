@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class BattleManager : ManagerBase<BattleManager>
 {
+    public BattleUnit ActiveUnit => activeUnit;
     public List<BattleUnit> EnemyParty => enemyParty;
-    public bool IsPartyMemberTurnReady => partyTurnReadyQueue.Count > 0;
-    public bool IsActionReady => actionReadyQueue.Count > 0;
     public bool HasSelectedTargets => partyMemberSelectedTargets.Count > 0;
-
     
     // TODO: Change this for actual logic.
     public bool IsEnemyPartyDefeated => false;
@@ -34,11 +32,8 @@ public class BattleManager : ManagerBase<BattleManager>
 
     private readonly List<BattleUnit> enemyParty = new();
     private EncounterGroupScriptableObject currentEncounter;
-
-    private readonly Queue<BattleUnit> partyTurnReadyQueue = new();
-    private readonly Queue<BattleUnit> actionReadyQueue = new();
     
-    private BattleUnit activePartyMember;
+    private BattleUnit activeUnit;
     private UnitActionScriptableObject partyMemberSelectedUnitAction;
     private readonly List<BattleUnit> partyMemberSelectedTargets = new();
 
@@ -131,7 +126,7 @@ public class BattleManager : ManagerBase<BattleManager>
         {
             var newEnemy = new BattleUnit(enemy);
             newEnemy.TickHandler.Initialize(readyTurnTicks, readyActionTicks, enemy.Speed);
-            newEnemy.OnActionReady += QueueActionReadyUnit;
+            newEnemy.OnActionReady += HandleActionReady;
             newEnemy.OnActionComplete += SwitchToStateTick;
             enemyParty.Add(newEnemy);
         }
@@ -144,8 +139,8 @@ public class BattleManager : ManagerBase<BattleManager>
         foreach (BattleUnit hero in PlayerPartyManager.Instance.PlayerParty)
         {
             hero.TickHandler.Initialize(readyTurnTicks, readyActionTicks, hero.Stats.BaseSpeed);
-            hero.OnTurnReady += QueueTurnReadyPartyMember;
-            hero.OnActionReady += QueueActionReadyUnit;
+            hero.OnTurnReady += HandleTurnReady;
+            hero.OnActionReady += HandleActionReady;
             hero.OnActionComplete += SwitchToStateTick;
             uiController.SetHeroBattleVisuals(hero);
         }
@@ -156,19 +151,15 @@ public class BattleManager : ManagerBase<BattleManager>
         uiController.OnBattleUpdate();
     }
     
-    public void QueueTurnReadyPartyMember(BattleUnit unit)
+    public void HandleTurnReady(BattleUnit unit)
     {
-        partyTurnReadyQueue.Enqueue(unit);
-    }
-
-    public void PopPartyTurnReadyQueue()
-    {
-        activePartyMember = partyTurnReadyQueue.Dequeue();
+        activeUnit = unit;
+        SwitchToStateActionSelection();
     }
     
     public void EnablePartyMemberActionList()
     {
-        PlayerPartyManager.Instance.EnablePartyMemberActionList(activePartyMember);
+        PlayerPartyManager.Instance.EnablePartyMemberActionList(activeUnit);
     }
 
     public void SelectPartyMemberAction(UnitActionScriptableObject unitAction)
@@ -179,7 +170,7 @@ public class BattleManager : ManagerBase<BattleManager>
 
     public void DisablePartyMemberActionList()
     {
-        PlayerPartyManager.Instance.DisablePartyMemberActionList(activePartyMember);
+        PlayerPartyManager.Instance.DisablePartyMemberActionList(activeUnit);
     }
 
     public void SelectEnemy(BattleUnit unit)
@@ -188,27 +179,23 @@ public class BattleManager : ManagerBase<BattleManager>
         LogHelper.DebugLog("Enemy Selected");
     }
 
-    public void QueueActionReadyUnit(BattleUnit unit)
+    public void HandleActionReady(BattleUnit unit)
     {
-        actionReadyQueue.Enqueue(unit);
+        activeUnit = unit;
+        SwitchToStateExecuteAction();
     }
     
     public void PreparePartyMemberAction()
     {
-        activePartyMember.PrepareAction(partyMemberSelectedUnitAction, partyMemberSelectedTargets);
+        activeUnit.PrepareAction(partyMemberSelectedUnitAction, partyMemberSelectedTargets);
         LogHelper.DebugLog("Action Ready");
     }
 
     public void ClearPartyMemberSelections()
     {
-        activePartyMember = null;
+        activeUnit = null;
         partyMemberSelectedUnitAction = null;
         partyMemberSelectedTargets.Clear();
-    }
-
-    public BattleUnit PopActionReadyQueue()
-    {
-        return actionReadyQueue.Dequeue();
     }
 
     public void Pause()
