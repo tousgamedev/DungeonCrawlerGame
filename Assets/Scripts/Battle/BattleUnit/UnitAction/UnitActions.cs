@@ -8,7 +8,8 @@ public class UnitActions
 {
     public Action OnActionComplete;
     
-    public List<UnitActionScriptableObject> ActionList { get; private set; }
+    public List<UnitActionScriptableObject> ActionList { get; }
+    public UnitActionScriptableObject SelectedAction => preparedAction.action;
     public bool IsActionSelected => preparedAction.action != null;
 
     public float ActionExecutionSpeed => preparedAction.action.BaseExecutionSpeed;

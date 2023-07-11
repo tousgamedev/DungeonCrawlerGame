@@ -145,7 +145,7 @@ public class BattleManager : ManagerBase<BattleManager>
 
     public void ShowSelectedPartyMemberAction()
     {
-        PlayerPartyManager.Instance.ShowSelectedPartyMemberAction(ActiveUnit);
+        PlayerPartyManager.Instance.ShowSelectedPartyMemberAction(ActiveUnit, partyMemberSelectedUnitAction);
     }
     
     public void HidePartyMemberActionList()

@@ -66,9 +66,9 @@ public class PlayerPartyManager : ManagerBase<PlayerPartyManager>
         uiController.EnableMemberActionList(unit);
     }
     
-    public void ShowSelectedPartyMemberAction(BattleUnit unit)
+    public void ShowSelectedPartyMemberAction(BattleUnit unit, UnitActionScriptableObject action)
     {
-        uiController.ShowSelectedPartyMemberAction(unit);
+        uiController.ShowSelectedPartyMemberAction(unit, action);
     }
     
     public void DisablePartyMemberActionList(BattleUnit unit)

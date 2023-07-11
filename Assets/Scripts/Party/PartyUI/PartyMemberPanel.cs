@@ -52,9 +52,9 @@ public class PartyMemberPanel : MonoBehaviour
         animator.SetTrigger(triggerPop);
     }
 
-    public void ShowSelectedAction()
+    public void ShowSelectedAction(UnitActionScriptableObject action)
     {
-        actionController.DisableActions();
+        actionController.HideAllExcept(action);
         animator.SetTrigger(triggerSelected);
     }
     

@@ -36,11 +36,11 @@ public class PartyUIController : UnitObjectPoolController<PartyMemberPanel>
         }
     }
 
-    public void ShowSelectedPartyMemberAction(BattleUnit unit)
+    public void ShowSelectedPartyMemberAction(BattleUnit unit, UnitActionScriptableObject action)
     {
         if (ActiveUnits.TryGetValue(unit, out PartyMemberPanel panel))
         {
-            panel.ShowSelectedAction();
+            panel.ShowSelectedAction(action);
         }
     }
     
