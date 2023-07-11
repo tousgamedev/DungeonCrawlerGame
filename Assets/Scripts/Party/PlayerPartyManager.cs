@@ -5,10 +5,15 @@ using UnityEngine;
 public class PlayerPartyManager : ManagerBase<PlayerPartyManager>
 {
     public List<BattleUnit> PlayerParty { get; } = new();
-    public IEnumerator GetPopCoroutine => uiController.PopPanelsCoroutine();
-    public IEnumerator GetStowCoroutine => uiController.StowPanelsCoroutine();
+    
+    /// <summary>
+    /// The maximum number of actions a party member can have in the base list. Does not include the 'Item' command.
+    /// </summary>
+    public int MaxBaseActionCommands => maxBaseActionCommands;
 
     [SerializeField] private PartyUIController uiController;
+    [Tooltip("The max actions a party member can have (not including 'Item')")] 
+    [SerializeField] private int maxBaseActionCommands = 4;
     [SerializeField] private List<UnitBaseScriptableObject> characterBases;
 
     private Dictionary<string, UnitBaseScriptableObject> characterBaseDict;
@@ -17,7 +22,7 @@ public class PlayerPartyManager : ManagerBase<PlayerPartyManager>
     {
         if (uiController == null)
         {
-            LogHelper.Report("UI Controller is null!", LogGroup.System, LogType.Error);
+            LogHelper.Report("UI Controller is null!", LogType.Error, LogGroup.System);
             return;
         }
         
@@ -44,5 +49,26 @@ public class PlayerPartyManager : ManagerBase<PlayerPartyManager>
         {
             characterBaseDict[characterBase.name] = characterBase;
         }
+    }
+
+    public BattleUnit SelectRandomPartyMember()
+    {
+        int unitIndex = Random.Range(0, PlayerParty.Count);
+        return PlayerParty[unitIndex];
+    }
+
+    public List<BattleUnit> SelectAllPartyMembers()
+    {
+        return PlayerParty;
+    }
+
+    public void EnablePartyMemberActionList(BattleUnit unit)
+    {
+        uiController.EnableMemberActionList(unit);
+    }
+    
+    public void DisablePartyMemberActionList(BattleUnit unit)
+    {
+        uiController.DisableMemberActionList(unit);
     }
 }

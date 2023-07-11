@@ -5,6 +5,7 @@ public class BattleExecuteActionState : BattleStateBase
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;
+        battleManager.ActiveUnit.Actions.ExecuteAction();
     }
 
     public override void OnStateUpdate(float deltaTime)

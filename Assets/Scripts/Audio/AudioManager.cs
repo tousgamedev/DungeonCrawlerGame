@@ -20,7 +20,7 @@ public class AudioManager : ManagerBase<AudioManager>
         if (effectsSource != null && musicSource != null && ambienceSource != null)
             return;
         
-        LogHelper.Report("Audio source is null!", LogGroup.System, LogType.Error);;
+        LogHelper.Report("Audio source is null!", LogType.Error, LogGroup.System);;
         Utilities.Destroy(gameObject);
     }
 
@@ -29,13 +29,13 @@ public class AudioManager : ManagerBase<AudioManager>
         var clip = Resources.Load<AudioClip>($"{AudioFolder}/{clipName}");
         if (clip == null)
         {
-            LogHelper.Report($"Audio clip {clipName} not found!", LogGroup.Audio, LogType.Error);
+            LogHelper.Report($"Audio clip {clipName} not found!", LogType.Error, LogGroup.Audio);
             return;
         }
 
         if (!audioClips.TryAdd(clipName, clip))
         {
-            LogHelper.Report($"Audio clip {clipName} is duplicate!", LogGroup.Audio, LogType.Warning);
+            LogHelper.Report($"Audio clip {clipName} is duplicate!", LogType.Warning, LogGroup.Audio);
         }
     }
 
@@ -53,7 +53,7 @@ public class AudioManager : ManagerBase<AudioManager>
     {
         if (!TryGetAudioClip(clipName, out AudioClip clip))
         {
-            LogHelper.Report($"Audio clip {clipName} not found!", LogGroup.Audio, LogType.Error);
+            LogHelper.Report($"Audio clip {clipName} not found!", LogType.Error, LogGroup.Audio);
             return;
         }
 
@@ -64,7 +64,7 @@ public class AudioManager : ManagerBase<AudioManager>
     {
         if (!TryGetAudioClip(clipName, out AudioClip clip))
         {
-            LogHelper.Report($"Audio clip {clipName} not found!", LogGroup.Audio, LogType.Error);
+            LogHelper.Report($"Audio clip {clipName} not found!", LogType.Error, LogGroup.Audio);
             return;
         }
 

@@ -14,12 +14,12 @@ public class CarryObjectImage : MonoBehaviour, IObserver
     {
         if (image == null && !TryGetComponent(out image))
         {
-            LogHelper.Report("CarriedObjectImage field 'image' is unassigned!", LogGroup.Debug, LogType.Error);
+            LogHelper.DebugLog("CarriedObjectImage field 'image' is unassigned!", LogType.Error);
         }
 
         if (canvas == null || !canvas.TryGetComponent(out canvasRectTransform))
         {
-            LogHelper.Report("CarriedObjectImage field 'canvas' is unassigned!", LogGroup.Debug, LogType.Error);
+            LogHelper.DebugLog("CarriedObjectImage field 'canvas' is unassigned!", LogType.Error);
         }
 
         if (image.sprite == null)

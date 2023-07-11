@@ -31,14 +31,14 @@ public abstract class UnitObjectPoolController<T> : MonoBehaviour where T : Mono
         component = null;
         if (ActiveUnits.ContainsKey(unit))
         {
-            LogHelper.Report("Attempting to add duplicate unit.", LogGroup.Debug, LogType.Warning);
+            LogHelper.DebugLog("Attempting to add duplicate unit.", LogType.Warning);
             return false;
         }
         
         GameObject poolObject = GetPoolObject();
         if (!poolObject.TryGetComponent(out component))
         {
-            LogHelper.Report($"Could not find {typeof(T)} component.", LogGroup.Debug, LogType.Warning);
+            LogHelper.DebugLog($"Could not find {typeof(T)} component.", LogType.Warning);
             return false;
         }
 

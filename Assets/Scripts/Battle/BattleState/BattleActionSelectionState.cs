@@ -1,11 +1,11 @@
-public class BattlePauseState : BattleStateBase
+public class BattleActionSelectionState : BattleStateBase
 {
     private BattleManager battleManager;
     
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;
-        battleManager.UIController.Pause();
+        battleManager.EnablePartyMemberActionList();
     }
 
     public override void OnStateUpdate(float deltaTime)
@@ -14,6 +14,6 @@ public class BattlePauseState : BattleStateBase
 
     public override void OnStateExit()
     {
-        battleManager.UIController.Unpause();
+        battleManager.DisablePartyMemberActionList();
     }
 }
