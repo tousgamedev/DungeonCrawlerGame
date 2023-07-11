@@ -8,13 +8,13 @@ public class BattleStartState : BattleStateBase
     {
         battleManager = manager;
         // TODO: Put stuff here for battle start transition
-        battleManager.DisplayBattleUI();
+        battleManager.UIController.gameObject.SetActive(true);
         battleManager.InitializeEnemies();
         battleManager.InitializeHeroes();
         // TODO: Put stuff here for battle start dialogue or whatever
         battleManager.SwitchToState(BattleState.Tick);
     }
-   
+
     public override void OnStateUpdate(float deltaTime)
     {
     }

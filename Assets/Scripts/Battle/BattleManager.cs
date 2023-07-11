@@ -100,11 +100,6 @@ public class BattleManager : ManagerBase<BattleManager>
         SwitchToState(BattleState.Start);
     }
 
-    public void DisplayBattleUI(bool show = true)
-    {
-        uiController.gameObject.SetActive(show);
-    }
-
     public void InitializeEnemies()
     {
         foreach (UnitBaseScriptableObject enemy in currentEncounter.Enemies)
@@ -129,11 +124,6 @@ public class BattleManager : ManagerBase<BattleManager>
             hero.OnActionComplete += () => SwitchToState(BattleState.Tick);
             uiController.SetHeroBattleVisuals(hero);
         }
-    }
-
-    public void UpdateBattleUI()
-    {
-        uiController.OnBattleUpdate();
     }
 
     private void HandleTurnReady(BattleUnit unit)

@@ -12,7 +12,7 @@ public class BattleTickState : BattleStateBase
         CheckBattleEndConditions();
         ProcessPartyTicks(deltaTime);
         ProcessEnemyTicks(deltaTime);
-        battleManager.UpdateBattleUI();
+        battleManager.UIController.OnBattleUpdate();
     }
 
     private void CheckBattleEndConditions()
