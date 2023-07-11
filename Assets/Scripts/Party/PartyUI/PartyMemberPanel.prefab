@@ -273,7 +273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8397867ff1394394ea2d0385eba8590a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemAction: {fileID: 11400000, guid: 839939d11457f604eb6742f3d1b2d47b, type: 2}
+  itemAction: {fileID: 11400000, guid: c04e1f937c4178a4ba4b719625e49dd0, type: 2}
   battleActionPrefab: {fileID: 4351940370115439959, guid: c1ca124989d529144876a7e5c9fdb0d2, type: 3}
   emptyActionPrefab: {fileID: 4351940370115439959, guid: cac9fead41e8d6342bb51e3bae105b17, type: 3}
 --- !u!114 &8838875028637978566

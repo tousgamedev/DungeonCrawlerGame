@@ -14,6 +14,6 @@ public class BattleActionSelectionState : BattleStateBase
 
     public override void OnStateExit()
     {
-        battleManager.DisablePartyMemberActionList();
+        battleManager.ShowSelectedPartyMemberAction();
     }
 }

@@ -8,10 +8,13 @@ public class BattleActionController : MonoBehaviour
     [SerializeField] private GameObject emptyActionPrefab;
 
     private readonly List<GameObject> buttonList = new();
-    private readonly List<BattleAction> actionList = new();
+    private readonly Dictionary<UnitActionScriptableObject, BattleAction> actionList = new();
+
+    private int actionListSize;
+    
     public void InitializeActions(List<UnitActionScriptableObject> skills)
     {
-        int maxActions = PlayerPartyManager.Instance.MaxBaseActionCommands;
+        actionListSize = PlayerPartyManager.Instance.MaxBaseActionCommands;
         var count = 0;
         foreach (UnitActionScriptableObject skill in skills)
         {
@@ -21,11 +24,11 @@ public class BattleActionController : MonoBehaviour
             CreateActionButton(skill);
             
             count++;
-            if (count == maxActions)
+            if (count == actionListSize)
                 break;
         }
         
-        for (int i = count; i < maxActions; i++)
+        for (int i = count; i < actionListSize; i++)
         {
             CreateEmptyAction();
         }
@@ -39,7 +42,7 @@ public class BattleActionController : MonoBehaviour
         if (actionItem.TryGetComponent(out BattleAction battleAction))
         {
             battleAction.InitializeAction(unitAction);
-            actionList.Add(battleAction);
+            actionList.Add(unitAction, battleAction);
         }
         
         buttonList.Add(actionItem);
@@ -53,17 +56,33 @@ public class BattleActionController : MonoBehaviour
 
     public void EnableActions()
     {
-        foreach (BattleAction action in actionList)
+        foreach (KeyValuePair<UnitActionScriptableObject, BattleAction> action in actionList)
         {
-            action.EnableAction();
+            action.Value.gameObject.SetActive(true);
+            action.Value.EnableAction();
         }
     }
 
+    public void HideAllExcept(UnitActionScriptableObject selectedAction)
+    {
+        foreach (KeyValuePair<UnitActionScriptableObject, BattleAction> action in actionList)
+        {
+            if(action.Key != selectedAction)
+            {
+                action.Value.gameObject.SetActive(false);
+            }
+            else
+            {
+                action.Value.DisableAction();
+            }
+        }
+    }
+    
     public void DisableActions()
     {
-        foreach (BattleAction action in actionList)
+        foreach (KeyValuePair<UnitActionScriptableObject, BattleAction> action in actionList)
         {
-            action.DisableAction();
+            action.Value.DisableAction();
         }
     }
     

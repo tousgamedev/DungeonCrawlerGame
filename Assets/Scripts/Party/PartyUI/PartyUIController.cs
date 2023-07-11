@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class PartyUIController : UnitObjectPoolController<PartyMemberPanel>
@@ -37,6 +36,14 @@ public class PartyUIController : UnitObjectPoolController<PartyMemberPanel>
         }
     }
 
+    public void ShowSelectedPartyMemberAction(BattleUnit unit, UnitActionScriptableObject action)
+    {
+        if (ActiveUnits.TryGetValue(unit, out PartyMemberPanel panel))
+        {
+            panel.ShowSelectedAction(action);
+        }
+    }
+    
     public void DisableMemberActionList(BattleUnit unit)
     {
         if (ActiveUnits.TryGetValue(unit, out PartyMemberPanel panel))

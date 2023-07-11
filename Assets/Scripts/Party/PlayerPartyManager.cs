@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -65,6 +64,11 @@ public class PlayerPartyManager : ManagerBase<PlayerPartyManager>
     public void EnablePartyMemberActionList(BattleUnit unit)
     {
         uiController.EnableMemberActionList(unit);
+    }
+    
+    public void ShowSelectedPartyMemberAction(BattleUnit unit, UnitActionScriptableObject action)
+    {
+        uiController.ShowSelectedPartyMemberAction(unit, action);
     }
     
     public void DisablePartyMemberActionList(BattleUnit unit)
