@@ -19,11 +19,11 @@ public class BattleTickState : BattleStateBase
     {
         if (battleManager.IsPlayerPartyDefeated)
         {
-            battleManager.SwitchToStateDefeat();
+            battleManager.SwitchToState(BattleState.Defeat);
         }
         else if (battleManager.IsEnemyPartyDefeated)
         {
-            battleManager.SwitchToStateVictory();
+            battleManager.SwitchToState(BattleState.Victory);
         }
     }
     

@@ -55,7 +55,8 @@ public class InputManager : ManagerBase<InputManager>
             { playerControls.Battle.MouseScrollDown, new SelectNextCommand() },
             { playerControls.Battle.MouseScrollUp, new SelectPreviousCommand() }
         };
-
+        
+        playerControls.Battle.Pause.performed += OnPerformPause;
         inputActionMaps.Add(PlayerGameState.Battle, commands);
     }
 
@@ -101,13 +102,26 @@ public class InputManager : ManagerBase<InputManager>
     {
         foreach (KeyValuePair<InputAction, ICommand> action in currentInputCommands)
         {
-            if (action.Key != playerControls.Travel.Interact && action.Key.IsPressed())
+            if (ContinuousInputAllowed(action.Key) && action.Key.IsPressed())
             {
                 action.Value.Execute();
             }
         }
     }
 
+    private bool ContinuousInputAllowed(InputAction action)
+    {
+        return action != playerControls.Travel.Interact && action != playerControls.Battle.Pause;
+    }
+    
+    private void OnPerformPause(InputAction.CallbackContext context)
+    {
+        if (currentInputCommands.TryGetValue(playerControls.Battle.Pause, out ICommand interactionCommand))
+        {
+            interactionCommand.Execute();
+        }
+    }
+    
     private void OnPerformInteraction(InputAction.CallbackContext context)
     {
         if (currentInputCommands.TryGetValue(playerControls.Travel.Interact, out ICommand interactionCommand))

@@ -25,7 +25,6 @@ public class BattleTargetSelectionState : BattleStateBase
     {
         yield return new WaitForSeconds(Delay);
         battleManager.PreparePartyMemberAction();
-        battleManager.SwitchToStateTick();
     }
     
     public override void OnStateExit()

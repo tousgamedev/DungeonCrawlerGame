@@ -5,7 +5,7 @@ public class BattlePauseState : BattleStateBase
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;
-        battleManager.Pause();
+        battleManager.UIController.Pause();
     }
 
     public override void OnStateUpdate(float deltaTime)
@@ -14,6 +14,6 @@ public class BattlePauseState : BattleStateBase
 
     public override void OnStateExit()
     {
-        battleManager.Unpause();
+        battleManager.UIController.Unpause();
     }
 }

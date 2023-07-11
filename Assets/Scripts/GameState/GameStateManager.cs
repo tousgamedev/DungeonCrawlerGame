@@ -8,8 +8,8 @@ public class GameStateManager : ManagerBase<GameStateManager>
     [SerializeField] [InspectorReadOnly] private string activeEncounterZone = "None";
     
     private GameStateBase currentState;
-    private readonly TravelState stateTravel = new();
-    private readonly BattleState stateBattle = new();
+    private readonly TravelGameState gameStateTravelGame = new();
+    private readonly BattleGameState gameStateBattleGame = new();
 
 #pragma warning disable CS0108, CS0114
     private void Awake()
@@ -20,7 +20,7 @@ public class GameStateManager : ManagerBase<GameStateManager>
     
     private void OnEnable()
     {
-        currentState = stateTravel;
+        currentState = gameStateTravelGame;
         currentState.OnStateEnter(this);
         activeState = currentState.GetType().Name;
     }
@@ -37,8 +37,8 @@ public class GameStateManager : ManagerBase<GameStateManager>
         }
     }
 
-    public void SwitchToStateTravel() => SwitchToState(stateTravel);
-    private void SwitchToStateBattle() => SwitchToState(stateBattle);
+    public void SwitchToStateTravel() => SwitchToState(gameStateTravelGame);
+    private void SwitchToStateBattle() => SwitchToState(gameStateBattleGame);
 
     private void SwitchToState(GameStateBase state)
     {
@@ -64,7 +64,7 @@ public class GameStateManager : ManagerBase<GameStateManager>
         if (!EncounterController.StartEncounter(EncounterZone))
             return;
 
-        if (currentState == stateBattle)
+        if (currentState == gameStateBattleGame)
             return;
         
         SwitchToStateBattle();

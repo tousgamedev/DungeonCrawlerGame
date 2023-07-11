@@ -4,36 +4,41 @@ using UnityEngine;
 
 public class BattleManager : ManagerBase<BattleManager>
 {
-    public BattleUnit ActiveUnit => activeUnit;
-    public List<BattleUnit> EnemyParty => enemyParty;
-    public bool HasSelectedTargets => partyMemberSelectedTargets.Count > 0;
+    public BattleUnit ActiveUnit { get; private set; }
+    public List<BattleUnit> EnemyParty { get; } = new();
+    public BattleUIController UIController => uiController;
     
+    public bool HasSelectedTargets => partyMemberSelectedTargets.Count > 0;
+
     // TODO: Change this for actual logic.
     public bool IsEnemyPartyDefeated => false;
+
     // TODO: Change this for actual logic.
     public bool IsPlayerPartyDefeated => false;
-    
+
     [SerializeField] private BattleUIController uiController;
     [SerializeField] private float readyTurnTicks = 400f;
     [SerializeField] private float readyActionTicks = 100f;
+#if UNITY_EDITOR
     [SerializeField] [InspectorReadOnly] private string activeState;
+#endif
 
     private BattleStateBase currentState;
     private BattleStateBase previousState;
-    private readonly OutOfBattleState stateOutOfBattle = new();
-    private readonly BattleStartState stateStart = new();
-    private readonly BattleTickState stateTick = new();
-    private readonly BattleActionSelectionState stateActionSelection = new();
-    private readonly BattleTargetSelectionState stateTargetSelection = new();
-    private readonly BattleExecuteActionState stateExecuteAction = new();
-    private readonly BattleVictoryState stateVictory = new();
-    private readonly BattleDefeatState stateDefeat = new();
-    private readonly BattlePauseState statePause = new();
+    private readonly Dictionary<BattleState, BattleStateBase> states = new()
+    {
+        { BattleState.OutOfBattle, new OutOfBattleState() },
+        { BattleState.Start, new BattleStartState() },
+        { BattleState.Tick, new BattleTickState() },
+        { BattleState.ActionSelection, new BattleActionSelectionState() },
+        { BattleState.TargetSelection, new BattleTargetSelectionState() },
+        { BattleState.ExecuteAction, new BattleExecuteActionState() },
+        { BattleState.Victory, new BattleVictoryState() },
+        { BattleState.Defeat, new BattleDefeatState() },
+        { BattleState.Pause, new BattlePauseState() }
+    };
 
-    private readonly List<BattleUnit> enemyParty = new();
     private EncounterGroupScriptableObject currentEncounter;
-    
-    private BattleUnit activeUnit;
     private UnitActionScriptableObject partyMemberSelectedUnitAction;
     private readonly List<BattleUnit> partyMemberSelectedTargets = new();
 
@@ -43,7 +48,7 @@ public class BattleManager : ManagerBase<BattleManager>
     {
         base.Awake();
 
-        currentState = stateOutOfBattle;
+        currentState = states[BattleState.OutOfBattle];
         currentState.OnStateEnter(this);
         activeState = currentState.GetType().Name;
     }
@@ -51,20 +56,14 @@ public class BattleManager : ManagerBase<BattleManager>
     private void Update()
     {
         currentState.OnStateUpdate(Time.deltaTime);
-        
-        // TODO: Use input manager
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            TogglePause();
-        }
     }
 
-    private void TogglePause()
+    public void TogglePause()
     {
-        if (currentState != statePause)
+        if (currentState != states[BattleState.Pause])
         {
             previousState = currentState;
-            SwitchToStatePause();
+            SwitchToState(BattleState.Pause);
         }
         else
         {
@@ -72,32 +71,18 @@ public class BattleManager : ManagerBase<BattleManager>
         }
     }
 
-    private void SwitchToStateOutOfBattle() => SwitchToState(stateOutOfBattle);
-    private void SwitchToStateStart() => SwitchToState(stateStart);
-    public void SwitchToStateTick() => SwitchToState(stateTick);
-    public void SwitchToStateActionSelection() => SwitchToState(stateActionSelection);
-
-    public void SwitchToStateTargetSelection()
+    public void SwitchToState(BattleState state)
     {
-        if (currentState == stateActionSelection)
-        {
-            SwitchToState(stateTargetSelection);
-            return;
-        }
-
-        LogHelper.DebugLog($"Cannot select action in {currentState.GetType().Name}", LogType.Warning);
+        SwitchToState(states[state]);
     }
-
-    public void SwitchToStateExecuteAction() => SwitchToState(stateExecuteAction);
-    public void SwitchToStateDefeat() => SwitchToState(stateDefeat);
-    public void SwitchToStateVictory() => SwitchToState(stateVictory);
-    public void SwitchToStatePause() => SwitchToState(statePause);
-
+    
     private void SwitchToState(BattleStateBase state)
     {
         currentState.OnStateExit();
         currentState = state;
+#if UNITY_EDITOR
         activeState = currentState.GetType().Name;
+#endif
         currentState.OnStateEnter(this);
     }
 
@@ -107,12 +92,12 @@ public class BattleManager : ManagerBase<BattleManager>
         {
             LogHelper.Report("Current Encounter data is invalid!", LogType.Error, LogGroup.Battle);
             abortAction?.Invoke();
-            SwitchToStateOutOfBattle();
+            SwitchToState(BattleState.OutOfBattle);
             return;
         }
 
         currentEncounter = encounter;
-        SwitchToStateStart();
+        SwitchToState(BattleState.Start);
     }
 
     public void DisplayBattleUI(bool show = true)
@@ -127,11 +112,11 @@ public class BattleManager : ManagerBase<BattleManager>
             var newEnemy = new BattleUnit(enemy);
             newEnemy.TickHandler.Initialize(readyTurnTicks, readyActionTicks, enemy.Speed);
             newEnemy.OnActionReady += HandleActionReady;
-            newEnemy.OnActionComplete += SwitchToStateTick;
-            enemyParty.Add(newEnemy);
+            newEnemy.OnActionComplete += () => SwitchToState(BattleState.Tick);
+            EnemyParty.Add(newEnemy);
         }
 
-        uiController.SetEnemyBattleVisuals(enemyParty);
+        uiController.SetEnemyBattleVisuals(EnemyParty);
     }
 
     public void InitializeHeroes()
@@ -141,7 +126,7 @@ public class BattleManager : ManagerBase<BattleManager>
             hero.TickHandler.Initialize(readyTurnTicks, readyActionTicks, hero.Stats.BaseSpeed);
             hero.OnTurnReady += HandleTurnReady;
             hero.OnActionReady += HandleActionReady;
-            hero.OnActionComplete += SwitchToStateTick;
+            hero.OnActionComplete += () => SwitchToState(BattleState.Tick);
             uiController.SetHeroBattleVisuals(hero);
         }
     }
@@ -150,27 +135,27 @@ public class BattleManager : ManagerBase<BattleManager>
     {
         uiController.OnBattleUpdate();
     }
-    
-    public void HandleTurnReady(BattleUnit unit)
+
+    private void HandleTurnReady(BattleUnit unit)
     {
-        activeUnit = unit;
-        SwitchToStateActionSelection();
+        ActiveUnit = unit;
+        SwitchToState(BattleState.ActionSelection);
     }
-    
+
     public void EnablePartyMemberActionList()
     {
-        PlayerPartyManager.Instance.EnablePartyMemberActionList(activeUnit);
+        PlayerPartyManager.Instance.EnablePartyMemberActionList(ActiveUnit);
     }
 
     public void SelectPartyMemberAction(UnitActionScriptableObject unitAction)
     {
         partyMemberSelectedUnitAction = unitAction;
-        SwitchToStateTargetSelection();
+        SwitchToState(BattleState.TargetSelection);
     }
 
     public void DisablePartyMemberActionList()
     {
-        PlayerPartyManager.Instance.DisablePartyMemberActionList(activeUnit);
+        PlayerPartyManager.Instance.DisablePartyMemberActionList(ActiveUnit);
     }
 
     public void SelectEnemy(BattleUnit unit)
@@ -179,32 +164,23 @@ public class BattleManager : ManagerBase<BattleManager>
         LogHelper.DebugLog("Enemy Selected");
     }
 
-    public void HandleActionReady(BattleUnit unit)
+    private void HandleActionReady(BattleUnit unit)
     {
-        activeUnit = unit;
-        SwitchToStateExecuteAction();
+        ActiveUnit = unit;
+        SwitchToState(BattleState.ExecuteAction);
     }
-    
+
     public void PreparePartyMemberAction()
     {
-        activeUnit.PrepareAction(partyMemberSelectedUnitAction, partyMemberSelectedTargets);
+        ActiveUnit.PrepareAction(partyMemberSelectedUnitAction, partyMemberSelectedTargets);
         LogHelper.DebugLog("Action Ready");
+        SwitchToState(BattleState.Tick);
     }
 
     public void ClearPartyMemberSelections()
     {
-        activeUnit = null;
+        ActiveUnit = null;
         partyMemberSelectedUnitAction = null;
         partyMemberSelectedTargets.Clear();
-    }
-
-    public void Pause()
-    {
-        uiController.Pause();
-    }
-
-    public void Unpause()
-    {
-        uiController.Unpause();
     }
 }

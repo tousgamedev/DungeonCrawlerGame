@@ -12,7 +12,7 @@ public class BattleStartState : BattleStateBase
         battleManager.InitializeEnemies();
         battleManager.InitializeHeroes();
         // TODO: Put stuff here for battle start dialogue or whatever
-        battleManager.SwitchToStateTick();
+        battleManager.SwitchToState(BattleState.Tick);
     }
    
     public override void OnStateUpdate(float deltaTime)
