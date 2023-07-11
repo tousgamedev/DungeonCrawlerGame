@@ -143,7 +143,12 @@ public class BattleManager : ManagerBase<BattleManager>
         SwitchToState(BattleState.TargetSelection);
     }
 
-    public void DisablePartyMemberActionList()
+    public void ShowSelectedPartyMemberAction()
+    {
+        PlayerPartyManager.Instance.ShowSelectedPartyMemberAction(ActiveUnit);
+    }
+    
+    public void HidePartyMemberActionList()
     {
         PlayerPartyManager.Instance.DisablePartyMemberActionList(ActiveUnit);
     }

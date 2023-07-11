@@ -14,5 +14,6 @@ public class BattleExecuteActionState : BattleStateBase
 
     public override void OnStateExit()
     {
+        battleManager.HidePartyMemberActionList();
     }
 }

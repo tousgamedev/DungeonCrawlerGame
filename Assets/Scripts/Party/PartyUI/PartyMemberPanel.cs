@@ -4,13 +4,9 @@ using UnityEngine.UI;
 
 public class PartyMemberPanel : MonoBehaviour
 {
-    private const string PopAnimationName = "PanelShow";
-    private const string StowAnimationName = "PanelHide";
     private readonly int triggerPop = Animator.StringToHash("Show");
     private readonly int triggerHide = Animator.StringToHash("Hide");
-
-    public float PopAnimationLength { get; private set; }
-    public float StowAnimationLength { get; private set; }
+    private readonly int triggerSelected = Animator.StringToHash("ActionSelected");
 
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI hpText;
@@ -37,9 +33,6 @@ public class PartyMemberPanel : MonoBehaviour
                 LogHelper.Report("BattleActionController missing!", LogType.Error, LogGroup.Battle);
             }
         }
-        
-        PopAnimationLength = Utilities.GetAnimationLength(animator, PopAnimationName);
-        StowAnimationLength = Utilities.GetAnimationLength(animator, StowAnimationName);
     }
 
     public void Initialize(BattleUnit unit)
@@ -59,6 +52,12 @@ public class PartyMemberPanel : MonoBehaviour
         animator.SetTrigger(triggerPop);
     }
 
+    public void ShowSelectedAction()
+    {
+        actionController.DisableActions();
+        animator.SetTrigger(triggerSelected);
+    }
+    
     public void HideActionList()
     {
         actionController.DisableActions();
