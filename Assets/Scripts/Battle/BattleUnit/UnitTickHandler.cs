@@ -1,25 +1,24 @@
-using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class UnitTickHandler
 {
-    public Action OnTurnReady;
-    public Action OnActionReady;
-
-    public bool IsTurnReady => currentTicks >= maxTurnWaitTicks;
-    public bool IsActionReady => currentTicks >= maxTurnWaitTicks + maxActionWaitTicks;
     public float TickProgress => currentTicks / (maxTurnWaitTicks + maxActionWaitTicks);
+    private bool IsTurnReady => currentTicks >= maxTurnWaitTicks;
+    private bool IsActionReady => currentTicks >= maxTurnWaitTicks + maxActionWaitTicks;
     
     private float currentSpeed;
     private float maxStartProgress;
     private float currentTicks;
     private float maxTurnWaitTicks;
     private float maxActionWaitTicks;
+
+    private readonly BattleUnit unit;
     
-    public UnitTickHandler(UnitBaseScriptableObject unit)
+    public UnitTickHandler(UnitBaseScriptableObject baseUnit, BattleUnit battleUnit)
     {
-        maxStartProgress = unit.MaxStartProgress;
+        unit = battleUnit;
+        maxStartProgress = baseUnit.MaxStartProgress;
     }
     
     public void Initialize(float turnWaitTicks, float actionWaitTicks, float speed)
@@ -28,26 +27,32 @@ public class UnitTickHandler
         maxActionWaitTicks = actionWaitTicks;
         currentTicks = maxTurnWaitTicks * Random.Range(0, maxStartProgress);
         currentSpeed = speed;
+        BattleEvents.OnBattleTick += UpdateTicksTurnWait;
+        BattleEvents.OnActionComplete += ResetTickCounter;
+        BattleEvents.OnBattleEnd += OnBattleEnd;
     }
 
-    public void UpdateTicksTurnWait(float deltaTime)
+    private void UpdateTicksTurnWait(float deltaTime)
     {
         UpdateTicks(0, maxTurnWaitTicks, deltaTime);
 
-        if (IsTurnReady)
-        {
-            OnTurnReady?.Invoke();
-        }
+        if (!IsTurnReady) 
+            return;
+        
+        BattleEvents.OnTurnReady?.Invoke(unit);
+        BattleEvents.OnBattleTick -= UpdateTicksTurnWait;
+        BattleEvents.OnBattleTick += UpdateTicksActionWait;
     }
 
-    public void UpdateTicksActionWait(float deltaTime)
+    private void UpdateTicksActionWait(float deltaTime)
     {
         UpdateTicks(maxTurnWaitTicks, maxTurnWaitTicks + maxActionWaitTicks, deltaTime);
 
-        if (IsActionReady)
-        {
-            OnActionReady?.Invoke();
-        }
+        if (!IsActionReady)
+            return;
+        
+        BattleEvents.OnBattleTick -= UpdateTicksActionWait;
+        BattleEvents.OnActionReady?.Invoke(unit);
     }
 
     private void UpdateTicks(float minTicks, float maxTicks, float deltaTime)
@@ -56,14 +61,29 @@ public class UnitTickHandler
         currentTicks += ticksToAdd;
         currentTicks = Mathf.Clamp(currentTicks, minTicks, maxTicks);
     }
-    
-    public void SetCurrentSpeed(float speed)
+
+    private void ResetTickCounter(BattleUnit battleUnit)
     {
-        currentSpeed = speed;
+        if (battleUnit != unit)
+            return;
+        
+        currentTicks = 0;
+        CalculateSpeed();
+        BattleEvents.OnBattleTick += UpdateTicksTurnWait;
     }
     
-    public void ResetTickCounter()
+    private void CalculateSpeed()
     {
-        currentTicks = 0;
+        currentSpeed = unit.Actions.IsActionSelected ? unit.Actions.ActionExecutionSpeed : unit.Stats.BaseSpeed;
+    }
+
+    private void OnBattleEnd(BattleUnit battleUnit)
+    {
+        if (battleUnit != unit)
+            return;
+        
+        BattleEvents.OnBattleTick -= UpdateTicksTurnWait;
+        BattleEvents.OnBattleTick -= UpdateTicksActionWait;
+        BattleEvents.OnActionComplete -= ResetTickCounter;
     }
 }

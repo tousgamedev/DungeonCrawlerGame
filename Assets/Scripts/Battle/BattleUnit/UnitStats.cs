@@ -1,35 +1,49 @@
-using System;
 using UnityEngine;
 
 public class UnitStats
 {
-    public Action OnHealthChange;
-    public Action OnUnitDeath;
-    
     public int CurrentHealth { get; private set; }
     public int MaxHealth { get; private set; }
+    public bool IsDead => CurrentHealth == 0;
     public int CurrentMagicPoints { get; private set; }
     public int MaxMagicPoints { get; private set; }
     public float BaseSpeed { get; private set; }
-    
-    public UnitStats(UnitBaseScriptableObject unit)
+
+    private readonly BattleUnit unit;
+
+    public UnitStats(UnitBaseScriptableObject baseUnit, BattleUnit battleUnit)
     {
-        CurrentHealth = unit.MaxHealth;
-        MaxHealth = unit.MaxHealth;
+        unit = battleUnit;
+        CurrentHealth = baseUnit.MaxHealth;
+        MaxHealth = baseUnit.MaxHealth;
 
 
-        BaseSpeed = unit.Speed;
+        BaseSpeed = baseUnit.Speed;
     }
 
     public void TakeDamage(int damage)
     {
         CurrentHealth -= damage;
         CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth);
-        OnHealthChange?.Invoke();
+        BattleEvents.OnHealthChange?.Invoke(unit);
 
-        if (CurrentHealth == 0)
+        if (!IsDead)
+            return;
+
+        KillUnit();
+
+        if (unit.IsPlayerUnit)
         {
-            OnUnitDeath?.Invoke();
+            BattleEvents.OnPlayerUnitDeath?.Invoke(unit);
         }
+        else
+        {
+            BattleEvents.OnEnemyUnitDeath?.Invoke(unit);
+        }
+    }
+
+    private void KillUnit()
+    {
+        LogHelper.DebugLog($"{unit.Name} is dead.");
     }
 }

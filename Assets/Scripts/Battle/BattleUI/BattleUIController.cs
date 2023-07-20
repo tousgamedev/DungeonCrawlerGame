@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BattleUIController : MonoBehaviour
@@ -6,33 +5,40 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private TurnGaugeController turnGauge;
     [SerializeField] private BattlefieldController battlefield;
 
-    public void OnBattleUpdate()
+    private void Awake()
     {
-        turnGauge.OnBattleUpdate();
-        battlefield.OnBattleUpdate();
-    }
-
-    public void SetEnemyBattleVisuals(List<BattleUnit> enemies)
-    {
-        foreach (BattleUnit enemy in enemies)
+        if (turnGauge == null)
         {
-            turnGauge.AddUnit(enemy);
-            battlefield.AddUnit(enemy);
+            LogHelper.Report("Turn Gauge is null!", LogType.Error, LogGroup.System);
+        }
+        
+        if (battlefield == null)
+        {
+            LogHelper.Report("Battlefield is null!", LogType.Error, LogGroup.System);
         }
     }
 
-    public void SetHeroBattleVisuals(BattleUnit hero)
+    private void OnEnable()
     {
-        turnGauge.AddUnit(hero);
+        BattleEvents.OnBattleUIInit += EnableBattleUI;
+        BattleEvents.OnBattleEnd += DisableBattleUI;
     }
 
-    public void Pause()
+    private void EnableBattleUI()
     {
-        turnGauge.ShowPauseIcon();
+        turnGauge.gameObject.SetActive(true);
+        battlefield.gameObject.SetActive(true);
     }
 
-    public void Unpause()
+    private void DisableBattleUI(BattleUnit unit)
     {
-        turnGauge.ShowPauseIcon(false);
+        turnGauge.gameObject.SetActive(false);
+        battlefield.gameObject.SetActive(false);
+    }
+
+    private void OnDisable()
+    {
+        BattleEvents.OnBattleStart -= EnableBattleUI;
+        BattleEvents.OnBattleEnd -= DisableBattleUI;
     }
 }

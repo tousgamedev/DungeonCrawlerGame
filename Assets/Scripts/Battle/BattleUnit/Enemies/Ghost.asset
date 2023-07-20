@@ -15,8 +15,8 @@ MonoBehaviour:
   unitName: Ghost
   battleSprite: {fileID: 21300000, guid: cf2f907128de6ce439b74a05a5ec6c6d, type: 3}
   turnBarSprite: {fileID: 21300000, guid: 65976699267a1fe4187c1250b847c4b2, type: 3}
-  maxHealth: 500
-  speed: 60
+  maxHealth: 100
+  speed: 5
   maxStartProgress: 0.3
   actionList:
   - {fileID: 11400000, guid: 839939d11457f604eb6742f3d1b2d47b, type: 2}

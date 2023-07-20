@@ -10,11 +10,11 @@ public class InputManager : ManagerBase<InputManager>
     [SerializeField] private ControllerStateMachine playerStateMachine;
     [SerializeField] private float interactionRange = 6f;
     [SerializeField] private bool invertYAxis;
-    [SerializeField] private PlayerGameState startState;
+    [SerializeField] private GameState startState;
     [SerializeField] [InspectorReadOnly] private string activeActionMap;
     
     private PlayerControls playerControls;
-    private readonly Dictionary<PlayerGameState, Dictionary<InputAction, ICommand>> inputActionMaps = new();
+    private readonly Dictionary<GameState, Dictionary<InputAction, ICommand>> inputActionMaps = new();
     private Dictionary<InputAction, ICommand> currentInputCommands = new();
 
 #pragma warning disable CS0108, CS0114
@@ -57,7 +57,7 @@ public class InputManager : ManagerBase<InputManager>
         };
         
         playerControls.Battle.Pause.performed += OnPerformPause;
-        inputActionMaps.Add(PlayerGameState.Battle, commands);
+        inputActionMaps.Add(GameState.Battle, commands);
     }
 
     private void InitializeTravelCommands()
@@ -77,7 +77,7 @@ public class InputManager : ManagerBase<InputManager>
         playerControls.Travel.Interact.performed += OnPerformInteraction;
         playerControls.Travel.FreeLook.canceled += OnCancelFreeLook;
         
-        inputActionMaps.Add(PlayerGameState.Travel, commands);
+        inputActionMaps.Add(GameState.Travel, commands);
     }
 
     private void OnEnable()
@@ -135,7 +135,7 @@ public class InputManager : ManagerBase<InputManager>
         playerStateMachine.SwitchToStateResetView();
     }
 
-    public void ChangeInputMap(PlayerGameState gameState)
+    public void ChangeInputMap(GameState gameState)
     {
         DisableCommands();
         if (inputActionMaps.TryGetValue(gameState, out currentInputCommands))

@@ -1,6 +1,6 @@
 public class BattleGameState : GameStateBase
 {
-    private const PlayerGameState GameState = PlayerGameState.Battle;
+    private const GameState GameState = global::GameState.Battle;
     
     private GameStateManager gameStateManager;
 
@@ -9,7 +9,7 @@ public class BattleGameState : GameStateBase
         gameStateManager = manager;
         ChangeInputMap();
         EncounterGroupScriptableObject encounter = gameStateManager.EncounterZone.SelectRandomEncounter();
-        BattleManager.Instance.StartBattle(encounter, gameStateManager.SwitchToStateTravel);
+        BattleManager.Instance.StartBattle(encounter, gameStateManager.SwitchToTravelState);
     }
 
     public override void OnStateUpdate()

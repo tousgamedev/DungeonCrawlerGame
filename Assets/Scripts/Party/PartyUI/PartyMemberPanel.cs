@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class PartyMemberPanel : MonoBehaviour
 {
-    private readonly int triggerPop = Animator.StringToHash("Show");
+    private readonly int triggerShow = Animator.StringToHash("Show");
     private readonly int triggerHide = Animator.StringToHash("Hide");
     private readonly int triggerSelected = Animator.StringToHash("ActionSelected");
 
@@ -14,8 +14,8 @@ public class PartyMemberPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI mpText;
     [SerializeField] private Image mpBar;
     [SerializeField] private BattleActionController actionController;
-    
-    private BattleUnit partyMember;
+
+    private BattleUnit unit;
     private Animator animator;
 
     private void Awake()
@@ -25,43 +25,63 @@ public class PartyMemberPanel : MonoBehaviour
             LogHelper.Report("Party Member Panel animator missing!", LogType.Error, LogGroup.Battle);
         }
 
+        if (actionController != null)
+            return;
+
+        actionController = GetComponentInChildren<BattleActionController>();
         if (actionController == null)
         {
-            actionController = GetComponentInChildren<BattleActionController>();
-            if (actionController == null)
-            {
-                LogHelper.Report("BattleActionController missing!", LogType.Error, LogGroup.Battle);
-            }
+            LogHelper.Report("BattleActionController missing!", LogType.Error, LogGroup.Battle);
         }
     }
 
-    public void Initialize(BattleUnit unit)
+    private void OnEnable()
     {
-        partyMember = unit;
+        BattleEvents.OnTurnReady += ShowActionList;
+        BattleEvents.OnActionSelected += ShowSelectedAction;
+        BattleEvents.OnHealthChange += ChangeCurrentHealth;
+        BattleEvents.OnActionComplete += HideActionList;
+        BattleEvents.OnBattleEnd += HideActionList;
+    }
 
-        nameText.text = partyMember.Name;
+    public void Initialize(BattleUnit battleUnit)
+    {
+        unit = battleUnit;
+
+        nameText.text = unit.Name;
         SetHealthText(unit.Stats.CurrentHealth, unit.Stats.MaxHealth);
-        unit.OnHealthChange += ChangeCurrentHealth;
         SetMagicPointsText(500, 500);
-        actionController.InitializeActions(unit.Actions.ActionList);
+        actionController.InitializeActions(unit);
     }
 
-    public void ShowActionList()
+    private void ShowActionList(BattleUnit battleUnit)
     {
-        actionController.EnableActions();
-        animator.SetTrigger(triggerPop);
+        if (battleUnit != unit)
+            return;
+
+        animator.SetBool(triggerShow, true);
+        animator.SetBool(triggerSelected, false);
+        animator.SetBool(triggerHide, false);
     }
 
-    public void ShowSelectedAction(UnitActionScriptableObject action)
+    private void ShowSelectedAction(BattleUnit battleUnit, UnitActionScriptableObject action)
     {
-        actionController.HideAllExcept(action);
-        animator.SetTrigger(triggerSelected);
+        if (battleUnit != unit)
+            return;
+        
+        animator.SetBool(triggerShow, false);
+        animator.SetBool(triggerSelected, true);
+        animator.SetBool(triggerHide, false);
     }
-    
-    public void HideActionList()
+
+    private void HideActionList(BattleUnit battleUnit)
     {
-        actionController.DisableActions();
-        animator.SetTrigger(triggerHide);
+        if (battleUnit != unit)
+            return;
+        
+        animator.SetBool(triggerShow, false);
+        animator.SetBool(triggerSelected, false);
+        animator.SetBool(triggerHide, true);
     }
 
     private void SetHealthText(int currentHealth, int maxHealth)
@@ -74,8 +94,25 @@ public class PartyMemberPanel : MonoBehaviour
         mpText.text = $"MP {currentMagicPoints}/{maxMagicPoints}";
     }
 
-    private void ChangeCurrentHealth(BattleUnit unit)
+    private void ChangeCurrentHealth(BattleUnit battleUnit)
     {
-        SetHealthText(unit.Stats.CurrentHealth,unit.Stats.MaxHealth);
+        if (battleUnit != unit)
+            return;
+
+        SetHealthText(unit.Stats.CurrentHealth, unit.Stats.MaxHealth);
+    }
+
+    public void RemovePanel()
+    {
+
+    }
+
+    private void OnDisable()
+    {
+        BattleEvents.OnTurnReady -= ShowActionList;
+        BattleEvents.OnActionSelected -= ShowSelectedAction;
+        BattleEvents.OnHealthChange -= ChangeCurrentHealth;
+        BattleEvents.OnActionComplete -= HideActionList;
+        BattleEvents.OnBattleEnd -= HideActionList;
     }
 }

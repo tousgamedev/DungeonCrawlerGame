@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
-public class PlayerPartyManager : ManagerBase<PlayerPartyManager>
+public class PlayerUnitManager : ManagerBase<PlayerUnitManager>
 {
-    public List<BattleUnit> PlayerParty { get; } = new();
+    public List<BattleUnit> PlayerUnits { get; } = new();
     
     /// <summary>
     /// The maximum number of actions a party member can have in the base list. Does not include the 'Item' command.
@@ -35,9 +36,9 @@ public class PlayerPartyManager : ManagerBase<PlayerPartyManager>
         foreach (UnitBaseScriptableObject member in characterBases)
         {
             // TODO: Replace this class with something better.
-            BattleUnit newMember = new(member);
-            PlayerParty.Add(newMember);
-            uiController.AddUnit(newMember);
+            BattleUnit newUnit = new(member, true);
+            PlayerUnits.Add(newUnit);
+            uiController.AddUnit(newUnit);
         }
     }
 
@@ -50,29 +51,32 @@ public class PlayerPartyManager : ManagerBase<PlayerPartyManager>
         }
     }
 
-    public BattleUnit SelectRandomPartyMember()
+    public BattleUnit SelectRandomLivingUnit()
     {
-        int unitIndex = Random.Range(0, PlayerParty.Count);
-        return PlayerParty[unitIndex];
+        var liveUnits = new List<BattleUnit>();
+        foreach (BattleUnit unit in PlayerUnits)
+        {
+            if(unit.Stats.IsDead)
+                continue;
+            
+            liveUnits.Add(unit);
+        }
+
+        if (liveUnits.Count == 0)
+            return null;
+        
+        int unitIndex = Random.Range(0, liveUnits.Count);
+        return liveUnits[unitIndex];
     }
 
-    public List<BattleUnit> SelectAllPartyMembers()
+    public bool IsPartyDefeated()
     {
-        return PlayerParty;
-    }
+        foreach (BattleUnit unit in PlayerUnits)
+        {
+            if (!unit.Stats.IsDead)
+                return false;
+        }
 
-    public void EnablePartyMemberActionList(BattleUnit unit)
-    {
-        uiController.EnableMemberActionList(unit);
-    }
-    
-    public void ShowSelectedPartyMemberAction(BattleUnit unit, UnitActionScriptableObject action)
-    {
-        uiController.ShowSelectedPartyMemberAction(unit, action);
-    }
-    
-    public void DisablePartyMemberActionList(BattleUnit unit)
-    {
-        uiController.DisableMemberActionList(unit);
+        return true;
     }
 }

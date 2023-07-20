@@ -1,6 +1,6 @@
 public class TravelGameState : GameStateBase
 {
-    private const PlayerGameState GameState = PlayerGameState.Travel;
+    private const GameState GameState = global::GameState.Travel;
     
     private GameStateManager gameStateManager;
 

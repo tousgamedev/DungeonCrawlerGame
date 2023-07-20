@@ -21,7 +21,7 @@ public abstract class UnitObjectPoolController<T> : MonoBehaviour where T : Mono
         }
     }
 
-    protected void OnEnable()
+    protected virtual void OnEnable()
     {
         ResetObjectPool();
     }
@@ -64,6 +64,8 @@ public abstract class UnitObjectPoolController<T> : MonoBehaviour where T : Mono
         {
             ReturnPoolObject(poolItem.gameObject);
         }
+        
+        ActiveUnits.Clear();
     }
 
     protected void ReturnPoolObject(GameObject poolItem)
@@ -72,7 +74,7 @@ public abstract class UnitObjectPoolController<T> : MonoBehaviour where T : Mono
         ObjectPool.Enqueue(poolItem);
     }
 
-    protected void OnDisable()
+    protected virtual void OnDisable()
     {
         ResetObjectPool();
     }

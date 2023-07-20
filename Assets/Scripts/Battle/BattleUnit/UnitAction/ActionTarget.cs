@@ -12,6 +12,5 @@ public enum ActionTarget
     /// <summary>
     /// Hits everyone in the battle, friend and foe alike.
     /// </summary>
-    All,
-    Random
+    All
 }

@@ -13,11 +13,7 @@ public class PartyUIController : UnitObjectPoolController<PartyMemberPanel>
     {
         InitializeObjectPool(partyContainer.transform);
     }
-
-    public override void RemoveUnit(BattleUnit unit)
-    {
-    }
-
+    
     public override void AddUnit(BattleUnit unit)
     {
         if (!TryGetComponentFromPoolObject(unit, out PartyMemberPanel panel))
@@ -27,28 +23,14 @@ public class PartyUIController : UnitObjectPoolController<PartyMemberPanel>
         panel.gameObject.SetActive(true);
         ActiveUnits.Add(unit, panel);
     }
-
-    public void EnableMemberActionList(BattleUnit unit)
-    {
-        if (ActiveUnits.TryGetValue(unit, out PartyMemberPanel panel))
-        {
-            panel.ShowActionList();
-        }
-    }
-
-    public void ShowSelectedPartyMemberAction(BattleUnit unit, UnitActionScriptableObject action)
-    {
-        if (ActiveUnits.TryGetValue(unit, out PartyMemberPanel panel))
-        {
-            panel.ShowSelectedAction(action);
-        }
-    }
     
-    public void DisableMemberActionList(BattleUnit unit)
+    public override void RemoveUnit(BattleUnit unit)
     {
-        if (ActiveUnits.TryGetValue(unit, out PartyMemberPanel panel))
-        {
-            panel.HideActionList();
-        }
+        if (!TryGetComponentFromPoolObject(unit, out PartyMemberPanel panel))
+            return;
+        
+        panel.RemovePanel();
+        panel.gameObject.SetActive(false);
+        ReturnPoolObject(gameObject);
     }
 }

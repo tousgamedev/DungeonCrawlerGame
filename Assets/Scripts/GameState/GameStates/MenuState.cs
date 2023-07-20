@@ -1,6 +1,6 @@
 public class MenuState : GameStateBase
 {
-    private const PlayerGameState GameState = PlayerGameState.Menu;
+    private const GameState GameState = global::GameState.Menu;
     
     private GameStateManager gameStateManager;
 

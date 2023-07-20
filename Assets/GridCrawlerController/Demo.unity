@@ -1840,7 +1840,6 @@ MonoBehaviour:
   partyContainer: {fileID: 1454694452}
   partyMemberPrefab: {fileID: 4599538952109027988, guid: edd486937c5d4574783d386a1d9772d0, type: 3}
   memberPoolSize: 6
-  cascadeInterval: 0.2
 --- !u!1001 &315883832
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5338,7 +5337,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &984478289
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7167,7 +7166,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf8cc6411e9e3484e879132de499c890, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiController: {fileID: 252789294}
   readyTurnTicks: 400
   readyActionTicks: 100
   activeState: 
@@ -7855,7 +7853,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1526400082
 RectTransform:
   m_ObjectHideFlags: 0

@@ -23,6 +23,23 @@ public class TurnGaugeController : UnitObjectPoolController<UnitMarker>
         InitializeObjectPool(barImage.gameObject.transform);
     }
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        RegisterBattleEvents();
+    }
+
+    private void RegisterBattleEvents()
+    {
+        BattleEvents.OnBattleTick += UpdateMarkerPositions;
+        BattleEvents.OnBattlePause += ShowPauseIcon;
+        BattleEvents.OnBattleUnpause += HidePauseIcon;
+        BattleEvents.OnEnemyUnitAdded += AddUnit;
+        BattleEvents.OnPlayerUnitAdded += AddUnit;
+        BattleEvents.OnEnemyUnitDeath += RemoveUnit;
+        BattleEvents.OnPlayerUnitDeath += RemoveUnit;
+    }
+    
     private void InitializeBarLengths()
     {
         turnBarLength = barImage.rectTransform.rect.width;
@@ -30,12 +47,7 @@ public class TurnGaugeController : UnitObjectPoolController<UnitMarker>
         waitTurnLength = turnBarLength * actionCutoff;
     }
 
-    public void OnBattleUpdate()
-    {
-        UpdateMarkerPositions();
-    }
-
-    private void UpdateMarkerPositions()
+    private void UpdateMarkerPositions(float deltaTime)
     {
         foreach (KeyValuePair<BattleUnit, UnitMarker> unitMarker in ActiveUnits)
         {
@@ -44,11 +56,16 @@ public class TurnGaugeController : UnitObjectPoolController<UnitMarker>
         }
     }
 
-    public void ShowPauseIcon(bool toggle = true)
+    private void ShowPauseIcon()
     {
-        pauseIcon.SetActive(toggle);
+        pauseIcon.SetActive(true);
     }
 
+    private void HidePauseIcon()
+    {
+        pauseIcon.SetActive(false);
+    }
+    
     public override void AddUnit(BattleUnit unit)
     {
         if (!TryGetComponentFromPoolObject(unit, out UnitMarker unitMarker))
@@ -66,5 +83,22 @@ public class TurnGaugeController : UnitObjectPoolController<UnitMarker>
 
         ReturnPoolObject(marker.gameObject);
         ActiveUnits.Remove(unit);
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        DeregisterBattleEvents();
+    }
+
+    private void DeregisterBattleEvents()
+    {
+        BattleEvents.OnBattleTick -= UpdateMarkerPositions;
+        BattleEvents.OnBattlePause -= ShowPauseIcon;
+        BattleEvents.OnBattleUnpause -= HidePauseIcon;
+        BattleEvents.OnEnemyUnitAdded -= AddUnit;
+        BattleEvents.OnPlayerUnitAdded -= AddUnit;
+        BattleEvents.OnEnemyUnitDeath -= RemoveUnit;
+        BattleEvents.OnPlayerUnitDeath -= RemoveUnit;
     }
 }

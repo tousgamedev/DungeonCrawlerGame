@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public class BattleAction : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI actionText;
-    
+
+    private BattleUnit unit;
     private UnitActionScriptableObject action;
     private Button actionButton;
 
@@ -18,8 +19,9 @@ public class BattleAction : MonoBehaviour
         }
     }
 
-    public void InitializeAction(UnitActionScriptableObject unitActionObject)
+    public void InitializeAction(BattleUnit battleUnit, UnitActionScriptableObject unitActionObject)
     {
+        unit = battleUnit;
         action = unitActionObject;
         actionText.text = unitActionObject.ActionName;
         DisableAction();
@@ -37,7 +39,7 @@ public class BattleAction : MonoBehaviour
     
     public void SelectAction()
     {
-        action.PerformActionSelection();
+        action.PerformActionSelection(unit);
         LogHelper.DebugLog("Action Selected");
     }
 }

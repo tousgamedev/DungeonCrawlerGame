@@ -8,5 +8,6 @@ public enum BattleState
     ExecuteAction,
     Victory,
     Defeat,
+    Retreat,
     Pause
 }

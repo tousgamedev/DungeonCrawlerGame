@@ -7,13 +7,18 @@ public class BattlefieldEnemy : MonoBehaviour
     // TODO: Get rid of this for world space implementation
     private Button testButton;
     private BattleUnit battleUnit;
-    
+
     private void Awake()
     {
         Utilities.AssignComponentOrDestroyObject(gameObject, out enemyImage);
         // TODO: Get rid of this for world space implementation
         Utilities.AssignComponentOrDestroyObject(gameObject, out testButton);
-        HideEnemy();
+        enemyImage.enabled = false;
+    }
+
+    private void OnEnable()
+    {
+        BattleEvents.OnEnemyUnitDeath += HideEnemy;
     }
 
     public void InitializeEnemy(BattleUnit unit)
@@ -27,13 +32,21 @@ public class BattlefieldEnemy : MonoBehaviour
         enemyImage.enabled = true;
     }
 
-    public void HideEnemy()
+    public void HideEnemy(BattleUnit unit)
     {
+        if (unit == null || unit != battleUnit)
+            return;
+        
         enemyImage.enabled = false;
     }
 
     public void SelectEnemy()
     {
-        BattleManager.Instance.SelectEnemy(battleUnit);
+        BattleEvents.OnTargetSelection?.Invoke(battleUnit);
+    }
+
+    private void OnDisable()
+    {
+        BattleEvents.OnEnemyUnitDeath -= HideEnemy;
     }
 }

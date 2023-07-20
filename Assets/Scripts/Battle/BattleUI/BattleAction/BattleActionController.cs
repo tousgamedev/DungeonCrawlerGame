@@ -9,19 +9,29 @@ public class BattleActionController : MonoBehaviour
 
     private readonly List<GameObject> buttonList = new();
     private readonly Dictionary<UnitActionScriptableObject, BattleAction> actionList = new();
-
-    private int actionListSize;
+    private BattleUnit unit;
     
-    public void InitializeActions(List<UnitActionScriptableObject> skills)
+    private int actionListSize;
+
+    private void OnEnable()
     {
-        actionListSize = PlayerPartyManager.Instance.MaxBaseActionCommands;
+        BattleEvents.OnTurnReady += EnableActions;
+        BattleEvents.OnActionSelected += HideAllExcept;
+        BattleEvents.OnActionComplete += DisableActions;
+        BattleEvents.OnBattleEnd += DisableActions;
+    }
+
+    public void InitializeActions(BattleUnit battleUnit)
+    {
+        unit = battleUnit;
+        actionListSize = PlayerUnitManager.Instance.MaxBaseActionCommands;
         var count = 0;
-        foreach (UnitActionScriptableObject skill in skills)
+        foreach (UnitActionScriptableObject action in unit.Actions.ActionList)
         {
-            if(skill == null)
+            if(action == null)
                 continue;
             
-            CreateActionButton(skill);
+            CreateActionButton(action);
             
             count++;
             if (count == actionListSize)
@@ -41,7 +51,7 @@ public class BattleActionController : MonoBehaviour
         GameObject actionItem = Instantiate(battleActionPrefab, transform);
         if (actionItem.TryGetComponent(out BattleAction battleAction))
         {
-            battleAction.InitializeAction(unitAction);
+            battleAction.InitializeAction(unit, unitAction);
             actionList.Add(unitAction, battleAction);
         }
         
@@ -54,8 +64,11 @@ public class BattleActionController : MonoBehaviour
         buttonList.Add(emptyItem);
     }
 
-    public void EnableActions()
+    private void EnableActions(BattleUnit battleUnit)
     {
+        if (battleUnit != unit)
+            return;
+        
         foreach (KeyValuePair<UnitActionScriptableObject, BattleAction> action in actionList)
         {
             action.Value.gameObject.SetActive(true);
@@ -63,8 +76,11 @@ public class BattleActionController : MonoBehaviour
         }
     }
 
-    public void HideAllExcept(UnitActionScriptableObject selectedAction)
+    private void HideAllExcept(BattleUnit battleUnit, UnitActionScriptableObject selectedAction)
     {
+        if (battleUnit != unit)
+            return;
+        
         foreach (KeyValuePair<UnitActionScriptableObject, BattleAction> action in actionList)
         {
             if(action.Key != selectedAction)
@@ -78,8 +94,11 @@ public class BattleActionController : MonoBehaviour
         }
     }
     
-    public void DisableActions()
+    private void DisableActions(BattleUnit battleUnit)
     {
+        if (battleUnit != unit)
+            return;
+        
         foreach (KeyValuePair<UnitActionScriptableObject, BattleAction> action in actionList)
         {
             action.Value.DisableAction();
@@ -92,5 +111,13 @@ public class BattleActionController : MonoBehaviour
         {
             Utilities.Destroy(actionItem);
         }
+    }
+
+    private void OnDisable()
+    {
+        BattleEvents.OnTurnReady -= EnableActions;
+        BattleEvents.OnActionSelected -= HideAllExcept;
+        BattleEvents.OnActionComplete -= DisableActions;
+        BattleEvents.OnBattleEnd -= DisableActions;
     }
 }

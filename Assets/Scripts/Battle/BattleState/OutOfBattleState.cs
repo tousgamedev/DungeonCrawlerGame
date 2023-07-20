@@ -5,7 +5,6 @@ public class OutOfBattleState : BattleStateBase
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;
-        battleManager.UIController.gameObject.SetActive(false);
     }
 
     public override void OnStateUpdate(float deltaTime)

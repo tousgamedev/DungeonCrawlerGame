@@ -16,7 +16,7 @@ MonoBehaviour:
   battleSprite: {fileID: 0}
   turnBarSprite: {fileID: 21300000, guid: 7c9a0b10427882b42a7b4ba2cdd733bf, type: 3}
   maxHealth: 500
-  speed: 10
+  speed: 50
   maxStartProgress: 0.3
   actionList:
   - {fileID: 11400000, guid: 839939d11457f604eb6742f3d1b2d47b, type: 2}

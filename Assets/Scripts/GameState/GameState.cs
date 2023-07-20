@@ -1,4 +1,4 @@
-public enum PlayerGameState
+public enum GameState
 {
     Travel,
     Battle,

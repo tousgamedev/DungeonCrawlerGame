@@ -5,6 +5,7 @@ using UnityEngine;
 public class UnitActionScriptableObject : ScriptableObject
 {
     public string ActionName => actionName;
+    public ActionTarget Target => target;
     public GameObject EffectsPrefab => effectPrefab;
     public float BaseExecutionSpeed => baseExecutionSpeed;
     public int BasePower => basePower;
@@ -17,12 +18,12 @@ public class UnitActionScriptableObject : ScriptableObject
     [SerializeField] private ActionTarget target;
     [SerializeField] private int basePower;
 
-    public void PerformActionSelection()
+    public void PerformActionSelection(BattleUnit unit)
     {
         switch (selectionBehavior)
         {
             case ActionSelectionBehavior.SelectTarget:
-                BattleManager.Instance.SelectPartyMemberAction(this);
+                BattleEvents.OnActionSelected?.Invoke(unit, this);
                 break;
             case ActionSelectionBehavior.OpenOptionMenu:
                 break;

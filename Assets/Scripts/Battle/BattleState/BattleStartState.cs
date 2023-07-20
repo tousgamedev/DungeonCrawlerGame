@@ -8,9 +8,8 @@ public class BattleStartState : BattleStateBase
     {
         battleManager = manager;
         // TODO: Put stuff here for battle start transition
-        battleManager.UIController.gameObject.SetActive(true);
-        battleManager.InitializeEnemies();
-        battleManager.InitializeHeroes();
+        BattleEvents.OnBattleUIInit?.Invoke();
+        BattleEvents.OnBattleStart?.Invoke();
         // TODO: Put stuff here for battle start dialogue or whatever
         battleManager.SwitchToState(BattleState.Tick);
     }

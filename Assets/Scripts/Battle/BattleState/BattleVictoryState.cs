@@ -5,15 +5,16 @@ public class BattleVictoryState : BattleStateBase
     public override void OnStateEnter(BattleManager manager)
     {
         battleManager = manager;
+        battleManager.EndBattle();
+        battleManager.HandlePlayerVictory();
+        GameStateManager.Instance.SwitchToTravelState();
     }
     
     public override void OnStateUpdate(float deltaTime)
     {
-        throw new System.NotImplementedException();
     }
 
     public override void OnStateExit()
     {
-        throw new System.NotImplementedException();
     }
 }
